@@ -1,0 +1,5 @@
+body.editor-styles-wrapper {
+  font-family: var(--wm-font-primary);
+  color: var(--wm-color-text);
+  background: var(--wm-color-bg);
+}

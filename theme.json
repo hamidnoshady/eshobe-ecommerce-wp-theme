@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "appearanceTools": true,
+    "layout": {
+      "contentSize": "900px",
+      "wideSize": "1280px"
+    },
+    "color": {
+      "palette": [
+        { "slug": "primary", "color": "#111827", "name": "Primary" },
+        { "slug": "text", "color": "#1F2937", "name": "Text" },
+        { "slug": "muted", "color": "#6B7280", "name": "Muted" },
+        { "slug": "accent", "color": "#C89B3C", "name": "Accent" },
+        { "slug": "background", "color": "#F6F5F2", "name": "Background" },
+        { "slug": "surface", "color": "#FFFFFF", "name": "Surface" },
+        { "slug": "border", "color": "#E5E0D8", "name": "Border" }
+      ]
+    },
+    "typography": {
+      "fontFamilies": [
+        {
+          "fontFamily": "Vazirmatn, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          "slug": "vazirmatn",
+          "name": "Vazirmatn"
+        }
+      ]
+    },
+    "spacing": {
+      "spacingScale": {
+        "operator": "*",
+        "increment": 1.5,
+        "steps": 7,
+        "mediumStep": 1.5,
+        "unit": "rem"
+      }
+    }
+  },
+  "styles": {
+    "typography": {
+      "fontFamily": "var(--wp--preset--font-family--vazirmatn)"
+    },
+    "color": {
+      "background": "#F6F5F2",
+      "text": "#1F2937"
+    }
+  }
+}
