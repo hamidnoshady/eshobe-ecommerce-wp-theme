@@ -1,0 +1,265 @@
+<?php
+/**
+ * OTP (one-time password) login/registration via Kavenegar SMS.
+ *
+ * @package WM_Theme
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Normalize an Iranian mobile number to the local 09XXXXXXXXX format.
+ *
+ * @param string $phone Raw phone number input.
+ * @return string Normalized number, or '' if invalid.
+ */
+function wm_otp_normalize_phone( $phone ) {
+	$phone = preg_replace( '/[^0-9+]/', '', (string) $phone );
+
+	if ( 0 === strpos( $phone, '+98' ) ) {
+		$phone = '0' . substr( $phone, 3 );
+	} elseif ( 0 === strpos( $phone, '0098' ) ) {
+		$phone = '0' . substr( $phone, 4 );
+	} elseif ( 0 === strpos( $phone, '98' ) && 12 === strlen( $phone ) ) {
+		$phone = '0' . substr( $phone, 2 );
+	}
+
+	if ( 0 === strpos( $phone, '9' ) && 10 === strlen( $phone ) ) {
+		$phone = '0' . $phone;
+	}
+
+	if ( 1 !== preg_match( '/^09\d{9}$/', $phone ) ) {
+		return '';
+	}
+
+	return $phone;
+}
+
+/**
+ * Send an OTP code to a phone number via Kavenegar.
+ *
+ * Uses the Verify Lookup API when a template name is configured, otherwise
+ * falls back to a plain SMS via the sender line.
+ *
+ * @param string $phone Normalized phone number.
+ * @param string $code  One-time code to deliver.
+ * @return true|WP_Error
+ */
+function wm_otp_send_via_kavenegar( $phone, $code ) {
+	$settings = wm_technical_get_otp_settings();
+
+	if ( empty( $settings['api_key'] ) ) {
+		return new WP_Error( 'wm_otp_not_configured', 'سرویس ارسال کد یکبارمصرف پیکربندی نشده است.' );
+	}
+
+	if ( ! empty( $settings['template'] ) ) {
+		$endpoint = sprintf(
+			'https://api.kavenegar.com/v1/%s/verify/lookup.json',
+			rawurlencode( $settings['api_key'] )
+		);
+
+		$args = array(
+			'receptor' => $phone,
+			'token'    => $code,
+			'template' => $settings['template'],
+		);
+	} else {
+		if ( empty( $settings['sender'] ) ) {
+			return new WP_Error( 'wm_otp_not_configured', 'سرویس ارسال کد یکبارمصرف پیکربندی نشده است.' );
+		}
+
+		$endpoint = sprintf(
+			'https://api.kavenegar.com/v1/%s/sms/send.json',
+			rawurlencode( $settings['api_key'] )
+		);
+
+		$args = array(
+			'receptor' => $phone,
+			'sender'   => $settings['sender'],
+			/* translators: %s: one-time password code. */
+			'message'  => sprintf( __( 'کد ورود شما: %s', 'watchmid' ), $code ),
+		);
+	}
+
+	$response = wp_remote_post(
+		$endpoint,
+		array(
+			'timeout' => 15,
+			'body'    => $args,
+		)
+	);
+
+	if ( is_wp_error( $response ) ) {
+		return $response;
+	}
+
+	$code_status = wp_remote_retrieve_response_code( $response );
+	if ( $code_status < 200 || $code_status >= 300 ) {
+		return new WP_Error( 'wm_otp_send_failed', 'ارسال کد یکبارمصرف ناموفق بود. لطفاً دوباره تلاش کنید.' );
+	}
+
+	return true;
+}
+
+/**
+ * AJAX: request an OTP code for a phone number.
+ */
+function wm_ajax_otp_request_code() {
+	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
+
+	if ( ! wm_technical_otp_enabled() ) {
+		wp_send_json_error( array( 'message' => 'ورود با کد یکبارمصرف فعال نیست.' ) );
+	}
+
+	$phone = isset( $_POST['phone'] ) ? wm_otp_normalize_phone( wp_unslash( $_POST['phone'] ) ) : '';
+
+	if ( ! $phone ) {
+		wp_send_json_error( array( 'message' => 'شماره موبایل وارد شده معتبر نیست.' ) );
+	}
+
+	$throttle_key = 'wm_otp_throttle_' . md5( $phone );
+	if ( get_transient( $throttle_key ) ) {
+		wp_send_json_error( array( 'message' => 'کد قبلی هنوز معتبر است. کمی صبر کنید و دوباره تلاش کنید.' ) );
+	}
+
+	$code = (string) wp_rand( 10000, 99999 );
+
+	$sent = wm_otp_send_via_kavenegar( $phone, $code );
+	if ( is_wp_error( $sent ) ) {
+		wp_send_json_error( array( 'message' => $sent->get_error_message() ) );
+	}
+
+	set_transient( 'wm_otp_code_' . md5( $phone ), $code, 2 * MINUTE_IN_SECONDS );
+	set_transient( $throttle_key, 1, MINUTE_IN_SECONDS );
+
+	wp_send_json_success(
+		array(
+			'message'   => 'کد یکبارمصرف ارسال شد.',
+			'resendIn'  => MINUTE_IN_SECONDS,
+		)
+	);
+}
+add_action( 'wp_ajax_wm_otp_request_code', 'wm_ajax_otp_request_code' );
+add_action( 'wp_ajax_nopriv_wm_otp_request_code', 'wm_ajax_otp_request_code' );
+
+/**
+ * AJAX: verify an OTP code and log the user in, registering them if needed.
+ */
+function wm_ajax_otp_verify_code() {
+	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
+
+	if ( ! wm_technical_otp_enabled() ) {
+		wp_send_json_error( array( 'message' => 'ورود با کد یکبارمصرف فعال نیست.' ) );
+	}
+
+	$phone = isset( $_POST['phone'] ) ? wm_otp_normalize_phone( wp_unslash( $_POST['phone'] ) ) : '';
+	$code  = isset( $_POST['code'] ) ? preg_replace( '/[^0-9]/', '', wp_unslash( $_POST['code'] ) ) : '';
+
+	if ( ! $phone || ! $code ) {
+		wp_send_json_error( array( 'message' => 'اطلاعات وارد شده معتبر نیست.' ) );
+	}
+
+	$transient_key = 'wm_otp_code_' . md5( $phone );
+	$expected_code = get_transient( $transient_key );
+
+	if ( ! $expected_code || ! hash_equals( (string) $expected_code, $code ) ) {
+		wp_send_json_error( array( 'message' => 'کد وارد شده نادرست یا منقضی شده است.' ) );
+	}
+
+	delete_transient( $transient_key );
+	delete_transient( 'wm_otp_throttle_' . md5( $phone ) );
+
+	$user = wm_otp_get_user_by_phone( $phone );
+
+	if ( ! $user ) {
+		$user_id = wm_otp_create_user_from_phone( $phone );
+
+		if ( is_wp_error( $user_id ) ) {
+			wp_send_json_error( array( 'message' => $user_id->get_error_message() ) );
+		}
+
+		$user = get_user_by( 'id', $user_id );
+	}
+
+	wp_set_current_user( $user->ID );
+	wp_set_auth_cookie( $user->ID, true );
+	do_action( 'wp_login', $user->user_login, $user );
+
+	$redirect_to = isset( $_POST['redirect_to'] ) ? sanitize_text_field( wp_unslash( $_POST['redirect_to'] ) ) : '';
+
+	if ( 'checkout' === $redirect_to && function_exists( 'wc_get_checkout_url' ) ) {
+		$redirect_url = wc_get_checkout_url();
+	} elseif ( 'account' === $redirect_to && function_exists( 'wc_get_page_permalink' ) ) {
+		$redirect_url = wc_get_page_permalink( 'myaccount' );
+	} else {
+		$redirect_url = home_url( '/' );
+	}
+
+	wp_send_json_success(
+		array(
+			'message'  => 'ورود با موفقیت انجام شد.',
+			'redirect' => $redirect_url,
+		)
+	);
+}
+add_action( 'wp_ajax_wm_otp_verify_code', 'wm_ajax_otp_verify_code' );
+add_action( 'wp_ajax_nopriv_wm_otp_verify_code', 'wm_ajax_otp_verify_code' );
+
+/**
+ * Find an existing user by their OTP-verified phone number.
+ *
+ * @param string $phone Normalized phone number.
+ * @return WP_User|null
+ */
+function wm_otp_get_user_by_phone( $phone ) {
+	$users = get_users(
+		array(
+			'meta_key'   => '_wm_otp_phone',
+			'meta_value' => $phone,
+			'number'     => 1,
+			'fields'     => 'all',
+		)
+	);
+
+	if ( ! empty( $users ) ) {
+		return $users[0];
+	}
+
+	$user = get_user_by( 'login', $phone );
+
+	return $user ? $user : null;
+}
+
+/**
+ * Create a new customer account for a phone number that just verified an OTP.
+ *
+ * @param string $phone Normalized phone number.
+ * @return int|WP_Error New user ID, or WP_Error on failure.
+ */
+function wm_otp_create_user_from_phone( $phone ) {
+	$username = $phone;
+	if ( username_exists( $username ) ) {
+		$username = $phone . '_' . wp_generate_password( 4, false, false );
+	}
+
+	$host  = wp_parse_url( home_url( '/' ), PHP_URL_HOST );
+	$email = $phone . '@' . ( $host ? $host : 'example.com' );
+
+	$user_id = wp_insert_user(
+		array(
+			'user_login' => $username,
+			'user_pass'  => wp_generate_password( 20 ),
+			'user_email' => $email,
+			'role'       => 'customer',
+		)
+	);
+
+	if ( is_wp_error( $user_id ) ) {
+		return $user_id;
+	}
+
+	update_user_meta( $user_id, '_wm_otp_phone', $phone );
+	update_user_meta( $user_id, 'billing_phone', $phone );
+
+	return $user_id;
+}

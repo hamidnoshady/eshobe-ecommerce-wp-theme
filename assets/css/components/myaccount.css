@@ -17,6 +17,26 @@
   color: var(--wm-color-text, #1f2937);
 }
 
+.wm-account-otp-cta {
+  margin-bottom: var(--wm-space-4, 16px);
+}
+
+.wm-account-otp-cta__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--wm-color-primary, #111827), #26364d);
+  color: #fff;
+  font-size: var(--wm-font-size-base, 15px);
+  font-weight: 850;
+  cursor: pointer;
+}
+
 .woocommerce-account .entry-content {
   width: 100%;
   max-width: none;

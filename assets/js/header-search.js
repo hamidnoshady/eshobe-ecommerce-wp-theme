@@ -15,20 +15,35 @@
   var closers = modal.querySelectorAll('[data-search-modal-close]');
   var debounceTimer = 0;
   var currentRequest = null;
+  var closeTimer = 0;
+  var CLOSE_ANIMATION_MS = 240;
 
   function openModal() {
+    window.clearTimeout(closeTimer);
     modal.hidden = false;
     document.body.classList.add('wm-search-modal-open');
     toggle.setAttribute('aria-expanded', 'true');
+    window.requestAnimationFrame(function () {
+      modal.classList.add('is-open');
+    });
     window.setTimeout(function () {
       field.focus();
     }, 30);
   }
 
   function closeModal() {
-    modal.hidden = true;
+    if (modal.hidden) {
+      return;
+    }
+
+    modal.classList.remove('is-open');
     document.body.classList.remove('wm-search-modal-open');
     toggle.setAttribute('aria-expanded', 'false');
+
+    window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(function () {
+      modal.hidden = true;
+    }, CLOSE_ANIMATION_MS);
   }
 
   function showSuggestions() {

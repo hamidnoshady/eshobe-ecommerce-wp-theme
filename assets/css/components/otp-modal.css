@@ -1,0 +1,166 @@
+/* OTP login/registration modal (RTL) */
+.wm-otp-modal,
+.wm-otp-modal * {
+  box-sizing: border-box;
+}
+
+.wm-otp-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  direction: rtl;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+.wm-otp-modal[hidden] {
+  display: flex;
+}
+
+.wm-otp-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.wm-otp-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 15, 20, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.wm-otp-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: var(--wm-color-surface, #ffffff);
+  border-radius: var(--wm-radius-lg, 28px);
+  box-shadow: var(--wm-shadow-md, 0 20px 60px rgba(0, 0, 0, 0.25));
+  padding: var(--wm-space-6, 24px);
+  transform: translateY(16px) scale(0.98);
+  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.wm-otp-modal.is-open .wm-otp-modal__panel {
+  transform: translateY(0) scale(1);
+}
+
+.wm-otp-modal__close {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--wm-color-muted, #6b7280);
+  padding: var(--wm-space-1, 4px) var(--wm-space-2, 8px);
+}
+
+.wm-otp-modal__title {
+  margin: 0 0 var(--wm-space-2, 8px);
+  font-size: var(--wm-font-size-lg, 20px);
+  font-weight: 800;
+  color: var(--wm-color-text, #1f2937);
+}
+
+.wm-otp-modal__desc {
+  margin: 0 0 var(--wm-space-4, 16px);
+  font-size: var(--wm-font-size-base, 15px);
+  color: var(--wm-color-muted, #6b7280);
+}
+
+.wm-otp-modal__step[hidden] {
+  display: none;
+}
+
+.wm-otp-modal__step form {
+  display: flex;
+  gap: var(--wm-space-2, 8px);
+}
+
+.wm-otp-modal__input {
+  flex: 1;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--wm-color-border, #e5e0d8);
+  border-radius: 14px;
+  background: #f9f8f5;
+  color: var(--wm-color-text, #1f2937);
+  font-size: var(--wm-font-size-base, 15px);
+  font-family: var(--wm-font-primary, 'Vazirmatn', system-ui, sans-serif);
+  direction: ltr;
+  text-align: center;
+}
+
+.wm-otp-modal__input--code {
+  letter-spacing: 6px;
+}
+
+.wm-otp-modal__submit {
+  min-height: 46px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--wm-color-primary, #111827), #26364d);
+  color: #fff;
+  font-weight: 850;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wm-otp-modal__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wm-otp-modal__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wm-space-2, 8px);
+  margin-top: var(--wm-space-3, 12px);
+}
+
+.wm-otp-modal__resend,
+.wm-otp-modal__back {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: var(--wm-font-size-small, 13px);
+  color: var(--wm-color-primary, #111827);
+  cursor: pointer;
+}
+
+.wm-otp-modal__resend:disabled {
+  color: var(--wm-color-muted, #6b7280);
+  cursor: not-allowed;
+}
+
+.wm-otp-modal__error {
+  margin: var(--wm-space-3, 12px) 0 0;
+  font-size: var(--wm-font-size-small, 13px);
+  color: var(--wm-color-danger, #d33);
+}
+
+.wm-otp-modal__error[hidden] {
+  display: none;
+}
+
+body.wm-otp-modal-open {
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .wm-otp-modal__step form {
+    flex-direction: column;
+  }
+}
