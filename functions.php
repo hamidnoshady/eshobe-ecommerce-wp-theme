@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'WATCHMID_VERSION' ) ) {
-    define( 'WATCHMID_VERSION', '0.4.47' );
+    define( 'WATCHMID_VERSION', '0.4.48' );
 }
 
 /**
@@ -170,6 +170,20 @@ function watchmid_scripts() {
         wp_enqueue_style( 'watchmid-myaccount', wm_asset_uri( 'assets/css/components/myaccount.css' ), array( 'watchmid-style' ), wm_asset_version( 'assets/css/components/myaccount.css' ) );
     }
 
+    if ( function_exists( 'wm_technical_otp_enabled' ) && wm_technical_otp_enabled() && ! is_user_logged_in() ) {
+        wp_enqueue_style( 'watchmid-otp-modal', wm_asset_uri( 'assets/css/components/otp-modal.css' ), array( 'watchmid-style' ), wm_asset_version( 'assets/css/components/otp-modal.css' ) );
+        wp_enqueue_script( 'watchmid-otp-auth', wm_asset_uri( 'assets/js/otp-auth.js' ), array(), wm_asset_version( 'assets/js/otp-auth.js' ), true );
+        wp_localize_script(
+            'watchmid-otp-auth',
+            'wmOtpData',
+            array(
+                'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+                'nonce'        => wp_create_nonce( 'wm_otp_nonce' ),
+                'resendSeconds' => 60,
+            )
+        );
+    }
+
     if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
         wp_enqueue_script( 'comment-reply' );
     }
@@ -197,6 +211,7 @@ require get_template_directory() . '/inc/components/mobile-nav.php';
 require get_template_directory() . '/inc/product-components.php';
 require get_template_directory() . '/inc/woocommerce.php';
 require get_template_directory() . '/inc/ajax/search.php';
+require get_template_directory() . '/inc/ajax/otp-auth.php';
 require get_template_directory() . '/inc/customizer/design-settings.php';
 require get_template_directory() . '/inc/patterns/register-patterns.php';
 require get_template_directory() . '/inc/acf/design-tokens.php';

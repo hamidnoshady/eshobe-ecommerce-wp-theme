@@ -23,6 +23,14 @@ do_action( 'woocommerce_before_customer_login_form' );
 		<div class="wm-account-content">
 			<div class="woocommerce-MyAccount-content">
 
+				<?php if ( function_exists( 'wm_technical_otp_enabled' ) && wm_technical_otp_enabled() ) : ?>
+					<div class="wm-account-otp-cta">
+						<button type="button" class="wm-account-otp-cta__button" data-wm-otp-trigger data-wm-otp-redirect="account">
+							<?php echo esc_html__( 'ورود / ثبت‌نام با کد یکبارمصرف', 'watchmid' ); ?>
+						</button>
+					</div>
+				<?php endif; ?>
+
 				<?php if ( 'yes' === get_option( 'woocommerce_enable_myaccount_registration' ) ) : ?>
 
 				<div class="u-columns col2-set" id="customer_login">

@@ -17,6 +17,11 @@ Local WP manages the WordPress site itself (PHP, MySQL, web server). VS Code is 
 - Bump `WATCHMID_VERSION` in `functions.php` (and the `Version:` header in `style.css`) when making notable changes — this constant is used as the cache-busting version for all enqueued assets.
 - CSS/JS for cart and checkout pages use `filemtime()` for versioning instead of `WATCHMID_VERSION`, so those auto-bust on save.
 - For UI changes, use the `run` or `verify` skills to launch/check the site in a browser (Playwright/Chrome DevTools MCP available).
+- **Remote/cloud sessions (no Local WP install available)**: when there's no running WordPress/WooCommerce/ACF stack to hit, verify pure CSS/JS UI changes (header, modals, animations, etc.) with a static Playwright harness instead of skipping verification:
+  - Build a minimal standalone HTML file under `/tmp` that includes the real markup for the changed component plus the actual theme stylesheets/scripts via `file://` links to `assets/css/...` and `assets/js/...` (copy the relevant markup straight from the PHP template/component).
+  - For features that call `admin-ajax.php` (e.g. OTP login), stub `window.fetch` and any localized globals (`wmOtpData`, `wmSearchData`, etc.) in an inline `<script>` so the JS runs end-to-end without a backend.
+  - Playwright's bundled browser download usually fails (no network); launch Chromium directly from the pre-installed binary instead: `chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' })` (check `/opt/pw-browsers` for the actual revision present).
+  - Screenshot at both a desktop viewport (e.g. 1280px) and a mobile viewport (e.g. 390px) and drive interactions (clicks, form fills) to confirm animations/state transitions, not just static layout.
 
 ## Architecture
 

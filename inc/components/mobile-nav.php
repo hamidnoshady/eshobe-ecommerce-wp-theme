@@ -166,9 +166,13 @@ function wm_mobile_nav_account_links() {
     $account_url = wm_mobile_nav_account_url();
 
     if ( ! is_user_logged_in() ) {
-        return array(
-            array( 'label' => __( 'ورود / ثبت‌نام', 'watchmid' ), 'url' => $account_url, 'primary' => true ),
-        );
+        $login_link = array( 'label' => __( 'ورود / ثبت‌نام', 'watchmid' ), 'url' => $account_url, 'primary' => true );
+
+        if ( function_exists( 'wm_technical_otp_enabled' ) && wm_technical_otp_enabled() ) {
+            $login_link['otp_trigger'] = true;
+        }
+
+        return array( $login_link );
     }
 
     return array(
@@ -266,7 +270,13 @@ function wm_render_mobile_account_sheet() {
                 <?php endif; ?>
                 <nav class="wm-mobile-account-sheet__links" aria-label="<?php echo esc_attr__( 'لینک‌های حساب کاربری', 'watchmid' ); ?>">
                     <?php foreach ( wm_mobile_nav_account_links() as $link ) : ?>
-                        <a class="wm-mobile-account-sheet__link <?php echo ! empty( $link['primary'] ) ? 'wm-mobile-sheet__button wm-mobile-sheet__button--primary' : ''; ?>" href="<?php echo esc_url( $link['url'] ); ?>"><?php echo esc_html( $link['label'] ); ?></a>
+                        <a
+                            class="wm-mobile-account-sheet__link <?php echo ! empty( $link['primary'] ) ? 'wm-mobile-sheet__button wm-mobile-sheet__button--primary' : ''; ?>"
+                            href="<?php echo esc_url( $link['url'] ); ?>"
+                            <?php if ( ! empty( $link['otp_trigger'] ) ) : ?>
+                                data-wm-otp-trigger data-wm-otp-redirect="account"
+                            <?php endif; ?>
+                        ><?php echo esc_html( $link['label'] ); ?></a>
                     <?php endforeach; ?>
                 </nav>
             </div>
