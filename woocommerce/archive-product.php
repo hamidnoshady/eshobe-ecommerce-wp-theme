@@ -3,6 +3,7 @@
  * Product archive template.
  *
  * @package WM_Theme
+ * @version 8.6.0
  */
 
 defined( 'ABSPATH' ) || exit;

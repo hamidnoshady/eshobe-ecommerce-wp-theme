@@ -3,7 +3,7 @@
  * Stepped checkout.
  *
  * @package WM_Theme
- * @version 8.6.0
+ * @version 9.4.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -33,7 +33,7 @@ $item_count    = WC()->cart ? WC()->cart->get_cart_contents_count() : 0;
 			<div class="wm-checkout-page__meta"><?php echo esc_html( sprintf( _n( '%d کالا در سفارش شما', '%d کالا در سفارش شما', $item_count, 'watchmid' ), $item_count ) ); ?></div>
 		</header>
 
-		<form name="checkout" method="post" class="checkout woocommerce-checkout wm-checkout" action="<?php echo esc_url( wc_get_checkout_url() ); ?>" enctype="multipart/form-data">
+		<form name="checkout" method="post" class="checkout woocommerce-checkout wm-checkout" action="<?php echo esc_url( wc_get_checkout_url() ); ?>" enctype="multipart/form-data" aria-label="<?php echo esc_attr__( 'تسویه حساب', 'watchmid' ); ?>">
 			<nav class="wm-checkout-steps" aria-label="<?php echo esc_attr__( 'مراحل تسویه حساب', 'watchmid' ); ?>">
 				<button class="wm-checkout-steps__item is-active" type="button" data-checkout-step-target="address">
 					<span>۱</span>

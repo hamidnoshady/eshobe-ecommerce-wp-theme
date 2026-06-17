@@ -3,6 +3,7 @@
  * Single Product Template.
  *
  * @package WM_Theme
+ * @version 1.6.4
  */
 
 defined( 'ABSPATH' ) || exit;

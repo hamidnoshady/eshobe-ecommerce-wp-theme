@@ -3,7 +3,7 @@
  * Custom cart page.
  *
  * @package WM_Theme
- * @version 8.6.0
+ * @version 10.1.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -135,7 +135,7 @@ do_action( 'woocommerce_before_cart' );
 									echo apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 										'woocommerce_cart_item_remove_link',
 										sprintf(
-											'<a href="%s" class="wm-cart-item__remove remove" aria-label="%s" data-product_id="%s" data-product_sku="%s"><span aria-hidden="true">&times;</span></a>',
+											'<a role="button" href="%s" class="wm-cart-item__remove remove" aria-label="%s" data-product_id="%s" data-product_sku="%s"><span aria-hidden="true">&times;</span></a>',
 											esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
 											esc_attr( sprintf( __( 'حذف %s از سبد خرید', 'watchmid' ), wp_strip_all_tags( $product_name ) ) ),
 											esc_attr( $product_id ),

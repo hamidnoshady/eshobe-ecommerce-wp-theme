@@ -3,6 +3,7 @@
  * Product category archive placeholder.
  *
  * @package WM_Theme
+ * @version 4.7.0
  */
 
 if ( function_exists( 'wc_get_template' ) ) {
