@@ -23,13 +23,7 @@ do_action( 'woocommerce_before_customer_login_form' );
 		<div class="wm-account-content">
 			<div class="woocommerce-MyAccount-content">
 
-				<?php if ( function_exists( 'wm_technical_otp_enabled' ) && wm_technical_otp_enabled() ) : ?>
-					<div class="wm-account-otp-cta">
-						<button type="button" class="wm-account-otp-cta__button" data-wm-otp-trigger data-wm-otp-redirect="account">
-							<?php echo esc_html__( 'ورود / ثبت‌نام با کد یکبارمصرف', 'watchmid' ); ?>
-						</button>
-					</div>
-				<?php endif; ?>
+				<?php $wm_otp_enabled = function_exists( 'wm_technical_otp_enabled' ) && wm_technical_otp_enabled(); ?>
 
 				<?php if ( 'yes' === get_option( 'woocommerce_enable_myaccount_registration' ) ) : ?>
 
@@ -41,13 +35,22 @@ do_action( 'woocommerce_before_customer_login_form' );
 
 						<h2><?php esc_html_e( 'Login', 'woocommerce' ); ?></h2>
 
+						<?php if ( $wm_otp_enabled ) : ?>
+							<div class="wm-login-tabs" data-wm-login-tabs>
+								<button type="button" class="wm-login-tabs__button is-active" data-wm-login-tab="password"><?php echo esc_html__( 'ورود با رمز عبور', 'watchmid' ); ?></button>
+								<button type="button" class="wm-login-tabs__button" data-wm-login-tab="otp"><?php echo esc_html__( 'ورود با کد یکبارمصرف', 'watchmid' ); ?></button>
+							</div>
+						<?php endif; ?>
+
+						<div class="wm-login-panel" data-wm-login-panel="password">
+
 						<form class="woocommerce-form woocommerce-form-login login" method="post" novalidate>
 
 							<?php do_action( 'woocommerce_login_form_start' ); ?>
 
 							<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-								<label for="username"><?php esc_html_e( 'Username or email address', 'woocommerce' ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( 'Required', 'woocommerce' ); ?></span></label>
-								<input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="username" id="username" autocomplete="username" value="<?php echo ( ! empty( $_POST['username'] ) && is_string( $_POST['username'] ) ) ? esc_attr( wp_unslash( $_POST['username'] ) ) : ''; ?>" required aria-required="true" /><?php // @codingStandardsIgnoreLine ?>
+								<label for="username"><?php echo $wm_otp_enabled ? esc_html__( 'شماره موبایل', 'watchmid' ) : esc_html__( 'Username or email address', 'woocommerce' ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( 'Required', 'woocommerce' ); ?></span></label>
+								<input type="<?php echo $wm_otp_enabled ? 'tel' : 'text'; ?>" class="woocommerce-Input woocommerce-Input--text input-text" name="username" id="username" autocomplete="username" inputmode="<?php echo $wm_otp_enabled ? 'numeric' : 'text'; ?>" placeholder="<?php echo $wm_otp_enabled ? '09xxxxxxxxx' : ''; ?>" value="<?php echo ( ! empty( $_POST['username'] ) && is_string( $_POST['username'] ) ) ? esc_attr( wp_unslash( $_POST['username'] ) ) : ''; ?>" required aria-required="true" /><?php // @codingStandardsIgnoreLine ?>
 							</p>
 							<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
 								<label for="password"><?php esc_html_e( 'Password', 'woocommerce' ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( 'Required', 'woocommerce' ); ?></span></label>
@@ -70,6 +73,19 @@ do_action( 'woocommerce_before_customer_login_form' );
 							<?php do_action( 'woocommerce_login_form_end' ); ?>
 
 						</form>
+
+						</div>
+
+						<?php if ( $wm_otp_enabled ) : ?>
+							<div class="wm-login-panel" data-wm-login-panel="otp" hidden>
+								<div class="wm-account-otp-cta">
+									<p><?php echo esc_html__( 'کد یکبارمصرف به شماره موبایل شما ارسال می‌شود.', 'watchmid' ); ?></p>
+									<button type="button" class="wm-account-otp-cta__button" data-wm-otp-trigger data-wm-otp-redirect="account">
+										<?php echo esc_html__( 'ارسال کد یکبارمصرف', 'watchmid' ); ?>
+									</button>
+								</div>
+							</div>
+						<?php endif; ?>
 
 				<?php if ( 'yes' === get_option( 'woocommerce_enable_myaccount_registration' ) ) : ?>
 

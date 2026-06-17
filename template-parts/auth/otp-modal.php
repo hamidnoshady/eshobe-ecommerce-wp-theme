@@ -48,5 +48,16 @@ if ( ! wm_technical_otp_enabled() || is_user_logged_in() ) {
 			</div>
 			<p class="wm-otp-modal__error" data-otp-error hidden></p>
 		</div>
+
+		<div class="wm-otp-modal__step" data-otp-step="password" hidden>
+			<h2 class="wm-otp-modal__title"><?php echo esc_html__( 'تعیین رمز عبور', 'watchmid' ); ?></h2>
+			<p class="wm-otp-modal__desc"><?php echo esc_html__( 'برای استفاده‌های بعدی، یک رمز عبور برای حساب خود تعیین کنید.', 'watchmid' ); ?></p>
+			<form data-otp-password-form>
+				<label class="screen-reader-text" for="wm-otp-password"><?php echo esc_html__( 'رمز عبور', 'watchmid' ); ?></label>
+				<input type="password" id="wm-otp-password" class="wm-otp-modal__input" name="password" autocomplete="new-password" minlength="6" placeholder="<?php echo esc_attr__( 'رمز عبور', 'watchmid' ); ?>" required>
+				<button type="submit" class="wm-otp-modal__submit"><?php echo esc_html__( 'ثبت و ورود', 'watchmid' ); ?></button>
+			</form>
+			<p class="wm-otp-modal__error" data-otp-error hidden></p>
+		</div>
 	</div>
 </div>

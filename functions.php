@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'WATCHMID_VERSION' ) ) {
-    define( 'WATCHMID_VERSION', '0.4.49' );
+    define( 'WATCHMID_VERSION', '0.4.50' );
 }
 
 /**

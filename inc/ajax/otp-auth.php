@@ -170,6 +170,7 @@ function wm_ajax_otp_verify_code() {
 	delete_transient( 'wm_otp_throttle_' . md5( $phone ) );
 
 	$user = wm_otp_get_user_by_phone( $phone );
+	$is_new_user = false;
 
 	if ( ! $user ) {
 		$user_id = wm_otp_create_user_from_phone( $phone );
@@ -178,7 +179,8 @@ function wm_ajax_otp_verify_code() {
 			wp_send_json_error( array( 'message' => $user_id->get_error_message() ) );
 		}
 
-		$user = get_user_by( 'id', $user_id );
+		$user        = get_user_by( 'id', $user_id );
+		$is_new_user = true;
 	}
 
 	wp_set_current_user( $user->ID );
@@ -186,24 +188,84 @@ function wm_ajax_otp_verify_code() {
 	do_action( 'wp_login', $user->user_login, $user );
 
 	$redirect_to = isset( $_POST['redirect_to'] ) ? sanitize_text_field( wp_unslash( $_POST['redirect_to'] ) ) : '';
+	$needs_password = $is_new_user || get_user_meta( $user->ID, '_wm_otp_needs_password', true );
 
-	if ( 'checkout' === $redirect_to && function_exists( 'wc_get_checkout_url' ) ) {
-		$redirect_url = wc_get_checkout_url();
-	} elseif ( 'account' === $redirect_to && function_exists( 'wc_get_page_permalink' ) ) {
-		$redirect_url = wc_get_page_permalink( 'myaccount' );
-	} else {
-		$redirect_url = home_url( '/' );
+	if ( $needs_password ) {
+		wp_send_json_success(
+			array(
+				'message'      => 'ورود با موفقیت انجام شد.',
+				'needsPassword' => true,
+			)
+		);
 	}
 
 	wp_send_json_success(
 		array(
 			'message'  => 'ورود با موفقیت انجام شد.',
-			'redirect' => $redirect_url,
+			'redirect' => wm_otp_resolve_redirect_url( $redirect_to ),
 		)
 	);
 }
 add_action( 'wp_ajax_wm_otp_verify_code', 'wm_ajax_otp_verify_code' );
 add_action( 'wp_ajax_nopriv_wm_otp_verify_code', 'wm_ajax_otp_verify_code' );
+
+/**
+ * AJAX: set the account password after a first-time OTP registration.
+ *
+ * Only usable by the just-logged-in user, immediately after OTP verification.
+ */
+function wm_ajax_otp_set_password() {
+	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
+
+	if ( ! is_user_logged_in() ) {
+		wp_send_json_error( array( 'message' => 'ابتدا وارد حساب کاربری شوید.' ) );
+	}
+
+	$password = isset( $_POST['password'] ) ? (string) wp_unslash( $_POST['password'] ) : '';
+
+	if ( mb_strlen( $password ) < 6 ) {
+		wp_send_json_error( array( 'message' => 'رمز عبور باید حداقل ۶ کاراکتر باشد.' ) );
+	}
+
+	$user_id = get_current_user_id();
+
+	wp_set_password( $password, $user_id );
+	delete_user_meta( $user_id, '_wm_otp_needs_password' );
+
+	// wp_set_password() invalidates the current auth cookie; re-issue it.
+	$user = get_user_by( 'id', $user_id );
+	wp_set_current_user( $user_id );
+	wp_set_auth_cookie( $user_id, true );
+
+	$redirect_to = isset( $_POST['redirect_to'] ) ? sanitize_text_field( wp_unslash( $_POST['redirect_to'] ) ) : '';
+
+	wp_send_json_success(
+		array(
+			'message'  => 'رمز عبور با موفقیت ثبت شد.',
+			'redirect' => wm_otp_resolve_redirect_url( $redirect_to ),
+		)
+	);
+}
+add_action( 'wp_ajax_wm_otp_set_password', 'wm_ajax_otp_set_password' );
+
+/**
+ * Normalize the phone-number login field to the stored username format
+ * before WooCommerce hands credentials to wp_signon().
+ *
+ * @param array $credentials Login credentials (user_login, user_password, remember).
+ * @return array
+ */
+function wm_otp_normalize_login_credentials( $credentials ) {
+	if ( ! empty( $credentials['user_login'] ) ) {
+		$normalized = wm_otp_normalize_phone( $credentials['user_login'] );
+		if ( $normalized ) {
+			$credentials['user_login'] = $normalized;
+		}
+	}
+
+	return $credentials;
+}
+add_filter( 'woocommerce_login_credentials', 'wm_otp_normalize_login_credentials' );
 
 /**
  * Find an existing user by their OTP-verified phone number.
@@ -260,6 +322,25 @@ function wm_otp_create_user_from_phone( $phone ) {
 
 	update_user_meta( $user_id, '_wm_otp_phone', $phone );
 	update_user_meta( $user_id, 'billing_phone', $phone );
+	update_user_meta( $user_id, '_wm_otp_needs_password', 1 );
 
 	return $user_id;
+}
+
+/**
+ * Resolve the post-login redirect URL for a given `redirect_to` token.
+ *
+ * @param string $redirect_to One of 'checkout', 'account', or empty.
+ * @return string
+ */
+function wm_otp_resolve_redirect_url( $redirect_to ) {
+	if ( 'checkout' === $redirect_to && function_exists( 'wc_get_checkout_url' ) ) {
+		return wc_get_checkout_url();
+	}
+
+	if ( 'account' === $redirect_to && function_exists( 'wc_get_page_permalink' ) ) {
+		return wc_get_page_permalink( 'myaccount' );
+	}
+
+	return home_url( '/' );
 }

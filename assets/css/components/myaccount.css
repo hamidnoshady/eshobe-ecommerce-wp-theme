@@ -37,6 +37,35 @@
   cursor: pointer;
 }
 
+.wm-login-tabs {
+  display: flex;
+  gap: var(--wm-space-2, 8px);
+  margin-bottom: var(--wm-space-4, 16px);
+}
+
+.wm-login-tabs__button {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--wm-account-border, #e5e0d8);
+  border-radius: 12px;
+  background: var(--wm-account-surface-soft, #f9f8f5);
+  color: var(--wm-color-muted, #6b7280);
+  font-size: var(--wm-font-size-small, 13px);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wm-login-tabs__button.is-active {
+  background: var(--wm-color-primary, #111827);
+  border-color: var(--wm-color-primary, #111827);
+  color: #fff;
+}
+
+.wm-login-panel[hidden] {
+  display: none;
+}
+
 .woocommerce-account .entry-content {
   width: 100%;
   max-width: none;

@@ -10,6 +10,25 @@ defined( 'ABSPATH' ) || exit;
 
 do_action( 'woocommerce_before_checkout_form', $checkout );
 
+$wm_checkout_otp_active = function_exists( 'wm_technical_otp_enabled' ) && wm_technical_otp_enabled();
+
+if ( $wm_checkout_otp_active && ! is_user_logged_in() ) {
+	?>
+	<section class="wm-checkout-page wm-checkout-page--locked" dir="rtl">
+		<div class="wm-checkout-page__container">
+			<div class="wm-checkout-login-gate">
+				<h1><?php echo esc_html__( 'برای ادامه خرید وارد حساب کاربری شوید', 'watchmid' ); ?></h1>
+				<p><?php echo esc_html__( 'برای ثبت سفارش، ابتدا با شماره موبایل خود وارد یا ثبت‌نام کنید.', 'watchmid' ); ?></p>
+				<button type="button" class="wm-checkout-login-gate__button" data-wm-otp-trigger data-wm-otp-redirect="checkout">
+					<?php echo esc_html__( 'ورود / ثبت‌نام با کد یکبارمصرف', 'watchmid' ); ?>
+				</button>
+			</div>
+		</div>
+	</section>
+	<?php
+	return;
+}
+
 if ( ! $checkout->is_registration_enabled() && $checkout->is_registration_required() && ! is_user_logged_in() ) {
 	echo esc_html( apply_filters( 'woocommerce_checkout_must_be_logged_in_message', __( 'برای ثبت سفارش باید وارد حساب کاربری شوید.', 'watchmid' ) ) );
 	return;
