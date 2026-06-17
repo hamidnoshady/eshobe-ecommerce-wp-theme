@@ -56,6 +56,7 @@
   var countdownTimer = 0;
   var redirectTo = '';
   var currentPhone = '';
+  var isForced = false;
   var resendSeconds = parseInt(window.wmOtpData.resendSeconds, 10) || 60;
   var CLOSE_ANIMATION_MS = 240;
 
@@ -106,8 +107,10 @@
     }
   }
 
-  function openModal() {
+  function openModal(forced) {
     window.clearTimeout(closeTimer);
+    isForced = !!forced;
+    modal.classList.toggle('wm-otp-modal--forced', isForced);
     modal.hidden = false;
     document.body.classList.add('wm-otp-modal-open');
     window.requestAnimationFrame(function () {
@@ -127,7 +130,7 @@
   }
 
   function closeModal() {
-    if (modal.hidden) {
+    if (modal.hidden || isForced) {
       return;
     }
 
@@ -197,7 +200,7 @@
     trigger.addEventListener('click', function (event) {
       event.preventDefault();
       redirectTo = trigger.getAttribute('data-wm-otp-redirect') || '';
-      openModal();
+      openModal(trigger.hasAttribute('data-wm-otp-force'));
     });
   });
 
@@ -210,6 +213,12 @@
       closeModal();
     }
   });
+
+  var autoTriggerEl = document.querySelector('[data-wm-otp-autotrigger]');
+  if (autoTriggerEl) {
+    redirectTo = autoTriggerEl.getAttribute('data-wm-otp-redirect') || '';
+    openModal(autoTriggerEl.hasAttribute('data-wm-otp-force'));
+  }
 
   if (passwordLoginForm) {
     passwordLoginForm.addEventListener('submit', function (event) {

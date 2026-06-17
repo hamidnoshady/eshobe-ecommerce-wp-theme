@@ -10,38 +10,23 @@ defined( 'ABSPATH' ) || exit;
 
 do_action( 'woocommerce_before_checkout_form', $checkout );
 
-if ( ! is_user_logged_in() ) {
-	?>
-	<section class="wm-checkout-page wm-checkout-page--locked" dir="rtl">
-		<div class="wm-checkout-page__container">
-			<div class="wm-checkout-login-gate">
-				<h1><?php echo esc_html__( 'برای ادامه خرید وارد حساب کاربری شوید', 'watchmid' ); ?></h1>
-				<p><?php echo esc_html__( 'برای ثبت سفارش، ابتدا با شماره موبایل خود وارد یا ثبت‌نام کنید.', 'watchmid' ); ?></p>
-				<button type="button" class="wm-checkout-login-gate__button" data-wm-otp-trigger data-wm-otp-redirect="checkout">
-					<?php echo esc_html__( 'ورود / ثبت‌نام', 'watchmid' ); ?>
-				</button>
-			</div>
-		</div>
-	</section>
-	<?php
-	return;
-}
-
-if ( ! $checkout->is_registration_enabled() && $checkout->is_registration_required() && ! is_user_logged_in() ) {
-	echo esc_html( apply_filters( 'woocommerce_checkout_must_be_logged_in_message', __( 'برای ثبت سفارش باید وارد حساب کاربری شوید.', 'watchmid' ) ) );
-	return;
-}
+$wm_checkout_locked = ! is_user_logged_in();
 
 $customer      = WC()->customer;
 $billing_city  = $customer ? $customer->get_billing_city() : '';
 $billing_state = $customer ? $customer->get_billing_state() : '';
 $billing_addr  = $customer ? trim( $customer->get_billing_address_1() . ' ' . $customer->get_billing_address_2() ) : '';
-$has_address   = is_user_logged_in() && ( $billing_city || $billing_state || $billing_addr );
+$has_address   = ! $wm_checkout_locked && ( $billing_city || $billing_state || $billing_addr );
 $item_count    = WC()->cart ? WC()->cart->get_cart_contents_count() : 0;
 ?>
 
-<section class="wm-checkout-page" dir="rtl">
-	<div class="wm-checkout-page__container">
+<section class="wm-checkout-page<?php echo $wm_checkout_locked ? ' wm-checkout-page--locked' : ''; ?>" dir="rtl">
+	<?php if ( $wm_checkout_locked ) : ?>
+		<button type="button" class="screen-reader-text" data-wm-otp-trigger data-wm-otp-redirect="checkout" data-wm-otp-force data-wm-otp-autotrigger>
+			<?php echo esc_html__( 'ورود / ثبت‌نام', 'watchmid' ); ?>
+		</button>
+	<?php endif; ?>
+	<div class="wm-checkout-page__container" <?php echo $wm_checkout_locked ? 'aria-hidden="true" inert' : ''; ?>>
 		<header class="wm-checkout-page__header">
 			<div>
 				<span class="wm-checkout-page__eyebrow"><?php echo esc_html__( 'تکمیل سفارش', 'watchmid' ); ?></span>

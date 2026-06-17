@@ -61,6 +61,10 @@
   transform: translateY(0) scale(1);
 }
 
+.wm-otp-modal--forced .wm-otp-modal__close {
+  display: none;
+}
+
 .wm-otp-modal__close {
   position: absolute;
   top: 14px;
