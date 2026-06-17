@@ -166,11 +166,12 @@ function wm_mobile_nav_account_links() {
     $account_url = wm_mobile_nav_account_url();
 
     if ( ! is_user_logged_in() ) {
-        $login_link = array( 'label' => __( 'ورود / ثبت‌نام', 'watchmid' ), 'url' => $account_url, 'primary' => true );
-
-        if ( function_exists( 'wm_technical_otp_enabled' ) && wm_technical_otp_enabled() ) {
-            $login_link['otp_trigger'] = true;
-        }
+        $login_link = array(
+            'label'       => __( 'ورود / ثبت‌نام', 'watchmid' ),
+            'url'         => $account_url,
+            'primary'     => true,
+            'otp_trigger' => true,
+        );
 
         return array( $login_link );
     }

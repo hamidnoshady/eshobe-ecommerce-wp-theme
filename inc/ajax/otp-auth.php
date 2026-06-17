@@ -249,6 +249,41 @@ function wm_ajax_otp_set_password() {
 add_action( 'wp_ajax_wm_otp_set_password', 'wm_ajax_otp_set_password' );
 
 /**
+ * AJAX: log a user in with their phone number and password (modal "login" tab).
+ */
+function wm_ajax_otp_password_login() {
+	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
+
+	$phone    = isset( $_POST['phone'] ) ? wm_otp_normalize_phone( wp_unslash( $_POST['phone'] ) ) : '';
+	$password = isset( $_POST['password'] ) ? (string) wp_unslash( $_POST['password'] ) : '';
+
+	if ( ! $phone || ! $password ) {
+		wp_send_json_error( array( 'message' => 'شماره موبایل و رمز عبور را وارد کنید.' ) );
+	}
+
+	$user = wm_otp_get_user_by_phone( $phone );
+
+	if ( ! $user || ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+		wp_send_json_error( array( 'message' => 'شماره موبایل یا رمز عبور اشتباه است.' ) );
+	}
+
+	wp_set_current_user( $user->ID );
+	wp_set_auth_cookie( $user->ID, true );
+	do_action( 'wp_login', $user->user_login, $user );
+
+	$redirect_to = isset( $_POST['redirect_to'] ) ? sanitize_text_field( wp_unslash( $_POST['redirect_to'] ) ) : '';
+
+	wp_send_json_success(
+		array(
+			'message'  => 'ورود با موفقیت انجام شد.',
+			'redirect' => wm_otp_resolve_redirect_url( $redirect_to ),
+		)
+	);
+}
+add_action( 'wp_ajax_wm_otp_password_login', 'wm_ajax_otp_password_login' );
+add_action( 'wp_ajax_nopriv_wm_otp_password_login', 'wm_ajax_otp_password_login' );
+
+/**
  * Normalize the phone-number login field to the stored username format
  * before WooCommerce hands credentials to wp_signon().
  *

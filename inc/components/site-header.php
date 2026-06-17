@@ -222,7 +222,7 @@ function wm_render_site_header() {
                 <?php endif; ?>
 
                 <?php if ( $show_account ) : ?>
-                    <?php $wm_header_otp_active = function_exists( 'wm_technical_otp_enabled' ) && wm_technical_otp_enabled() && ! is_user_logged_in(); ?>
+                    <?php $wm_header_otp_active = ! is_user_logged_in(); ?>
                     <a class="wm-site-header__action wm-site-header__account" href="<?php echo esc_url( wm_header_get_account_url() ); ?>" aria-label="<?php echo esc_attr__( 'حساب کاربری', 'watchmid' ); ?>"<?php echo $wm_header_otp_active ? ' data-wm-otp-trigger data-wm-otp-redirect="account"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                         <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'account' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <span class="wm-site-header__action-text"><?php echo esc_html__( 'حساب', 'watchmid' ); ?></span>

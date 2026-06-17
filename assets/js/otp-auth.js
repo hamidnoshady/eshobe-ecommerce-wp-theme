@@ -23,6 +23,12 @@
     return;
   }
 
+  var modalTabs = modal.querySelectorAll('[data-otp-modal-tab]');
+  var modalPanels = modal.querySelectorAll('[data-otp-modal-panel]');
+  var passwordLoginForm = modal.querySelector('[data-otp-password-login-form]');
+  var loginPhoneInput = modal.querySelector('#wm-login-phone');
+  var loginPasswordInput = modal.querySelector('#wm-login-password');
+
   var phoneStep = modal.querySelector('[data-otp-step="phone"]');
   var codeStep = modal.querySelector('[data-otp-step="code"]');
   var passwordStep = modal.querySelector('[data-otp-step="password"]');
@@ -31,7 +37,7 @@
   var passwordForm = modal.querySelector('[data-otp-password-form]');
   var phoneInput = modal.querySelector('#wm-otp-phone');
   var codeInput = modal.querySelector('#wm-otp-code');
-  var passwordInput = modal.querySelector('#wm-otp-password');
+  var newPasswordInput = modal.querySelector('#wm-otp-new-password');
   var phoneDisplay = modal.querySelector('[data-otp-phone-display]');
   var resendButton = modal.querySelector('[data-otp-resend]');
   var resendTimer = modal.querySelector('[data-otp-resend-timer]');
@@ -44,8 +50,8 @@
   var resendSeconds = parseInt(window.wmOtpData.resendSeconds, 10) || 60;
   var CLOSE_ANIMATION_MS = 240;
 
-  function showError(step, message) {
-    var error = step.querySelector('[data-otp-error]');
+  function showError(scope, message) {
+    var error = scope.querySelector('[data-otp-error]');
     if (!error) {
       return;
     }
@@ -53,7 +59,31 @@
     error.hidden = !message;
   }
 
+  function setModalTab(tab) {
+    modalTabs.forEach(function (button) {
+      button.classList.toggle('is-active', button.getAttribute('data-otp-modal-tab') === tab);
+    });
+    modalPanels.forEach(function (panel) {
+      panel.hidden = panel.getAttribute('data-otp-modal-panel') !== tab;
+    });
+
+    if (tab === 'password') {
+      showError(modal.querySelector('[data-otp-modal-panel="password"]'), '');
+      window.setTimeout(function () {
+        if (loginPhoneInput) {
+          loginPhoneInput.focus();
+        }
+      }, 30);
+    } else {
+      setStep('phone');
+    }
+  }
+
   function setStep(step) {
+    if (!phoneStep) {
+      return;
+    }
+
     phoneStep.hidden = step !== 'phone';
     codeStep.hidden = step !== 'code';
     passwordStep.hidden = step !== 'password';
@@ -71,9 +101,9 @@
         codeInput.focus();
       }, 30);
     } else if (step === 'password') {
-      passwordInput.value = '';
+      newPasswordInput.value = '';
       window.setTimeout(function () {
-        passwordInput.focus();
+        newPasswordInput.focus();
       }, 30);
     }
   }
@@ -85,7 +115,7 @@
     window.requestAnimationFrame(function () {
       modal.classList.add('is-open');
     });
-    setStep('phone');
+    setModalTab('password');
   }
 
   function closeModal() {
@@ -101,7 +131,7 @@
       modal.hidden = true;
     }, CLOSE_ANIMATION_MS);
 
-    window.clearTimeout(countdownTimer);
+    window.clearInterval(countdownTimer);
   }
 
   function startResendCountdown() {
@@ -121,7 +151,7 @@
     }, 1000);
   }
 
-  function requestCode(phone, step) {
+  function requestCode(phone, scope) {
     var body = new window.URLSearchParams();
     body.set('action', 'wm_otp_request_code');
     body.set('nonce', window.wmOtpData.nonce);
@@ -140,13 +170,13 @@
       .then(function (data) {
         if (!data || !data.success) {
           var message = (data && data.data && data.data.message) || 'ارسال کد یکبارمصرف ناموفق بود.';
-          showError(step, message);
+          showError(scope, message);
           return false;
         }
         return true;
       })
       .catch(function () {
-        showError(step, 'خطا در ارتباط با سرور. دوباره تلاش کنید.');
+        showError(scope, 'خطا در ارتباط با سرور. دوباره تلاش کنید.');
         return false;
       });
   }
@@ -168,6 +198,65 @@
       closeModal();
     }
   });
+
+  modalTabs.forEach(function (button) {
+    button.addEventListener('click', function () {
+      setModalTab(button.getAttribute('data-otp-modal-tab'));
+    });
+  });
+
+  if (passwordLoginForm) {
+    passwordLoginForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      var phone = loginPhoneInput.value.trim();
+      var password = loginPasswordInput.value;
+      var scope = modal.querySelector('[data-otp-modal-panel="password"]');
+
+      if (!phone || !password) {
+        return;
+      }
+
+      var submitButton = passwordLoginForm.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+
+      var body = new window.URLSearchParams();
+      body.set('action', 'wm_otp_password_login');
+      body.set('nonce', window.wmOtpData.nonce);
+      body.set('phone', phone);
+      body.set('password', password);
+      body.set('redirect_to', redirectTo);
+
+      window
+        .fetch(window.wmOtpData.ajaxUrl, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString(),
+        })
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          if (data && data.success && data.data && data.data.redirect) {
+            window.location.href = data.data.redirect;
+            return;
+          }
+
+          submitButton.disabled = false;
+          var message = (data && data.data && data.data.message) || 'ورود ناموفق بود.';
+          showError(scope, message);
+        })
+        .catch(function () {
+          submitButton.disabled = false;
+          showError(scope, 'خطا در ارتباط با سرور. دوباره تلاش کنید.');
+        });
+    });
+  }
+
+  if (!phoneForm) {
+    return;
+  }
 
   phoneForm.addEventListener('submit', function (event) {
     event.preventDefault();
@@ -264,7 +353,7 @@
   passwordForm.addEventListener('submit', function (event) {
     event.preventDefault();
 
-    var password = passwordInput.value;
+    var password = newPasswordInput.value;
     if (!password || password.length < 6) {
       showError(passwordStep, 'رمز عبور باید حداقل ۶ کاراکتر باشد.');
       return;
