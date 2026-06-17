@@ -102,6 +102,34 @@ function wm_otp_send_via_kavenegar( $phone, $code ) {
 }
 
 /**
+ * Generate, send, and store an OTP code for a phone number.
+ *
+ * Shared by the "request code" and "check phone" AJAX endpoints so the
+ * throttle/send/transient logic only lives in one place.
+ *
+ * @param string $phone Normalized phone number.
+ * @return true|WP_Error
+ */
+function wm_otp_issue_code( $phone ) {
+	$throttle_key = 'wm_otp_throttle_' . md5( $phone );
+	if ( get_transient( $throttle_key ) ) {
+		return new WP_Error( 'wm_otp_throttled', 'کد قبلی هنوز معتبر است. کمی صبر کنید و دوباره تلاش کنید.' );
+	}
+
+	$code = (string) wp_rand( 10000, 99999 );
+
+	$sent = wm_otp_send_via_kavenegar( $phone, $code );
+	if ( is_wp_error( $sent ) ) {
+		return $sent;
+	}
+
+	set_transient( 'wm_otp_code_' . md5( $phone ), $code, 2 * MINUTE_IN_SECONDS );
+	set_transient( $throttle_key, 1, MINUTE_IN_SECONDS );
+
+	return true;
+}
+
+/**
  * AJAX: request an OTP code for a phone number.
  */
 function wm_ajax_otp_request_code() {
@@ -117,20 +145,10 @@ function wm_ajax_otp_request_code() {
 		wp_send_json_error( array( 'message' => 'شماره موبایل وارد شده معتبر نیست.' ) );
 	}
 
-	$throttle_key = 'wm_otp_throttle_' . md5( $phone );
-	if ( get_transient( $throttle_key ) ) {
-		wp_send_json_error( array( 'message' => 'کد قبلی هنوز معتبر است. کمی صبر کنید و دوباره تلاش کنید.' ) );
+	$issued = wm_otp_issue_code( $phone );
+	if ( is_wp_error( $issued ) ) {
+		wp_send_json_error( array( 'message' => $issued->get_error_message() ) );
 	}
-
-	$code = (string) wp_rand( 10000, 99999 );
-
-	$sent = wm_otp_send_via_kavenegar( $phone, $code );
-	if ( is_wp_error( $sent ) ) {
-		wp_send_json_error( array( 'message' => $sent->get_error_message() ) );
-	}
-
-	set_transient( 'wm_otp_code_' . md5( $phone ), $code, 2 * MINUTE_IN_SECONDS );
-	set_transient( $throttle_key, 1, MINUTE_IN_SECONDS );
 
 	wp_send_json_success(
 		array(
@@ -141,6 +159,47 @@ function wm_ajax_otp_request_code() {
 }
 add_action( 'wp_ajax_wm_otp_request_code', 'wm_ajax_otp_request_code' );
 add_action( 'wp_ajax_nopriv_wm_otp_request_code', 'wm_ajax_otp_request_code' );
+
+/**
+ * AJAX: check whether a phone number already has an account.
+ *
+ * If the user does not yet exist, an OTP code is sent immediately so the
+ * client can move straight to the verification step.
+ */
+function wm_ajax_otp_check_phone() {
+	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
+
+	if ( ! wm_technical_otp_enabled() ) {
+		wp_send_json_error( array( 'message' => 'ورود با کد یکبارمصرف فعال نیست.' ) );
+	}
+
+	$phone = isset( $_POST['phone'] ) ? wm_otp_normalize_phone( wp_unslash( $_POST['phone'] ) ) : '';
+
+	if ( ! $phone ) {
+		wp_send_json_error( array( 'message' => 'شماره موبایل وارد شده معتبر نیست.' ) );
+	}
+
+	$user = wm_otp_get_user_by_phone( $phone );
+
+	if ( $user ) {
+		wp_send_json_success( array( 'exists' => true ) );
+	}
+
+	$issued = wm_otp_issue_code( $phone );
+	if ( is_wp_error( $issued ) ) {
+		wp_send_json_error( array( 'message' => $issued->get_error_message() ) );
+	}
+
+	wp_send_json_success(
+		array(
+			'exists'   => false,
+			'message'  => 'کد یکبارمصرف ارسال شد.',
+			'resendIn' => MINUTE_IN_SECONDS,
+		)
+	);
+}
+add_action( 'wp_ajax_wm_otp_check_phone', 'wm_ajax_otp_check_phone' );
+add_action( 'wp_ajax_nopriv_wm_otp_check_phone', 'wm_ajax_otp_check_phone' );
 
 /**
  * AJAX: verify an OTP code and log the user in, registering them if needed.

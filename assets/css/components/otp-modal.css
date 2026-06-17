@@ -44,8 +44,17 @@
   border-radius: var(--wm-radius-lg, 28px);
   box-shadow: var(--wm-shadow-md, 0 20px 60px rgba(0, 0, 0, 0.25));
   padding: var(--wm-space-6, 24px);
+  padding-top: calc(var(--wm-space-6, 24px) + 6px);
+  overflow: hidden;
   transform: translateY(16px) scale(0.98);
   transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.wm-otp-modal__accent {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: linear-gradient(135deg, var(--wm-color-cta, #111827), var(--wm-color-accent, #c89b3c));
 }
 
 .wm-otp-modal.is-open .wm-otp-modal__panel {
@@ -78,44 +87,6 @@
   color: var(--wm-color-muted, #6b7280);
 }
 
-.wm-otp-modal__tabs {
-  display: flex;
-  gap: var(--wm-space-2, 8px);
-  margin: 0 0 var(--wm-space-4, 16px);
-  padding: 4px;
-  background: #f3f1ec;
-  border-radius: 16px;
-}
-
-.wm-otp-modal__tab {
-  flex: 1;
-  min-height: 40px;
-  padding: 0 10px;
-  border: 0;
-  border-radius: 12px;
-  background: transparent;
-  color: var(--wm-color-muted, #6b7280);
-  font-family: var(--wm-font-primary, 'Vazirmatn', system-ui, sans-serif);
-  font-size: var(--wm-font-size-small, 13px);
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 200ms ease, color 200ms ease, box-shadow 200ms ease;
-}
-
-.wm-otp-modal__tab.is-active {
-  background: var(--wm-color-surface, #ffffff);
-  color: var(--wm-color-text, #1f2937);
-  box-shadow: var(--wm-shadow-sm, 0 4px 14px rgba(0, 0, 0, 0.08));
-}
-
-.wm-otp-modal__tabpanel[hidden] {
-  display: none;
-}
-
-.wm-otp-modal__tabpanel {
-  animation: wm-otp-fade-in 200ms ease;
-}
-
 .wm-otp-modal__subtitle {
   margin: 0 0 var(--wm-space-2, 8px);
   font-size: var(--wm-font-size-base, 15px);
@@ -142,15 +113,14 @@
   animation: wm-otp-fade-in 200ms ease;
 }
 
-.wm-otp-modal__step form,
-.wm-otp-modal__tabpanel form {
+.wm-otp-modal__step form {
   display: flex;
   flex-direction: column;
   gap: var(--wm-space-2, 8px);
 }
 
 @media (min-width: 481px) {
-  .wm-otp-modal__tabpanel[data-otp-modal-panel="otp"] .wm-otp-modal__step form {
+  .wm-otp-modal__step form {
     flex-direction: row;
   }
 }
@@ -167,6 +137,13 @@
   font-family: var(--wm-font-primary, 'Vazirmatn', system-ui, sans-serif);
   direction: ltr;
   text-align: center;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.wm-otp-modal__input:focus {
+  outline: none;
+  border-color: var(--wm-color-accent, #c89b3c);
+  box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.18);
 }
 
 .wm-otp-modal__input--code {
@@ -178,11 +155,17 @@
   padding: 0 20px;
   border: 0;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--wm-color-primary, #111827), #26364d);
+  background: linear-gradient(135deg, var(--wm-color-cta, #111827), var(--wm-color-primary, #111827));
   color: #fff;
   font-weight: 850;
   cursor: pointer;
   white-space: nowrap;
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.wm-otp-modal__submit:hover:not(:disabled) {
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.28);
+  transform: translateY(-1px);
 }
 
 .wm-otp-modal__submit:disabled {
@@ -204,8 +187,15 @@
   background: transparent;
   padding: 0;
   font-size: var(--wm-font-size-small, 13px);
-  color: var(--wm-color-primary, #111827);
+  font-weight: 700;
+  color: var(--wm-color-accent-dark, #9f7425);
   cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.wm-otp-modal__resend:hover:not(:disabled),
+.wm-otp-modal__back:hover {
+  color: var(--wm-color-accent, #c89b3c);
 }
 
 .wm-otp-modal__resend:disabled {
