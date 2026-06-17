@@ -10,19 +10,16 @@
   var existingPasswordStep = modal.querySelector('[data-otp-step="existing-password"]');
   var codeStep             = modal.querySelector('[data-otp-step="code"]');
   var passwordStep         = modal.querySelector('[data-otp-step="password"]');
-  var directRegisterStep   = modal.querySelector('[data-otp-step="direct-register"]');
 
   var phoneForm            = modal.querySelector('[data-otp-phone-form]');
   var existingPasswordForm = modal.querySelector('[data-otp-existing-password-form]');
   var codeForm             = modal.querySelector('[data-otp-code-form]');
   var passwordForm         = modal.querySelector('[data-otp-password-form]');
-  var directRegisterForm   = modal.querySelector('[data-otp-direct-register-form]');
 
   var phoneInput            = modal.querySelector('#wm-otp-phone');
   var existingPasswordInput = modal.querySelector('#wm-otp-existing-password');
   var codeInput             = modal.querySelector('#wm-otp-code');
   var newPasswordInput      = modal.querySelector('#wm-otp-new-password');
-  var directPasswordInput   = modal.querySelector('#wm-otp-direct-password');
 
   var phoneDisplays  = modal.querySelectorAll('[data-otp-phone-display]');
   var resendButton   = modal.querySelector('[data-otp-resend]');
@@ -31,7 +28,7 @@
   var loginWithCodeButton = modal.querySelector('[data-otp-login-with-code]');
   var closers        = modal.querySelectorAll('[data-otp-modal-close]');
 
-  var allSteps = [phoneStep, existingPasswordStep, codeStep, passwordStep, directRegisterStep].filter(Boolean);
+  var allSteps = [phoneStep, existingPasswordStep, codeStep, passwordStep].filter(Boolean);
 
   var closeTimer     = 0;
   var countdownTimer = 0;
@@ -59,11 +56,10 @@
     });
 
     var focusMap = {
-      'phone':           phoneInput,
+      'phone':             phoneInput,
       'existing-password': existingPasswordInput,
-      'code':            codeInput,
-      'password':        newPasswordInput,
-      'direct-register': directPasswordInput,
+      'code':              codeInput,
+      'password':          newPasswordInput,
     };
 
     var focusTarget = focusMap[step];
@@ -193,8 +189,6 @@
 
           if (data.data && data.data.exists) {
             setStep('existing-password');
-          } else if (data.data && data.data.canSendOtp === false) {
-            setStep('direct-register');
           } else {
             setStep('code');
             startResendCountdown();
@@ -360,50 +354,6 @@
         .catch(function () {
           btn.disabled = false;
           showError(passwordStep, 'خطا در ارتباط با سرور. دوباره تلاش کنید.');
-        });
-    });
-  }
-
-  /* ── Step 2c: Direct register (OTP disabled) ── */
-
-  if (directRegisterForm) {
-    directRegisterForm.addEventListener('submit', function (event) {
-      event.preventDefault();
-
-      var password = directPasswordInput.value;
-      if (!currentPhone || !password || password.length < 6) {
-        showError(directRegisterStep, 'رمز عبور باید حداقل ۶ کاراکتر باشد.');
-        return;
-      }
-
-      var btn = directRegisterForm.querySelector('button[type="submit"]');
-      btn.disabled = true;
-
-      var body = new window.URLSearchParams();
-      body.set('action', 'wm_otp_direct_register');
-      body.set('nonce', window.wmOtpData.nonce);
-      body.set('phone', currentPhone);
-      body.set('password', password);
-      body.set('redirect_to', redirectTo);
-
-      window.fetch(window.wmOtpData.ajaxUrl, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body.toString(),
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data && data.success && data.data && data.data.redirect) {
-            window.location.href = data.data.redirect;
-            return;
-          }
-          btn.disabled = false;
-          showError(directRegisterStep, (data && data.data && data.data.message) || 'ثبت‌نام ناموفق بود.');
-        })
-        .catch(function () {
-          btn.disabled = false;
-          showError(directRegisterStep, 'خطا در ارتباط با سرور. دوباره تلاش کنید.');
         });
     });
   }

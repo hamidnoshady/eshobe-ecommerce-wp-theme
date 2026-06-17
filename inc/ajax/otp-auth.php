@@ -135,10 +135,6 @@ function wm_otp_issue_code( $phone ) {
 function wm_ajax_otp_request_code() {
 	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
 
-	if ( ! wm_technical_otp_enabled() ) {
-		wp_send_json_error( array( 'message' => 'ورود با کد یکبارمصرف فعال نیست.' ) );
-	}
-
 	$phone = isset( $_POST['phone'] ) ? wm_otp_normalize_phone( wp_unslash( $_POST['phone'] ) ) : '';
 
 	if ( ! $phone ) {
@@ -163,10 +159,8 @@ add_action( 'wp_ajax_nopriv_wm_otp_request_code', 'wm_ajax_otp_request_code' );
 /**
  * AJAX: check whether a phone number already has an account.
  *
- * Always checks user existence regardless of OTP setting.
- * - Existing user  → { exists: true }
- * - New user + OTP → sends code, { exists: false, canSendOtp: true }
- * - New user, no OTP → { exists: false, canSendOtp: false }
+ * - Existing user → { exists: true }
+ * - New user      → sends OTP, { exists: false }
  */
 function wm_ajax_otp_check_phone() {
 	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
@@ -183,10 +177,6 @@ function wm_ajax_otp_check_phone() {
 		wp_send_json_success( array( 'exists' => true ) );
 	}
 
-	if ( ! wm_technical_otp_enabled() ) {
-		wp_send_json_success( array( 'exists' => false, 'canSendOtp' => false ) );
-	}
-
 	$issued = wm_otp_issue_code( $phone );
 	if ( is_wp_error( $issued ) ) {
 		wp_send_json_error( array( 'message' => $issued->get_error_message() ) );
@@ -194,10 +184,9 @@ function wm_ajax_otp_check_phone() {
 
 	wp_send_json_success(
 		array(
-			'exists'     => false,
-			'canSendOtp' => true,
-			'message'    => 'کد یکبارمصرف ارسال شد.',
-			'resendIn'   => MINUTE_IN_SECONDS,
+			'exists'   => false,
+			'message'  => 'کد یکبارمصرف ارسال شد.',
+			'resendIn' => MINUTE_IN_SECONDS,
 		)
 	);
 }
@@ -205,66 +194,10 @@ add_action( 'wp_ajax_wm_otp_check_phone', 'wm_ajax_otp_check_phone' );
 add_action( 'wp_ajax_nopriv_wm_otp_check_phone', 'wm_ajax_otp_check_phone' );
 
 /**
- * AJAX: register a new user directly with phone + password (no OTP).
- *
- * Only available when OTP is disabled. Prevents bypassing OTP when it is on.
- */
-function wm_ajax_otp_direct_register() {
-	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
-
-	if ( wm_technical_otp_enabled() ) {
-		wp_send_json_error( array( 'message' => 'لطفاً از روش کد یکبارمصرف برای ثبت‌نام استفاده کنید.' ) );
-	}
-
-	$phone    = isset( $_POST['phone'] ) ? wm_otp_normalize_phone( wp_unslash( $_POST['phone'] ) ) : '';
-	$password = isset( $_POST['password'] ) ? (string) wp_unslash( $_POST['password'] ) : '';
-
-	if ( ! $phone ) {
-		wp_send_json_error( array( 'message' => 'شماره موبایل وارد شده معتبر نیست.' ) );
-	}
-
-	if ( mb_strlen( $password ) < 6 ) {
-		wp_send_json_error( array( 'message' => 'رمز عبور باید حداقل ۶ کاراکتر باشد.' ) );
-	}
-
-	$existing = wm_otp_get_user_by_phone( $phone );
-	if ( $existing ) {
-		wp_send_json_error( array( 'message' => 'این شماره موبایل قبلاً ثبت شده است.' ) );
-	}
-
-	$user_id = wm_otp_create_user_from_phone( $phone );
-	if ( is_wp_error( $user_id ) ) {
-		wp_send_json_error( array( 'message' => $user_id->get_error_message() ) );
-	}
-
-	wp_set_password( $password, $user_id );
-	delete_user_meta( $user_id, '_wm_otp_needs_password' );
-
-	$user = get_user_by( 'id', $user_id );
-	wp_set_current_user( $user_id );
-	wp_set_auth_cookie( $user_id, true );
-	do_action( 'wp_login', $user->user_login, $user );
-
-	$redirect_to = isset( $_POST['redirect_to'] ) ? sanitize_text_field( wp_unslash( $_POST['redirect_to'] ) ) : '';
-
-	wp_send_json_success(
-		array(
-			'message'  => 'ثبت‌نام با موفقیت انجام شد.',
-			'redirect' => wm_otp_resolve_redirect_url( $redirect_to ),
-		)
-	);
-}
-add_action( 'wp_ajax_nopriv_wm_otp_direct_register', 'wm_ajax_otp_direct_register' );
-
-/**
  * AJAX: verify an OTP code and log the user in, registering them if needed.
  */
 function wm_ajax_otp_verify_code() {
 	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
-
-	if ( ! wm_technical_otp_enabled() ) {
-		wp_send_json_error( array( 'message' => 'ورود با کد یکبارمصرف فعال نیست.' ) );
-	}
 
 	$phone = isset( $_POST['phone'] ) ? wm_otp_normalize_phone( wp_unslash( $_POST['phone'] ) ) : '';
 	$code  = isset( $_POST['code'] ) ? preg_replace( '/[^0-9]/', '', wp_unslash( $_POST['code'] ) ) : '';

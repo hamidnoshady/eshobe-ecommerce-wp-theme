@@ -85,24 +85,6 @@ if ( is_user_logged_in() ) {
 			<p class="wm-otp-modal__error" data-otp-error hidden></p>
 		</div>
 
-		<!-- Step 2c: New user — direct register when OTP unavailable -->
-		<div class="wm-otp-modal__step" data-otp-step="direct-register" hidden>
-			<h3 class="wm-otp-modal__subtitle"><?php echo esc_html__( 'ایجاد حساب کاربری', 'watchmid' ); ?></h3>
-			<p class="wm-otp-modal__desc">
-				<?php echo esc_html__( 'شماره', 'watchmid' ); ?>
-				<strong data-otp-phone-display></strong>
-				<?php echo esc_html__( 'در سیستم ثبت نشده. رمز عبور خود را تعیین کنید.', 'watchmid' ); ?>
-			</p>
-			<form data-otp-direct-register-form>
-				<label class="screen-reader-text" for="wm-otp-direct-password"><?php echo esc_html__( 'رمز عبور', 'watchmid' ); ?></label>
-				<input type="password" id="wm-otp-direct-password" class="wm-otp-modal__input" name="password" autocomplete="new-password" minlength="6" placeholder="<?php echo esc_attr__( 'رمز عبور (حداقل ۶ کاراکتر)', 'watchmid' ); ?>" required>
-				<button type="submit" class="wm-otp-modal__submit"><?php echo esc_html__( 'ثبت‌نام', 'watchmid' ); ?></button>
-			</form>
-			<div class="wm-otp-modal__actions">
-				<button type="button" class="wm-otp-modal__back" data-otp-back><?php echo esc_html__( 'تغییر شماره', 'watchmid' ); ?></button>
-			</div>
-			<p class="wm-otp-modal__error" data-otp-error hidden></p>
-		</div>
 
-	</div>
+</div>
 </div>
