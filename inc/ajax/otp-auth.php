@@ -156,6 +156,20 @@ function wm_otp_issue_code( $phone ) {
 }
 
 /**
+ * AJAX: return a fresh nonce for the OTP modal.
+ *
+ * Called by the JS when the modal opens so page-caching plugins (FlyingPress,
+ * WP Rocket, etc.) that bake a stale nonce into the HTML do not break every
+ * subsequent AJAX call.  This endpoint has no nonce input — it just mints and
+ * returns one — so it is safe to expose as nopriv.
+ */
+function wm_ajax_otp_get_nonce() {
+	wp_send_json_success( array( 'nonce' => wp_create_nonce( 'wm_otp_nonce' ) ) );
+}
+add_action( 'wp_ajax_wm_otp_get_nonce', 'wm_ajax_otp_get_nonce' );
+add_action( 'wp_ajax_nopriv_wm_otp_get_nonce', 'wm_ajax_otp_get_nonce' );
+
+/**
  * AJAX: request an OTP code for a phone number.
  */
 function wm_ajax_otp_request_code() {

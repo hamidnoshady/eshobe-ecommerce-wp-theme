@@ -112,6 +112,25 @@
     window.clearInterval(countdownTimer);
   }
 
+  function refreshNonce(callback) {
+    var body = new window.URLSearchParams();
+    body.set('action', 'wm_otp_get_nonce');
+    window.fetch(window.wmOtpData.ajaxUrl, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.success && data.data && data.data.nonce) {
+          window.wmOtpData.nonce = data.data.nonce;
+        }
+        callback();
+      })
+      .catch(function () { callback(); });
+  }
+
   function openModal(forced) {
     window.clearTimeout(closeTimer);
     isForced = !!forced;
@@ -129,6 +148,8 @@
     } else if (resumeBanner) {
       resumeBanner.hidden = true;
     }
+
+    refreshNonce(function () {});
   }
 
   function startResendCountdown() {
