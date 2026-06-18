@@ -1121,6 +1121,51 @@ function wm_site_settings_technical_fields() {
                 ),
             ),
         ),
+        array(
+            'key'               => 'field_wm_technical_otp_resend_seconds',
+            'label'             => 'فاصله ارسال مجدد کد (ثانیه)',
+            'name'              => 'wm_technical_otp_resend_seconds',
+            'type'              => 'number',
+            'default_value'     => 60,
+            'min'               => 30,
+            'max'               => 300,
+            'instructions'      => 'حداقل فاصله بین دو ارسال کد برای یک شماره. پیش‌فرض: ۶۰ ثانیه.',
+            'conditional_logic' => array(
+                array(
+                    array( 'field' => 'field_wm_technical_otp_enabled', 'operator' => '==', 'value' => '1' ),
+                ),
+            ),
+        ),
+        array(
+            'key'               => 'field_wm_technical_otp_max_per_phone',
+            'label'             => 'حداکثر درخواست از یک شماره در ساعت',
+            'name'              => 'wm_technical_otp_max_per_phone',
+            'type'              => 'number',
+            'default_value'     => 5,
+            'min'               => 1,
+            'max'               => 20,
+            'instructions'      => 'بعد از این تعداد درخواست در یک ساعت، شماره مسدود می‌شود. پیش‌فرض: ۵.',
+            'conditional_logic' => array(
+                array(
+                    array( 'field' => 'field_wm_technical_otp_enabled', 'operator' => '==', 'value' => '1' ),
+                ),
+            ),
+        ),
+        array(
+            'key'               => 'field_wm_technical_otp_max_per_ip',
+            'label'             => 'حداکثر درخواست از یک IP در ساعت',
+            'name'              => 'wm_technical_otp_max_per_ip',
+            'type'              => 'number',
+            'default_value'     => 10,
+            'min'               => 1,
+            'max'               => 50,
+            'instructions'      => 'بعد از این تعداد درخواست از یک آدرس IP در یک ساعت، مسدود می‌شود. پیش‌فرض: ۱۰.',
+            'conditional_logic' => array(
+                array(
+                    array( 'field' => 'field_wm_technical_otp_enabled', 'operator' => '==', 'value' => '1' ),
+                ),
+            ),
+        ),
 
         wm_site_settings_tab( 'field_wm_technical_tab_analytics', 'آنالیتیکس و ردیابی' ),
         array(

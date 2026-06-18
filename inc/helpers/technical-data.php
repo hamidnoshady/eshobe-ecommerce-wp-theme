@@ -220,3 +220,16 @@ function wm_technical_get_otp_settings() {
 		'template' => wm_technical_get_option( 'wm_technical_otp_template', '' ),
 	);
 }
+
+/**
+ * OTP security / rate-limiting settings.
+ *
+ * @return array{resend_seconds: int, max_per_phone: int, max_per_ip: int}
+ */
+function wm_technical_get_otp_security_settings() {
+	return array(
+		'resend_seconds' => max( 30, (int) wm_technical_get_option( 'wm_technical_otp_resend_seconds', 60 ) ),
+		'max_per_phone'  => max( 1,  (int) wm_technical_get_option( 'wm_technical_otp_max_per_phone', 5 ) ),
+		'max_per_ip'     => max( 1,  (int) wm_technical_get_option( 'wm_technical_otp_max_per_ip', 10 ) ),
+	);
+}
