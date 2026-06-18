@@ -264,3 +264,109 @@ body.wm-otp-modal-open {
     transform: translateY(0);
   }
 }
+
+/* ── Confirm-exit bar ── */
+.wm-otp-modal__confirm-exit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wm-space-3, 12px);
+  padding: var(--wm-space-3, 12px) var(--wm-space-4, 16px);
+  margin-bottom: var(--wm-space-4, 16px);
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: var(--wm-radius-md, 18px);
+  font-size: var(--wm-font-size-small, 13px);
+  color: var(--wm-color-text, #1f2937);
+  animation: wm-otp-fade-in 200ms ease;
+}
+
+.wm-otp-modal__confirm-exit[hidden] {
+  display: none;
+}
+
+.wm-otp-modal__confirm-exit-actions {
+  display: flex;
+  gap: var(--wm-space-2, 8px);
+  flex-shrink: 0;
+}
+
+.wm-otp-modal__confirm-exit-btn {
+  border: 0;
+  border-radius: var(--wm-radius-sm, 10px);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--wm-font-primary, 'Vazirmatn', system-ui, sans-serif);
+  cursor: pointer;
+  transition: opacity 160ms ease;
+}
+
+.wm-otp-modal__confirm-exit-btn--cancel {
+  background: var(--wm-color-primary, #111827);
+  color: #fff;
+}
+
+.wm-otp-modal__confirm-exit-btn--confirm {
+  background: transparent;
+  color: var(--wm-color-danger-text, #b42318);
+  border: 1px solid var(--wm-color-danger-text, #b42318);
+}
+
+.wm-otp-modal__confirm-exit-btn:hover {
+  opacity: 0.85;
+}
+
+/* ── Resume banner ── */
+.wm-otp-modal__resume-banner {
+  padding: var(--wm-space-3, 12px) var(--wm-space-4, 16px);
+  margin-bottom: var(--wm-space-4, 16px);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--wm-radius-md, 18px);
+  font-size: var(--wm-font-size-small, 13px);
+  animation: wm-otp-fade-in 200ms ease;
+}
+
+.wm-otp-modal__resume-banner[hidden] {
+  display: none;
+}
+
+.wm-otp-modal__resume-text {
+  color: #1e40af;
+  font-weight: 600;
+  margin-bottom: var(--wm-space-2, 8px);
+  text-align: right;
+}
+
+.wm-otp-modal__resume-actions {
+  display: flex;
+  gap: var(--wm-space-2, 8px);
+  justify-content: flex-end;
+}
+
+.wm-otp-modal__resume-btn {
+  border: 0;
+  border-radius: var(--wm-radius-sm, 10px);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--wm-font-primary, 'Vazirmatn', system-ui, sans-serif);
+  cursor: pointer;
+  transition: opacity 160ms ease;
+}
+
+.wm-otp-modal__resume-btn--continue {
+  background: #1e40af;
+  color: #fff;
+}
+
+.wm-otp-modal__resume-btn--reset {
+  background: transparent;
+  color: var(--wm-color-muted, #6b7280);
+  border: 1px solid var(--wm-color-border, #e5e0d8);
+}
+
+.wm-otp-modal__resume-btn:hover {
+  opacity: 0.85;
+}
