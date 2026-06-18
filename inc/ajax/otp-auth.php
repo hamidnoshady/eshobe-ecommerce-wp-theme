@@ -111,20 +111,45 @@ function wm_otp_send_via_kavenegar( $phone, $code ) {
  * @return true|WP_Error
  */
 function wm_otp_issue_code( $phone ) {
+	$security = wm_technical_get_otp_security_settings();
+
+	// Per-IP hourly limit
+	$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+	if ( $ip ) {
+		$ip_key      = 'wm_otp_ip_' . md5( $ip );
+		$ip_attempts = (int) get_transient( $ip_key );
+		if ( $ip_attempts >= $security['max_per_ip'] ) {
+			return new WP_Error( 'wm_otp_limit', 'تعداد درخواست‌های OTP از این آدرس بیش از حد مجاز است. لطفاً بعداً تلاش کنید.' );
+		}
+	}
+
+	// Per-phone hourly limit
+	$phone_hourly_key = 'wm_otp_hourly_' . md5( $phone );
+	$phone_attempts   = (int) get_transient( $phone_hourly_key );
+	if ( $phone_attempts >= $security['max_per_phone'] ) {
+		return new WP_Error( 'wm_otp_limit', 'تعداد درخواست‌های OTP برای این شماره بیش از حد مجاز است. لطفاً یک ساعت دیگر تلاش کنید.' );
+	}
+
+	// Per-phone resend throttle (uses configurable resend_seconds)
 	$throttle_key = 'wm_otp_throttle_' . md5( $phone );
 	if ( get_transient( $throttle_key ) ) {
 		return new WP_Error( 'wm_otp_throttled', 'کد قبلی هنوز معتبر است. کمی صبر کنید و دوباره تلاش کنید.' );
 	}
 
 	$code = (string) wp_rand( 10000, 99999 );
-
 	$sent = wm_otp_send_via_kavenegar( $phone, $code );
 	if ( is_wp_error( $sent ) ) {
 		return $sent;
 	}
 
 	set_transient( 'wm_otp_code_' . md5( $phone ), $code, 2 * MINUTE_IN_SECONDS );
-	set_transient( $throttle_key, 1, MINUTE_IN_SECONDS );
+	set_transient( $throttle_key, 1, $security['resend_seconds'] );
+
+	// Increment counters after successful send
+	if ( $ip ) {
+		set_transient( $ip_key, $ip_attempts + 1, HOUR_IN_SECONDS );
+	}
+	set_transient( $phone_hourly_key, $phone_attempts + 1, HOUR_IN_SECONDS );
 
 	return true;
 }
@@ -174,6 +199,22 @@ function wm_ajax_otp_check_phone() {
 	$user = wm_otp_get_user_by_phone( $phone );
 
 	if ( $user ) {
+		// Incomplete registration: account exists but password was never set
+		if ( get_user_meta( $user->ID, '_wm_otp_needs_password', true ) ) {
+			$issued = wm_otp_issue_code( $phone );
+			if ( is_wp_error( $issued ) ) {
+				wp_send_json_error( array( 'message' => $issued->get_error_message() ) );
+			}
+			wp_send_json_success(
+				array(
+					'exists'                 => true,
+					'incompleteRegistration' => true,
+					'message'                => 'کد یکبارمصرف ارسال شد.',
+					'resendIn'               => MINUTE_IN_SECONDS,
+				)
+			);
+		}
+
 		wp_send_json_success( array( 'exists' => true ) );
 	}
 
