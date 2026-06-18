@@ -1,0 +1,36 @@
+name: Release Theme
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout into theme folder
+        uses: actions/checkout@v4
+        with:
+          path: eshobe-ecommerce-wp-theme
+
+      - name: Create distributable ZIP
+        run: |
+          zip -r eshobe-ecommerce-wp-theme.zip eshobe-ecommerce-wp-theme \
+            --exclude "eshobe-ecommerce-wp-theme/.git/*" \
+            --exclude "eshobe-ecommerce-wp-theme/.github/*" \
+            --exclude "eshobe-ecommerce-wp-theme/.gitignore" \
+            --exclude "eshobe-ecommerce-wp-theme/.remember/*" \
+            --exclude "eshobe-ecommerce-wp-theme/.superpowers/*" \
+            --exclude "eshobe-ecommerce-wp-theme/.playwright-mcp/*" \
+            --exclude "eshobe-ecommerce-wp-theme/docs/*" \
+            --exclude "eshobe-ecommerce-wp-theme/*.png"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: eshobe-ecommerce-wp-theme.zip
+          generate_release_notes: true

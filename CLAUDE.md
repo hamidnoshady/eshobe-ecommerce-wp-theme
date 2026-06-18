@@ -14,7 +14,8 @@ Local WP manages the WordPress site itself (PHP, MySQL, web server). VS Code is 
 ## Development workflow
 
 - No build/lint/test commands exist. Edit PHP/CSS/JS directly and reload the site (Local dev environment) to see changes.
-- Bump `WATCHMID_VERSION` in `functions.php` (and the `Version:` header in `style.css`) when making notable changes — this constant is used as the cache-busting version for all enqueued assets.
+- **After every change**, bump `WATCHMID_VERSION` in `functions.php` AND `Version:` in `style.css` together (patch increment), then commit and push to GitHub. This is required, not optional.
+- Version format: `MAJOR.MINOR.PATCH` (e.g. `0.4.52` → `0.4.53`). Bump patch for any fix/tweak, minor for new features.
 - CSS/JS for cart and checkout pages use `filemtime()` for versioning instead of `WATCHMID_VERSION`, so those auto-bust on save.
 - For UI changes, use the `run` or `verify` skills to launch/check the site in a browser (Playwright/Chrome DevTools MCP available).
 - **Remote/cloud sessions (no Local WP install available)**: when there's no running WordPress/WooCommerce/ACF stack to hit, verify pure CSS/JS UI changes (header, modals, animations, etc.) with a static Playwright harness instead of skipping verification:
@@ -60,3 +61,17 @@ Local WP manages the WordPress site itself (PHP, MySQL, web server). VS Code is 
 ### RTL
 
 `rtl.css` provides RTL-specific overrides; the theme is designed primarily for a Persian/RTL storefront (note Persian-language strings throughout `inc/customizer/` and meta key checks).
+
+## GitHub & Production Deploy
+
+- Repo: `github.com/hamidnoshady/eshobe-ecommerce-wp-theme` (private).
+- `.github/workflows/release.yml` auto-creates a distributable ZIP and GitHub Release when a version tag is pushed.
+- `inc/theme-updater.php` hooks into WordPress's native update system and checks GitHub releases API every 6 hours.
+- **Deploy workflow** (run after every pushed commit):
+  ```
+  git tag v0.4.53   # use the exact version from style.css
+  git push origin v0.4.53
+  ```
+  GitHub Action runs → WP admin shows the update badge → click "Update now" or let auto-update handle it.
+- **Private repo requirement**: production `wp-config.php` must have `define('WM_GITHUB_TOKEN', 'ghp_...')` — a GitHub PAT with `repo` (read-only) scope — so WordPress can authenticate to download the release ZIP.
+- To force WP to check for updates immediately: Dashboard → Updates → "Check Again".
