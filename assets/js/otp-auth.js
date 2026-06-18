@@ -1,5 +1,7 @@
 (function () {
-  var modal = document.getElementById('wm-otp-modal');
+  var SESSION_KEY = 'wm_otp_saved_phone';
+
+  var modal    = document.getElementById('wm-otp-modal');
   var triggers = document.querySelectorAll('[data-wm-otp-trigger]');
 
   if (!modal || !triggers.length || typeof window.wmOtpData === 'undefined') {
@@ -21,12 +23,18 @@
   var codeInput             = modal.querySelector('#wm-otp-code');
   var newPasswordInput      = modal.querySelector('#wm-otp-new-password');
 
-  var phoneDisplays  = modal.querySelectorAll('[data-otp-phone-display]');
-  var resendButton   = modal.querySelector('[data-otp-resend]');
-  var resendTimer    = modal.querySelector('[data-otp-resend-timer]');
-  var backButtons    = modal.querySelectorAll('[data-otp-back]');
-  var loginWithCodeButton = modal.querySelector('[data-otp-login-with-code]');
-  var closers        = modal.querySelectorAll('[data-otp-modal-close]');
+  var phoneDisplays        = modal.querySelectorAll('[data-otp-phone-display]');
+  var resendButton         = modal.querySelector('[data-otp-resend]');
+  var resendTimer          = modal.querySelector('[data-otp-resend-timer]');
+  var backButtons          = modal.querySelectorAll('[data-otp-back]');
+  var loginWithCodeButton  = modal.querySelector('[data-otp-login-with-code]');
+  var closers              = modal.querySelectorAll('[data-otp-modal-close]');
+  var confirmExitBar       = modal.querySelector('[data-otp-confirm-exit]');
+  var exitConfirmButton    = modal.querySelector('[data-otp-exit-confirm]');
+  var exitCancelButton     = modal.querySelector('[data-otp-exit-cancel]');
+  var resumeBanner         = modal.querySelector('[data-otp-resume-banner]');
+  var resumeContinueButton = modal.querySelector('[data-otp-resume-continue]');
+  var resumeResetButton    = modal.querySelector('[data-otp-resume-reset]');
 
   var allSteps = [phoneStep, existingPasswordStep, codeStep, passwordStep].filter(Boolean);
 
@@ -34,9 +42,26 @@
   var countdownTimer = 0;
   var redirectTo     = '';
   var currentPhone   = '';
+  var currentStep    = 'phone';
   var isForced       = false;
   var resendSeconds  = parseInt(window.wmOtpData.resendSeconds, 10) || 60;
   var CLOSE_ANIMATION_MS = 240;
+
+  /* ── sessionStorage helpers ── */
+
+  function savePhone(phone) {
+    try { sessionStorage.setItem(SESSION_KEY, phone); } catch(e) {}
+  }
+
+  function clearPhone() {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch(e) {}
+  }
+
+  function getSavedPhone() {
+    try { return sessionStorage.getItem(SESSION_KEY) || ''; } catch(e) { return ''; }
+  }
+
+  /* ── UI helpers ── */
 
   function showError(scope, message) {
     var error = scope && scope.querySelector('[data-otp-error]');
@@ -50,10 +75,17 @@
   }
 
   function setStep(step) {
+    currentStep = step;
     allSteps.forEach(function (stepEl) {
       stepEl.hidden = stepEl.getAttribute('data-otp-step') !== step;
       showError(stepEl, '');
     });
+
+    if (confirmExitBar) { confirmExitBar.hidden = true; }
+
+    if (step !== 'phone' && currentPhone) {
+      savePhone(currentPhone);
+    }
 
     var focusMap = {
       'phone':             phoneInput,
@@ -69,6 +101,16 @@
     }
   }
 
+  function doClose() {
+    if (modal.hidden || isForced) { return; }
+    if (confirmExitBar) { confirmExitBar.hidden = true; }
+    modal.classList.remove('is-open');
+    document.body.classList.remove('wm-otp-modal-open');
+    window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(function () { modal.hidden = true; }, CLOSE_ANIMATION_MS);
+    window.clearInterval(countdownTimer);
+  }
+
   function openModal(forced) {
     window.clearTimeout(closeTimer);
     isForced = !!forced;
@@ -77,15 +119,15 @@
     document.body.classList.add('wm-otp-modal-open');
     window.requestAnimationFrame(function () { modal.classList.add('is-open'); });
     setStep('phone');
-  }
 
-  function closeModal() {
-    if (modal.hidden || isForced) { return; }
-    modal.classList.remove('is-open');
-    document.body.classList.remove('wm-otp-modal-open');
-    window.clearTimeout(closeTimer);
-    closeTimer = window.setTimeout(function () { modal.hidden = true; }, CLOSE_ANIMATION_MS);
-    window.clearInterval(countdownTimer);
+    var saved = getSavedPhone();
+    if (saved && phoneInput && resumeBanner) {
+      phoneInput.value = saved;
+      setPhoneDisplay(saved);
+      resumeBanner.hidden = false;
+    } else if (resumeBanner) {
+      resumeBanner.hidden = true;
+    }
   }
 
   function startResendCountdown() {
@@ -130,7 +172,62 @@
       });
   }
 
-  /* ── Triggers / close ── */
+  /* ── Close / confirm-exit bar ── */
+
+  closers.forEach(function (el) {
+    el.addEventListener('click', function () {
+      if (isForced) { return; }
+      if (currentStep === 'phone') {
+        doClose();
+      } else if (confirmExitBar) {
+        confirmExitBar.hidden = false;
+      }
+    });
+  });
+
+  if (exitConfirmButton) {
+    exitConfirmButton.addEventListener('click', function () {
+      clearPhone();
+      doClose();
+    });
+  }
+
+  if (exitCancelButton) {
+    exitCancelButton.addEventListener('click', function () {
+      if (confirmExitBar) { confirmExitBar.hidden = true; }
+    });
+  }
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !modal.hidden) {
+      if (currentStep === 'phone') {
+        doClose();
+      } else if (confirmExitBar) {
+        confirmExitBar.hidden = false;
+      }
+    }
+  });
+
+  /* ── Resume banner ── */
+
+  if (resumeContinueButton) {
+    resumeContinueButton.addEventListener('click', function () {
+      if (resumeBanner) { resumeBanner.hidden = true; }
+      if (phoneForm && phoneInput && phoneInput.value.trim()) {
+        phoneForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      }
+    });
+  }
+
+  if (resumeResetButton) {
+    resumeResetButton.addEventListener('click', function () {
+      clearPhone();
+      if (resumeBanner) { resumeBanner.hidden = true; }
+      if (phoneInput) { phoneInput.value = ''; }
+    });
+  }
+
+  /* ── Triggers ── */
 
   triggers.forEach(function (trigger) {
     trigger.addEventListener('click', function (event) {
@@ -138,12 +235,6 @@
       redirectTo = trigger.getAttribute('data-wm-otp-redirect') || '';
       openModal(trigger.hasAttribute('data-wm-otp-force'));
     });
-  });
-
-  closers.forEach(function (el) { el.addEventListener('click', closeModal); });
-
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && !modal.hidden) { closeModal(); }
   });
 
   var autoTriggerEl = document.querySelector('[data-wm-otp-autotrigger]');
@@ -160,6 +251,8 @@
 
       var phone = phoneInput.value.trim();
       if (!phone) { return; }
+
+      if (resumeBanner) { resumeBanner.hidden = true; }
 
       var btn = phoneForm.querySelector('button[type="submit"]');
       btn.disabled = true;
@@ -187,7 +280,7 @@
           currentPhone = phone;
           setPhoneDisplay(phone);
 
-          if (data.data && data.data.exists) {
+          if (data.data && data.data.exists && !data.data.incompleteRegistration) {
             setStep('existing-password');
           } else {
             setStep('code');
@@ -229,6 +322,7 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data && data.success && data.data && data.data.redirect) {
+            clearPhone();
             window.location.href = data.data.redirect;
             return;
           }
@@ -294,6 +388,7 @@
             return;
           }
           if (data && data.success && data.data && data.data.redirect) {
+            clearPhone();
             window.location.href = data.data.redirect;
             return;
           }
@@ -348,6 +443,7 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data && data.success && data.data && data.data.redirect) {
+            clearPhone();
             window.location.href = data.data.redirect;
             return;
           }
@@ -366,6 +462,7 @@
   backButtons.forEach(function (button) {
     button.addEventListener('click', function () {
       window.clearInterval(countdownTimer);
+      clearPhone();
       setStep('phone');
     });
   });
