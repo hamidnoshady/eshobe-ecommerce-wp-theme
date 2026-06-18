@@ -200,6 +200,7 @@
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && !modal.hidden) {
+      if (isForced) { return; }
       if (currentStep === 'phone') {
         doClose();
       } else if (confirmExitBar) {
