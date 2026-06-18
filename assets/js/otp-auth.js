@@ -44,6 +44,7 @@
   var currentPhone   = '';
   var currentStep    = 'phone';
   var isForced       = false;
+  var passwordToken  = '';
   var resendSeconds  = parseInt(window.wmOtpData.resendSeconds, 10) || 60;
   var CLOSE_ANIMATION_MS = 240;
 
@@ -382,9 +383,7 @@
         .then(function (data) {
           if (data && data.success && data.data && data.data.needsPassword) {
             btn.disabled = false;
-            if (data.data.newNonce) {
-              window.wmOtpData.nonce = data.data.newNonce;
-            }
+            passwordToken = data.data.passwordToken || '';
             setStep('password');
             return;
           }
@@ -431,9 +430,13 @@
 
       var body = new window.URLSearchParams();
       body.set('action', 'wm_otp_set_password');
-      body.set('nonce', window.wmOtpData.nonce);
       body.set('password', password);
       body.set('redirect_to', redirectTo);
+      if (passwordToken) {
+        body.set('passwordToken', passwordToken);
+      } else {
+        body.set('nonce', window.wmOtpData.nonce);
+      }
 
       window.fetch(window.wmOtpData.ajaxUrl, {
         method: 'POST',
@@ -444,6 +447,7 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data && data.success && data.data && data.data.redirect) {
+            passwordToken = '';
             clearPhone();
             window.location.href = data.data.redirect;
             return;

@@ -282,11 +282,14 @@ function wm_ajax_otp_verify_code() {
 	$needs_password = $is_new_user || get_user_meta( $user->ID, '_wm_otp_needs_password', true );
 
 	if ( $needs_password ) {
+		$pw_token = wp_generate_password( 40, false );
+		set_transient( 'wm_otp_pw_token_' . $pw_token, $user->ID, 10 * MINUTE_IN_SECONDS );
+
 		wp_send_json_success(
 			array(
 				'message'       => 'ورود با موفقیت انجام شد.',
 				'needsPassword' => true,
-				'newNonce'      => wp_create_nonce( 'wm_otp_nonce' ),
+				'passwordToken' => $pw_token,
 			)
 		);
 	}
@@ -304,13 +307,29 @@ add_action( 'wp_ajax_nopriv_wm_otp_verify_code', 'wm_ajax_otp_verify_code' );
 /**
  * AJAX: set the account password after a first-time OTP registration.
  *
- * Only usable by the just-logged-in user, immediately after OTP verification.
+ * Accepts a single-use `passwordToken` transient (set during verify_code) so
+ * it works even when the auth cookie from the verify step has not yet been
+ * stored by the browser.  Falls back to the standard logged-in check when no
+ * token is present.
  */
 function wm_ajax_otp_set_password() {
-	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
+	$pw_token = isset( $_POST['passwordToken'] ) ? sanitize_text_field( wp_unslash( $_POST['passwordToken'] ) ) : '';
+	$user_id  = 0;
 
-	if ( ! is_user_logged_in() ) {
-		wp_send_json_error( array( 'message' => 'ابتدا وارد حساب کاربری شوید.' ) );
+	if ( $pw_token ) {
+		$user_id = (int) get_transient( 'wm_otp_pw_token_' . $pw_token );
+		delete_transient( 'wm_otp_pw_token_' . $pw_token );
+
+		if ( ! $user_id ) {
+			wp_send_json_error( array( 'message' => 'توکن نامعتبر یا منقضی شده است. دوباره ثبت‌نام کنید.' ) );
+		}
+	} else {
+		check_ajax_referer( 'wm_otp_nonce', 'nonce' );
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			wp_send_json_error( array( 'message' => 'ابتدا وارد حساب کاربری شوید.' ) );
+		}
 	}
 
 	$password = isset( $_POST['password'] ) ? (string) wp_unslash( $_POST['password'] ) : '';
@@ -319,13 +338,9 @@ function wm_ajax_otp_set_password() {
 		wp_send_json_error( array( 'message' => 'رمز عبور باید حداقل ۶ کاراکتر باشد.' ) );
 	}
 
-	$user_id = get_current_user_id();
-
 	wp_set_password( $password, $user_id );
 	delete_user_meta( $user_id, '_wm_otp_needs_password' );
 
-	// wp_set_password() invalidates the current auth cookie; re-issue it.
-	$user = get_user_by( 'id', $user_id );
 	wp_set_current_user( $user_id );
 	wp_set_auth_cookie( $user_id, true );
 
@@ -339,6 +354,7 @@ function wm_ajax_otp_set_password() {
 	);
 }
 add_action( 'wp_ajax_wm_otp_set_password', 'wm_ajax_otp_set_password' );
+add_action( 'wp_ajax_nopriv_wm_otp_set_password', 'wm_ajax_otp_set_password' );
 
 /**
  * AJAX: log a user in with their phone number and password (modal "login" tab).
