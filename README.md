@@ -1,4 +1,4 @@
-# Underscores Multipurpose Theme
+# Eshobe Ecommerce WP Theme
 
 A lightweight Underscores-inspired WordPress/WooCommerce starter theme prepared for Gutenberg and Persian RTL stores.
 

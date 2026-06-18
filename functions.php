@@ -1,12 +1,12 @@
 <?php
 /**
- * Underscores Multipurpose theme functions and definitions.
+ * Eshobe Ecommerce WP Theme functions and definitions.
  *
  * @package WM_Theme
  */
 
 if ( ! defined( 'WATCHMID_VERSION' ) ) {
-    define( 'WATCHMID_VERSION', '0.4.52' );
+    define( 'WATCHMID_VERSION', '0.4.53' );
 }
 
 /**
