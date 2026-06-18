@@ -12,16 +12,35 @@ if ( is_user_logged_in() ) {
 }
 ?>
 <div id="wm-otp-modal" class="wm-otp-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'ورود یا ثبت‌نام', 'watchmid' ); ?>" dir="rtl" hidden>
-	<div class="wm-otp-modal__backdrop" data-otp-modal-close></div>
+	<div class="wm-otp-modal__backdrop"></div>
 	<div class="wm-otp-modal__panel">
 		<button type="button" class="wm-otp-modal__close" data-otp-modal-close aria-label="<?php echo esc_attr__( 'بستن', 'watchmid' ); ?>">×</button>
 
+		<!-- Confirm-exit bar: shown when × is clicked mid-flow -->
+		<div class="wm-otp-modal__confirm-exit" data-otp-confirm-exit hidden>
+			<span><?php echo esc_html__( 'فرآیند نیمه‌کاره است — خروج؟', 'watchmid' ); ?></span>
+			<div class="wm-otp-modal__confirm-exit-actions">
+				<button type="button" class="wm-otp-modal__confirm-exit-btn wm-otp-modal__confirm-exit-btn--cancel" data-otp-exit-cancel><?php echo esc_html__( 'ادامه فرآیند', 'watchmid' ); ?></button>
+				<button type="button" class="wm-otp-modal__confirm-exit-btn wm-otp-modal__confirm-exit-btn--confirm" data-otp-exit-confirm><?php echo esc_html__( 'خروج', 'watchmid' ); ?></button>
+			</div>
+		</div>
 		<span class="wm-otp-modal__accent" aria-hidden="true"></span>
 		<h2 class="wm-otp-modal__title"><?php echo esc_html__( 'ورود یا ثبت‌نام', 'watchmid' ); ?></h2>
 
 		<!-- Step 1: Phone number -->
 		<div class="wm-otp-modal__step" data-otp-step="phone">
 			<p class="wm-otp-modal__desc"><?php echo esc_html__( 'شماره موبایل خود را وارد کنید.', 'watchmid' ); ?></p>
+			<!-- Resume banner: shown when sessionStorage has a saved phone from a prior incomplete flow -->
+			<div class="wm-otp-modal__resume-banner" data-otp-resume-banner hidden>
+				<div class="wm-otp-modal__resume-text">
+					<?php echo esc_html__( 'فرآیند قبلی نیمه‌کاره است — شماره', 'watchmid' ); ?>
+					<strong data-otp-phone-display></strong>
+				</div>
+				<div class="wm-otp-modal__resume-actions">
+					<button type="button" class="wm-otp-modal__resume-btn wm-otp-modal__resume-btn--continue" data-otp-resume-continue><?php echo esc_html__( 'ادامه ثبت‌نام', 'watchmid' ); ?></button>
+					<button type="button" class="wm-otp-modal__resume-btn wm-otp-modal__resume-btn--reset" data-otp-resume-reset><?php echo esc_html__( 'شماره جدید', 'watchmid' ); ?></button>
+				</div>
+			</div>
 			<form data-otp-phone-form>
 				<label class="screen-reader-text" for="wm-otp-phone"><?php echo esc_html__( 'شماره موبایل', 'watchmid' ); ?></label>
 				<input type="tel" id="wm-otp-phone" class="wm-otp-modal__input" name="phone" inputmode="numeric" autocomplete="tel" placeholder="09xxxxxxxxx" required>
