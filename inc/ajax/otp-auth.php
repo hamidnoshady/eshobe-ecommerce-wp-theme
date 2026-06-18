@@ -115,6 +115,7 @@ function wm_otp_issue_code( $phone ) {
 
 	// Per-IP hourly limit
 	$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+	// REMOTE_ADDR may be absent in proxied/CLI contexts; per-IP limit is silently skipped when empty.
 	if ( $ip ) {
 		$ip_key      = 'wm_otp_ip_' . md5( $ip );
 		$ip_attempts = (int) get_transient( $ip_key );
@@ -171,10 +172,11 @@ function wm_ajax_otp_request_code() {
 		wp_send_json_error( array( 'message' => $issued->get_error_message() ) );
 	}
 
+	$security = wm_technical_get_otp_security_settings();
 	wp_send_json_success(
 		array(
-			'message'   => 'کد یکبارمصرف ارسال شد.',
-			'resendIn'  => MINUTE_IN_SECONDS,
+			'message'  => 'کد یکبارمصرف ارسال شد.',
+			'resendIn' => $security['resend_seconds'],
 		)
 	);
 }
@@ -196,6 +198,7 @@ function wm_ajax_otp_check_phone() {
 		wp_send_json_error( array( 'message' => 'شماره موبایل وارد شده معتبر نیست.' ) );
 	}
 
+	$security = wm_technical_get_otp_security_settings();
 	$user = wm_otp_get_user_by_phone( $phone );
 
 	if ( $user ) {
@@ -210,7 +213,7 @@ function wm_ajax_otp_check_phone() {
 					'exists'                 => true,
 					'incompleteRegistration' => true,
 					'message'                => 'کد یکبارمصرف ارسال شد.',
-					'resendIn'               => MINUTE_IN_SECONDS,
+					'resendIn'               => $security['resend_seconds'],
 				)
 			);
 		}
@@ -227,7 +230,7 @@ function wm_ajax_otp_check_phone() {
 		array(
 			'exists'   => false,
 			'message'  => 'کد یکبارمصرف ارسال شد.',
-			'resendIn' => MINUTE_IN_SECONDS,
+			'resendIn' => $security['resend_seconds'],
 		)
 	);
 }
