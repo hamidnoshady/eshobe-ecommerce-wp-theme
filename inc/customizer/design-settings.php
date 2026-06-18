@@ -5,28 +5,28 @@
  * @package WM_Theme
  */
 
-function watchmid_customize_register_design( $wp_customize ) {
+function eshobe_ecommerce_customize_register_design( $wp_customize ) {
     $wp_customize->add_section(
-        'watchmid_design',
+        'eshobe_ecommerce_design',
         array(
-            'title'       => __( 'طراحی قالب', 'watchmid' ),
+            'title'       => __( 'طراحی قالب', 'eshobe-ecommerce' ),
             'priority'    => 35,
-            'description' => __( 'تنظیمات کلی و کاربردی برای چیدمان و خوانایی قالب.', 'watchmid' ),
+            'description' => __( 'تنظیمات کلی و کاربردی برای چیدمان و خوانایی قالب.', 'eshobe-ecommerce' ),
         )
     );
 
     $wp_customize->add_setting(
-        'watchmid_font_family',
+        'eshobe_ecommerce_font_family',
         array(
             'default'           => 'vazirmatn',
-            'sanitize_callback' => 'watchmid_sanitize_choice',
+            'sanitize_callback' => 'eshobe_ecommerce_sanitize_choice',
         )
     );
     $wp_customize->add_control(
-        'watchmid_font_family',
+        'eshobe_ecommerce_font_family',
         array(
-            'section' => 'watchmid_design',
-            'label'   => __( 'فونت سایت', 'watchmid' ),
+            'section' => 'eshobe_ecommerce_design',
+            'label'   => __( 'فونت سایت', 'eshobe-ecommerce' ),
             'type'    => 'select',
             'choices' => array(
                 'vazirmatn' => 'Vazirmatn',
@@ -37,17 +37,17 @@ function watchmid_customize_register_design( $wp_customize ) {
     );
 
     $wp_customize->add_setting(
-        'watchmid_content_width',
+        'eshobe_ecommerce_content_width',
         array(
             'default'           => 1320,
             'sanitize_callback' => 'absint',
         )
     );
     $wp_customize->add_control(
-        'watchmid_content_width',
+        'eshobe_ecommerce_content_width',
         array(
-            'section'     => 'watchmid_design',
-            'label'       => __( 'عرض کلی محتوا', 'watchmid' ),
+            'section'     => 'eshobe_ecommerce_design',
+            'label'       => __( 'عرض کلی محتوا', 'eshobe-ecommerce' ),
             'type'        => 'number',
             'input_attrs' => array(
                 'min'  => 1040,
@@ -58,37 +58,37 @@ function watchmid_customize_register_design( $wp_customize ) {
     );
 
     $wp_customize->add_setting(
-        'watchmid_product_image_position',
+        'eshobe_ecommerce_product_image_position',
         array(
             'default'           => 'right',
-            'sanitize_callback' => 'watchmid_sanitize_choice',
+            'sanitize_callback' => 'eshobe_ecommerce_sanitize_choice',
         )
     );
     $wp_customize->add_control(
-        'watchmid_product_image_position',
+        'eshobe_ecommerce_product_image_position',
         array(
-            'section' => 'watchmid_design',
-            'label'   => __( 'جایگاه تصویر محصول', 'watchmid' ),
+            'section' => 'eshobe_ecommerce_design',
+            'label'   => __( 'جایگاه تصویر محصول', 'eshobe-ecommerce' ),
             'type'    => 'select',
             'choices' => array(
-                'right' => __( 'راست', 'watchmid' ),
-                'left'  => __( 'چپ', 'watchmid' ),
+                'right' => __( 'راست', 'eshobe-ecommerce' ),
+                'left'  => __( 'چپ', 'eshobe-ecommerce' ),
             ),
         )
     );
 
     $wp_customize->add_setting(
-        'watchmid_product_section_gap',
+        'eshobe_ecommerce_product_section_gap',
         array(
             'default'           => 20,
             'sanitize_callback' => 'absint',
         )
     );
     $wp_customize->add_control(
-        'watchmid_product_section_gap',
+        'eshobe_ecommerce_product_section_gap',
         array(
-            'section'     => 'watchmid_design',
-            'label'       => __( 'فاصله بین بخش‌های محصول', 'watchmid' ),
+            'section'     => 'eshobe_ecommerce_design',
+            'label'       => __( 'فاصله بین بخش‌های محصول', 'eshobe-ecommerce' ),
             'type'        => 'number',
             'input_attrs' => array(
                 'min'  => 12,
@@ -99,44 +99,44 @@ function watchmid_customize_register_design( $wp_customize ) {
     );
 
     $wp_customize->add_setting(
-        'watchmid_product_card_density',
+        'eshobe_ecommerce_product_card_density',
         array(
             'default'           => 'comfortable',
-            'sanitize_callback' => 'watchmid_sanitize_choice',
+            'sanitize_callback' => 'eshobe_ecommerce_sanitize_choice',
         )
     );
     $wp_customize->add_control(
-        'watchmid_product_card_density',
+        'eshobe_ecommerce_product_card_density',
         array(
-            'section' => 'watchmid_design',
-            'label'   => __( 'تراکم کارت‌ها', 'watchmid' ),
+            'section' => 'eshobe_ecommerce_design',
+            'label'   => __( 'تراکم کارت‌ها', 'eshobe-ecommerce' ),
             'type'    => 'select',
             'choices' => array(
-                'comfortable' => __( 'راحت', 'watchmid' ),
-                'compact'     => __( 'فشرده', 'watchmid' ),
+                'comfortable' => __( 'راحت', 'eshobe-ecommerce' ),
+                'compact'     => __( 'فشرده', 'eshobe-ecommerce' ),
             ),
         )
     );
 
     $wp_customize->add_setting(
-        'watchmid_product_gallery_sticky',
+        'eshobe_ecommerce_product_gallery_sticky',
         array(
             'default'           => true,
             'sanitize_callback' => 'wp_validate_boolean',
         )
     );
     $wp_customize->add_control(
-        'watchmid_product_gallery_sticky',
+        'eshobe_ecommerce_product_gallery_sticky',
         array(
-            'section' => 'watchmid_design',
-            'label'   => __( 'استیکی بودن تصویر محصول در دسکتاپ', 'watchmid' ),
+            'section' => 'eshobe_ecommerce_design',
+            'label'   => __( 'استیکی بودن تصویر محصول در دسکتاپ', 'eshobe-ecommerce' ),
             'type'    => 'checkbox',
         )
     );
 }
-add_action( 'customize_register', 'watchmid_customize_register_design' );
+add_action( 'customize_register', 'eshobe_ecommerce_customize_register_design' );
 
-function watchmid_sanitize_choice( $value, $setting ) {
+function eshobe_ecommerce_sanitize_choice( $value, $setting ) {
     $control = $setting->manager->get_control( $setting->id );
     $choices = $control ? $control->choices : array();
 

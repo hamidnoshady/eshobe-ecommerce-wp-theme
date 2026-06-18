@@ -9,15 +9,18 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 class WM_Theme_Updater {
 
-	private string $theme_slug  = 'eshobe-ecommerce-wp-theme';
+	private string $theme_slug;
 	private string $github_user = 'hamidnoshady';
 	private string $github_repo = 'eshobe-ecommerce-wp-theme';
 	private string $token;
 	private string $version;
 
 	public function __construct() {
-		$this->token   = defined( 'WM_GITHUB_TOKEN' ) ? WM_GITHUB_TOKEN : '';
-		$this->version = wp_get_theme( $this->theme_slug )->get( 'Version' );
+		// Derive the slug from the installed folder name so this still works
+		// if the theme directory on disk doesn't match the GitHub repo name.
+		$this->theme_slug = get_stylesheet();
+		$this->token      = defined( 'WM_GITHUB_TOKEN' ) ? WM_GITHUB_TOKEN : '';
+		$this->version    = wp_get_theme( $this->theme_slug )->get( 'Version' );
 
 		add_filter( 'pre_set_site_transient_update_themes', [ $this, 'check_for_update' ] );
 		add_filter( 'themes_api', [ $this, 'theme_popup' ], 10, 3 );

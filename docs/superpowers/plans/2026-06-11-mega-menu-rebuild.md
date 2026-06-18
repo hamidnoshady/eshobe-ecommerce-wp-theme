@@ -20,7 +20,7 @@
 - Modify: `inc/components/mega-menu.php` — rewrite `wm_get_header_mega_menus()` to query CPT posts; add `nav_menu_link_attributes` filter
 - Modify: `assets/js/header.js` — read `data-mega-key` from `<a>` instead of parsing `wm-mega-trigger-{key}` classes
 - Modify: `assets/css/components/header.css` — positioning fix for `.wm-mega-menu__panel`
-- Modify: `functions.php` — require the 4 new files, bump `WATCHMID_VERSION`
+- Modify: `functions.php` — require the 4 new files, bump `ESHOBE_ECOMMERCE_VERSION`
 - Modify: `style.css` — bump `Version:` header to match
 
 ---
@@ -38,7 +38,7 @@
 /**
  * Mega Menu custom post type.
  *
- * @package WatchMid
+ * @package Eshobe Ecommerce
  */
 
 function wm_register_mega_menu_cpt() {
@@ -123,7 +123,7 @@ clicked.
 /**
  * ACF fields for the Mega Menu custom post type.
  *
- * @package WatchMid
+ * @package Eshobe Ecommerce
  */
 
 function wm_register_mega_menu_acf_fields() {
@@ -237,7 +237,7 @@ Menus, including newly created menus).
 /**
  * ACF field for assigning a Mega Menu post to a nav menu item.
  *
- * @package WatchMid
+ * @package Eshobe Ecommerce
  */
 
 function wm_register_mega_menu_nav_field() {
@@ -589,7 +589,7 @@ predictable.
  * into wm_mega_menu CPT posts, and best-effort assign them to nav menu
  * items that used the old wm-mega-trigger-{key} CSS class convention.
  *
- * @package WatchMid
+ * @package Eshobe Ecommerce
  */
 
 function wm_migrate_legacy_mega_menus() {
@@ -612,7 +612,7 @@ function wm_migrate_legacy_mega_menus() {
 
         $title = ! empty( $menu['mega_title'] )
             ? $menu['mega_title']
-            : ( ! empty( $menu['mega_trigger_key'] ) ? $menu['mega_trigger_key'] : __( 'مگامنو', 'watchmid' ) );
+            : ( ! empty( $menu['mega_trigger_key'] ) ? $menu['mega_trigger_key'] : __( 'مگامنو', 'eshobe-ecommerce' ) );
 
         $post_id = wp_insert_post(
             array(
@@ -812,16 +812,16 @@ on-screen position (no page reflow / panel pushed down).
 - Modify: `functions.php`
 - Modify: `style.css`
 
-- [ ] **Step 1: Bump `WATCHMID_VERSION` in `functions.php`**
+- [ ] **Step 1: Bump `ESHOBE_ECOMMERCE_VERSION` in `functions.php`**
 
 Current:
 ```php
-define( 'WATCHMID_VERSION', '0.4.31' );
+define( 'ESHOBE_ECOMMERCE_VERSION', '0.4.31' );
 ```
 
 Change to:
 ```php
-define( 'WATCHMID_VERSION', '0.4.32' );
+define( 'ESHOBE_ECOMMERCE_VERSION', '0.4.32' );
 ```
 
 - [ ] **Step 2: Bump the `Version:` header in `style.css`**

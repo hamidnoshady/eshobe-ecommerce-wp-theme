@@ -14,7 +14,7 @@ function wm_register_home_acf_options() {
         array(
             'page_title' => 'تنظیمات قالب',
             'menu_title' => 'تنظیمات قالب',
-            'menu_slug'  => 'watchmid',
+            'menu_slug'  => 'eshobe-ecommerce',
             'capability' => 'edit_posts',
             'redirect'   => true,
             'position'   => 59,
@@ -22,13 +22,13 @@ function wm_register_home_acf_options() {
     );
 
     $pages = array(
-        array( 'page_title' => 'تنظیمات طراحی', 'menu_title' => 'تنظیمات طراحی', 'menu_slug' => 'watchmid-design-settings' ),
-        array( 'page_title' => 'صفحه اصلی', 'menu_title' => 'صفحه اصلی', 'menu_slug' => 'watchmid-home-settings' ),
-        array( 'page_title' => 'صفحه محصول', 'menu_title' => 'صفحه محصول', 'menu_slug' => 'watchmid-product-settings' ),
-        array( 'page_title' => 'آرشیوها / فروشگاه', 'menu_title' => 'آرشیوها / فروشگاه', 'menu_slug' => 'watchmid-archive-settings' ),
-        array( 'page_title' => 'هدر و فوتر', 'menu_title' => 'هدر و فوتر', 'menu_slug' => 'watchmid-header-footer-settings' ),
-        array( 'page_title' => 'بازاریابی و فروش', 'menu_title' => 'بازاریابی و فروش', 'menu_slug' => 'watchmid-marketing-settings' ),
-        array( 'page_title' => 'تنظیمات فنی', 'menu_title' => 'تنظیمات فنی', 'menu_slug' => 'watchmid-technical-settings' ),
+        array( 'page_title' => 'تنظیمات طراحی', 'menu_title' => 'تنظیمات طراحی', 'menu_slug' => 'eshobe-ecommerce-design-settings' ),
+        array( 'page_title' => 'صفحه اصلی', 'menu_title' => 'صفحه اصلی', 'menu_slug' => 'eshobe-ecommerce-home-settings' ),
+        array( 'page_title' => 'صفحه محصول', 'menu_title' => 'صفحه محصول', 'menu_slug' => 'eshobe-ecommerce-product-settings' ),
+        array( 'page_title' => 'آرشیوها / فروشگاه', 'menu_title' => 'آرشیوها / فروشگاه', 'menu_slug' => 'eshobe-ecommerce-archive-settings' ),
+        array( 'page_title' => 'هدر و فوتر', 'menu_title' => 'هدر و فوتر', 'menu_slug' => 'eshobe-ecommerce-header-footer-settings' ),
+        array( 'page_title' => 'بازاریابی و فروش', 'menu_title' => 'بازاریابی و فروش', 'menu_slug' => 'eshobe-ecommerce-marketing-settings' ),
+        array( 'page_title' => 'تنظیمات فنی', 'menu_title' => 'تنظیمات فنی', 'menu_slug' => 'eshobe-ecommerce-technical-settings' ),
     );
 
     foreach ( $pages as $page ) {
@@ -37,7 +37,7 @@ function wm_register_home_acf_options() {
                 'page_title'  => $page['page_title'],
                 'menu_title'  => $page['menu_title'],
                 'menu_slug'   => $page['menu_slug'],
-                'parent_slug' => 'watchmid',
+                'parent_slug' => 'eshobe-ecommerce',
                 'capability'  => 'edit_posts',
                 'post_id'     => 'option',
             )
@@ -53,76 +53,76 @@ function wm_register_home_acf_fields() {
 
     acf_add_local_field_group(
         array(
-            'key'      => 'group_watchmid_design_settings',
+            'key'      => 'group_eshobe_ecommerce_design_settings',
             'title'    => 'تنظیمات طراحی',
             'fields'   => wm_site_settings_design_fields(),
-            'location' => wm_site_settings_location( 'watchmid-design-settings' ),
+            'location' => wm_site_settings_location( 'eshobe-ecommerce-design-settings' ),
         )
     );
 
     acf_add_local_field_group(
         array(
-            'key'      => 'group_watchmid_home',
+            'key'      => 'group_eshobe_ecommerce_home',
             'title'    => 'صفحه اصلی',
             'fields'   => wm_site_settings_home_fields_dynamic(),
-            'location' => wm_site_settings_location( 'watchmid-home-settings' ),
+            'location' => wm_site_settings_location( 'eshobe-ecommerce-home-settings' ),
         )
     );
 
     acf_add_local_field_group(
         array(
-            'key'      => 'group_watchmid_product_settings',
+            'key'      => 'group_eshobe_ecommerce_product_settings',
             'title'    => 'صفحه محصول',
             'fields'   => wm_site_settings_product_fields(),
-            'location' => wm_site_settings_location( 'watchmid-product-settings' ),
+            'location' => wm_site_settings_location( 'eshobe-ecommerce-product-settings' ),
         )
     );
 
     acf_add_local_field_group(
         array(
-            'key'      => 'group_watchmid_archive_settings',
+            'key'      => 'group_eshobe_ecommerce_archive_settings',
             'title'    => 'آرشیوها / فروشگاه',
             'fields'   => wm_site_settings_archive_fields(),
-            'location' => wm_site_settings_location( 'watchmid-archive-settings' ),
+            'location' => wm_site_settings_location( 'eshobe-ecommerce-archive-settings' ),
         )
     );
 
     acf_add_local_field_group(
         array(
-            'key'      => 'group_watchmid_header_footer_settings',
+            'key'      => 'group_eshobe_ecommerce_header_footer_settings',
             'title'    => 'هدر و فوتر',
             'fields'   => wm_site_settings_header_footer_fields(),
-            'location' => wm_site_settings_location( 'watchmid-header-footer-settings' ),
+            'location' => wm_site_settings_location( 'eshobe-ecommerce-header-footer-settings' ),
         )
     );
 
     acf_add_local_field_group(
         array(
-            'key'      => 'group_watchmid_marketing_settings',
+            'key'      => 'group_eshobe_ecommerce_marketing_settings',
             'title'    => 'بازاریابی و فروش',
             'fields'   => wm_site_settings_marketing_fields(),
-            'location' => wm_site_settings_location( 'watchmid-marketing-settings' ),
+            'location' => wm_site_settings_location( 'eshobe-ecommerce-marketing-settings' ),
         )
     );
 
     acf_add_local_field_group(
         array(
-            'key'      => 'group_watchmid_technical_settings',
+            'key'      => 'group_eshobe_ecommerce_technical_settings',
             'title'    => 'تنظیمات فنی',
             'fields'   => wm_site_settings_technical_fields(),
-            'location' => wm_site_settings_location( 'watchmid-technical-settings' ),
+            'location' => wm_site_settings_location( 'eshobe-ecommerce-technical-settings' ),
         )
     );
 
     acf_add_local_field_group(
         array(
-            'key'      => 'group_watchmid_product_flags',
+            'key'      => 'group_eshobe_ecommerce_product_flags',
             'title'    => 'Product flags',
             'fields'   => array(
                 array(
-                    'key'   => 'field_watchmid_is_recommended',
+                    'key'   => 'field_eshobe_ecommerce_is_recommended',
                     'label' => 'پیشنهاد ما',
-                    'name'  => 'watchmid_is_recommended',
+                    'name'  => 'eshobe_ecommerce_is_recommended',
                     'type'  => 'true_false',
                     'ui'    => 1,
                 ),

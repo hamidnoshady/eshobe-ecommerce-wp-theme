@@ -77,7 +77,7 @@ function wm_otp_send_via_kavenegar( $phone, $code ) {
 			'receptor' => $phone,
 			'sender'   => $settings['sender'],
 			/* translators: %s: one-time password code. */
-			'message'  => sprintf( __( 'کد ورود شما: %s', 'watchmid' ), $code ),
+			'message'  => sprintf( __( 'کد ورود شما: %s', 'eshobe-ecommerce' ), $code ),
 		);
 	}
 

@@ -5,16 +5,16 @@
  * @package WM_Theme
  */
 
-function watchmid_register_pattern_categories() {
+function eshobe_ecommerce_register_pattern_categories() {
     if ( ! function_exists( 'register_block_pattern_category' ) ) {
         return;
     }
 
     register_block_pattern_category(
-        'watchmid',
+        'eshobe-ecommerce',
         array(
-            'label' => __( 'قالب', 'watchmid' ),
+            'label' => __( 'قالب', 'eshobe-ecommerce' ),
         )
     );
 }
-add_action( 'init', 'watchmid_register_pattern_categories' );
+add_action( 'init', 'eshobe_ecommerce_register_pattern_categories' );

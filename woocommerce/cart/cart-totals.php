@@ -60,17 +60,17 @@ if ( ! function_exists( 'wm_cart_totals_shipping_fragment' ) ) {
 <div class="cart_totals wm-cart-summary <?php echo esc_attr( WC()->customer->has_calculated_shipping() ? 'calculated_shipping' : '' ); ?>">
 	<header class="wm-cart-summary__head">
 		<div>
-			<span class="wm-cart-summary__kicker"><?php echo esc_html__( 'بازبینی نهایی', 'watchmid' ); ?></span>
-			<h2><?php echo esc_html__( 'خلاصه سفارش', 'watchmid' ); ?></h2>
+			<span class="wm-cart-summary__kicker"><?php echo esc_html__( 'بازبینی نهایی', 'eshobe-ecommerce' ); ?></span>
+			<h2><?php echo esc_html__( 'خلاصه سفارش', 'eshobe-ecommerce' ); ?></h2>
 		</div>
-		<span class="wm-cart-summary__count"><?php echo esc_html( sprintf( _n( '%d کالا', '%d کالا', WC()->cart->get_cart_contents_count(), 'watchmid' ), WC()->cart->get_cart_contents_count() ) ); ?></span>
+		<span class="wm-cart-summary__count"><?php echo esc_html( sprintf( _n( '%d کالا', '%d کالا', WC()->cart->get_cart_contents_count(), 'eshobe-ecommerce' ), WC()->cart->get_cart_contents_count() ) ); ?></span>
 	</header>
 
 	<div class="wm-cart-summary__rows">
 		<?php
 		wm_cart_totals_row(
 			'cart-subtotal',
-			esc_html__( 'جمع جزء', 'watchmid' ),
+			esc_html__( 'جمع جزء', 'eshobe-ecommerce' ),
 			wm_cart_totals_capture( 'wc_cart_totals_subtotal_html' )
 		);
 
@@ -89,7 +89,7 @@ if ( ! function_exists( 'wm_cart_totals_shipping_fragment' ) ) {
 		if ( WC()->cart->needs_shipping() && WC()->cart->show_shipping() ) {
 			?>
 			<div class="wm-cart-summary__row shipping">
-				<div class="wm-cart-summary__label"><?php echo esc_html__( 'ارسال', 'watchmid' ); ?></div>
+				<div class="wm-cart-summary__label"><?php echo esc_html__( 'ارسال', 'eshobe-ecommerce' ); ?></div>
 				<div class="wm-cart-summary__value wm-cart-summary__shipping">
 					<?php echo wm_cart_totals_shipping_fragment(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
@@ -98,7 +98,7 @@ if ( ! function_exists( 'wm_cart_totals_shipping_fragment' ) ) {
 		} elseif ( WC()->cart->needs_shipping() && 'yes' === get_option( 'woocommerce_enable_shipping_calc' ) ) {
 			?>
 			<div class="wm-cart-summary__row shipping">
-				<div class="wm-cart-summary__label"><?php echo esc_html__( 'ارسال', 'watchmid' ); ?></div>
+				<div class="wm-cart-summary__label"><?php echo esc_html__( 'ارسال', 'eshobe-ecommerce' ); ?></div>
 				<div class="wm-cart-summary__value wm-cart-summary__shipping"><?php woocommerce_shipping_calculator(); ?></div>
 			</div>
 			<?php
@@ -121,7 +121,7 @@ if ( ! function_exists( 'wm_cart_totals_shipping_fragment' ) ) {
 			$estimated_text  = '';
 
 			if ( WC()->customer->is_customer_outside_base() && ! WC()->customer->has_calculated_shipping() ) {
-				$estimated_text = sprintf( ' <small>' . esc_html__( 'برآورد شده برای %s', 'watchmid' ) . '</small>', WC()->countries->estimated_for_prefix( $taxable_address[0] ) . WC()->countries->countries[ $taxable_address[0] ] );
+				$estimated_text = sprintf( ' <small>' . esc_html__( 'برآورد شده برای %s', 'eshobe-ecommerce' ) . '</small>', WC()->countries->estimated_for_prefix( $taxable_address[0] ) . WC()->countries->countries[ $taxable_address[0] ] );
 			}
 
 			if ( 'itemized' === get_option( 'woocommerce_tax_total_display' ) ) {
@@ -148,7 +148,7 @@ if ( ! function_exists( 'wm_cart_totals_shipping_fragment' ) ) {
 		<?php
 		wm_cart_totals_row(
 			'order-total',
-			esc_html__( 'جمع کل', 'watchmid' ),
+			esc_html__( 'جمع کل', 'eshobe-ecommerce' ),
 			wm_cart_totals_capture( 'wc_cart_totals_order_total_html' )
 		);
 		?>

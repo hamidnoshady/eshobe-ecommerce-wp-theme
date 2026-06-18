@@ -1,11 +1,11 @@
-# Underscores Multipurpose Theme
+# Eshobe Ecommerce WP Theme
 
 A lightweight Underscores-inspired WordPress/WooCommerce starter theme prepared for Gutenberg and Persian RTL stores.
 
 ## Font placement
 Put Peyda font files here:
 
-`wp-content/themes/watchmid-underscores-theme/assets/fonts/peyda/`
+`wp-content/themes/eshobe-ecommerce-wp-theme/assets/fonts/peyda/`
 
 Expected files:
 

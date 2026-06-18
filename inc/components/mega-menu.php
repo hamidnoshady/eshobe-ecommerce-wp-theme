@@ -166,7 +166,7 @@ function wm_render_header_mega_feature( $menu ) {
     $title = ! empty( $menu['mega_feature_title'] ) ? $menu['mega_feature_title'] : '';
     $text = ! empty( $menu['mega_feature_text'] ) ? $menu['mega_feature_text'] : '';
     $url = ! empty( $menu['mega_feature_url'] ) ? $menu['mega_feature_url'] : '';
-    $button = ! empty( $menu['mega_feature_button_text'] ) ? $menu['mega_feature_button_text'] : __( 'مشاهده', 'watchmid' );
+    $button = ! empty( $menu['mega_feature_button_text'] ) ? $menu['mega_feature_button_text'] : __( 'مشاهده', 'eshobe-ecommerce' );
     $image = wm_header_mega_get_image_html( $menu['mega_feature_image'] ?? '', $title );
 
     ?>
@@ -204,7 +204,7 @@ function wm_render_header_mega_menus() {
     }
 
     ?>
-    <div class="wm-mega-menu" aria-label="<?php echo esc_attr__( 'Mega Menu', 'watchmid' ); ?>">
+    <div class="wm-mega-menu" aria-label="<?php echo esc_attr__( 'Mega Menu', 'eshobe-ecommerce' ); ?>">
         <?php foreach ( $menus as $menu ) : ?>
             <?php
             $columns = (array) ( $menu['mega_columns'] ?? array() );

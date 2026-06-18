@@ -14,8 +14,8 @@ defined( 'ABSPATH' ) || exit;
 	<div class="wm-account-page__container">
 		<header class="wm-account-page__header">
 			<div>
-				<span class="wm-account-page__eyebrow"><?php echo esc_html__( 'پنل کاربری', 'watchmid' ); ?></span>
-				<h1 class="wm-account-page__title"><?php echo esc_html__( 'حساب کاربری', 'watchmid' ); ?></h1>
+				<span class="wm-account-page__eyebrow"><?php echo esc_html__( 'پنل کاربری', 'eshobe-ecommerce' ); ?></span>
+				<h1 class="wm-account-page__title"><?php echo esc_html__( 'حساب کاربری', 'eshobe-ecommerce' ); ?></h1>
 			</div>
 		</header>
 

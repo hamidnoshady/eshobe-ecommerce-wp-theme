@@ -168,7 +168,7 @@ function wm_home_get_auto_products( $type, $count ) {
     );
 
     if ( 'recommended' === $type ) {
-        $args['meta_key']   = 'watchmid_is_recommended';
+        $args['meta_key']   = 'eshobe_ecommerce_is_recommended';
         $args['meta_value'] = '1';
         $args['orderby']    = 'date';
         $args['order']      = 'DESC';
@@ -321,7 +321,7 @@ function wm_home_normalize_filter_item( $item ) {
             'filter_image'       => '',
             'filter_style'       => 'dark_card',
             'filter_badge_text'  => '',
-            'filter_button_text' => __( 'مشاهده', 'watchmid' ),
+            'filter_button_text' => __( 'مشاهده', 'eshobe-ecommerce' ),
             'filter_link_mode'   => ! empty( $item['filter_url'] ) ? 'manual_url' : 'taxonomy_and_price',
         )
     );
@@ -439,7 +439,7 @@ function wm_render_home_filter_section( $section, $extra_class = '' ) {
             <?php foreach ( $items as $item ) : ?>
                 <?php
                 $style       = ! empty( $item['filter_style'] ) ? sanitize_html_class( $item['filter_style'] ) : 'dark_card';
-                $button_text = ! empty( $item['filter_button_text'] ) ? $item['filter_button_text'] : __( 'مشاهده', 'watchmid' );
+                $button_text = ! empty( $item['filter_button_text'] ) ? $item['filter_button_text'] : __( 'مشاهده', 'eshobe-ecommerce' );
                 $style_attr  = ! empty( $item['filter_color_value'] ) ? ' style="--wm-filter-accent:' . esc_attr( sanitize_hex_color( $item['filter_color_value'] ) ) . '"' : '';
                 ?>
                 <a class="wm-home-filter-card wm-home-filter-card--<?php echo esc_attr( $style ); ?>" href="<?php echo esc_url( wm_build_filter_box_url( $item ) ); ?>"<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>

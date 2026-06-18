@@ -10,11 +10,11 @@
  */
 function wm_technical_admin_assets() {
 	$screen = get_current_screen();
-	if ( ! $screen || false === strpos( $screen->id, 'watchmid' ) ) {
+	if ( ! $screen || false === strpos( $screen->id, 'eshobe-ecommerce' ) ) {
 		return;
 	}
 
-	wp_enqueue_style( 'watchmid-acf-options', wm_asset_uri( 'assets/css/admin/acf-options.css' ), array(), wm_asset_version( 'assets/css/admin/acf-options.css' ) );
+	wp_enqueue_style( 'eshobe-ecommerce-acf-options', wm_asset_uri( 'assets/css/admin/acf-options.css' ), array(), wm_asset_version( 'assets/css/admin/acf-options.css' ) );
 
 	if ( function_exists( 'wm_design_token_hex' ) ) {
 		$vars = ':root{';
@@ -30,7 +30,7 @@ function wm_technical_admin_assets() {
 		}
 		$vars .= '}';
 
-		wp_add_inline_style( 'watchmid-acf-options', $vars );
+		wp_add_inline_style( 'eshobe-ecommerce-acf-options', $vars );
 	}
 }
 add_action( 'admin_enqueue_scripts', 'wm_technical_admin_assets' );

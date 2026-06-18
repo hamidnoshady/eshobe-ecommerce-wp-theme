@@ -4,19 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-This is a WordPress theme (`watchmid-underscores-theme`), an Underscores-inspired starter theme for a WooCommerce store ("WatchMid"), built for Persian/RTL with Vazirmatn (and optional Peyda) fonts. There is no build step, package manager, or test suite — it's plain PHP/CSS/JS loaded directly by WordPress.
+This is a WordPress theme (`eshobe-ecommerce-wp-theme`), an Underscores-inspired starter theme for a WooCommerce store ("Eshobe Ecommerce"), built for Persian/RTL with Vazirmatn (and optional Peyda) fonts. There is no build step, package manager, or test suite — it's plain PHP/CSS/JS loaded directly by WordPress.
 
 The theme runs inside a Local (by Flywheel) WordPress install at:
-`app/public/wp-content/themes/watchmid-underscores-theme/`
+`app/public/wp-content/themes/eshobe-ecommerce-wp-theme/`
 
 Local WP manages the WordPress site itself (PHP, MySQL, web server). VS Code is opened directly on this theme directory, so the working directory here is just the theme — the rest of the WordPress install (core, other plugins, wp-config) lives outside this folder under `app/public/`. Start/stop the site and access its DB/PHP via the Local app, not from this directory.
 
 ## Development workflow
 
 - No build/lint/test commands exist. Edit PHP/CSS/JS directly and reload the site (Local dev environment) to see changes.
-- **After every change**, bump `WATCHMID_VERSION` in `functions.php` AND `Version:` in `style.css` together (patch increment), then commit and push to GitHub. This is required, not optional.
+- **After every change**, bump `ESHOBE_ECOMMERCE_VERSION` in `functions.php` AND `Version:` in `style.css` together (patch increment), then commit and push to GitHub. This is required, not optional.
 - Version format: `MAJOR.MINOR.PATCH` (e.g. `0.4.52` → `0.4.53`). Bump patch for any fix/tweak, minor for new features.
-- CSS/JS for cart and checkout pages use `filemtime()` for versioning instead of `WATCHMID_VERSION`, so those auto-bust on save.
+- CSS/JS for cart and checkout pages use `filemtime()` for versioning instead of `ESHOBE_ECOMMERCE_VERSION`, so those auto-bust on save.
 - For UI changes, use the `run` or `verify` skills to launch/check the site in a browser (Playwright/Chrome DevTools MCP available).
 - **Remote/cloud sessions (no Local WP install available)**: when there's no running WordPress/WooCommerce/ACF stack to hit, verify pure CSS/JS UI changes (header, modals, animations, etc.) with a static Playwright harness instead of skipping verification:
   - Build a minimal standalone HTML file under `/tmp` that includes the real markup for the changed component plus the actual theme stylesheets/scripts via `file://` links to `assets/css/...` and `assets/js/...` (copy the relevant markup straight from the PHP template/component).

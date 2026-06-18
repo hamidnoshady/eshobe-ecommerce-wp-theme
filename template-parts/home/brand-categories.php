@@ -37,8 +37,8 @@ if ( empty( $brands ) ) {
 <section class="wm-home-section wm-home-brands wm-section-decor wm-section-decor--brands wm-section-decor--dots">
     <div class="wm-home-section__header">
         <div>
-            <h2 class="wm-home-section__title"><?php echo esc_html__( 'برندهای محبوب', 'watchmid' ); ?></h2>
-            <p class="wm-home-section__subtitle"><?php echo esc_html__( 'انتخاب سریع بر اساس برندهای پربازدید فروشگاه', 'watchmid' ); ?></p>
+            <h2 class="wm-home-section__title"><?php echo esc_html__( 'برندهای محبوب', 'eshobe-ecommerce' ); ?></h2>
+            <p class="wm-home-section__subtitle"><?php echo esc_html__( 'انتخاب سریع بر اساس برندهای پربازدید فروشگاه', 'eshobe-ecommerce' ); ?></p>
         </div>
     </div>
     <div class="wm-home-brands__grid">

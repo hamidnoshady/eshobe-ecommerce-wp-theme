@@ -98,9 +98,9 @@ add_filter( 'loop_shop_per_page', 'wm_product_archive_products_per_page', 20 );
 function wm_product_archive_register_sidebar() {
     register_sidebar(
         array(
-            'name'          => esc_html__( 'Product Archive Filters', 'watchmid' ),
+            'name'          => esc_html__( 'Product Archive Filters', 'eshobe-ecommerce' ),
             'id'            => 'product-archive-filters',
-            'description'   => esc_html__( 'فیلترهای صفحه آرشیو محصولات', 'watchmid' ),
+            'description'   => esc_html__( 'فیلترهای صفحه آرشیو محصولات', 'eshobe-ecommerce' ),
             'before_widget' => '<section id="%1$s" class="wm-archive-filter-widget %2$s">',
             'after_widget'  => '</section>',
             'before_title'  => '<h3 class="wm-archive-filter-widget__title">',
@@ -119,7 +119,7 @@ function wm_product_archive_filter_config() {
         $taxonomies[] = array(
             'key'      => 'filter_product_cat',
             'taxonomy' => 'product_cat',
-            'label'    => esc_html__( 'دسته‌بندی', 'watchmid' ),
+            'label'    => esc_html__( 'دسته‌بندی', 'eshobe-ecommerce' ),
             'type'     => 'taxonomy',
         );
     }
@@ -129,7 +129,7 @@ function wm_product_archive_filter_config() {
             $taxonomies[] = array(
                 'key'      => 'filter_brand',
                 'taxonomy' => $brand_taxonomy,
-                'label'    => esc_html__( 'برند', 'watchmid' ),
+                'label'    => esc_html__( 'برند', 'eshobe-ecommerce' ),
                 'type'     => 'taxonomy',
             );
             break;
@@ -393,7 +393,7 @@ function wm_product_archive_render_term_tree( $terms, $key, $selected, $parent =
                     <?php endif; ?>
                 </label>
                 <?php if ( $has_children && ! empty( $config['hierarchy_toggle'] ) ) : ?>
-                    <button class="wm-custom-filter__tree-toggle" type="button" aria-expanded="<?php echo esc_attr( $tree_open ? 'true' : 'false' ); ?>" aria-label="<?php echo esc_attr__( 'نمایش زیرمجموعه‌ها', 'watchmid' ); ?>"></button>
+                    <button class="wm-custom-filter__tree-toggle" type="button" aria-expanded="<?php echo esc_attr( $tree_open ? 'true' : 'false' ); ?>" aria-label="<?php echo esc_attr__( 'نمایش زیرمجموعه‌ها', 'eshobe-ecommerce' ); ?>"></button>
                 <?php endif; ?>
                 <?php wm_product_archive_render_term_tree( $terms, $key, $selected, (int) $term->term_id, $depth + 1, $config ); ?>
             </li>
@@ -1007,7 +1007,7 @@ function wm_product_archive_render_price_filter() {
     $collapsed = 'closed' === $config['accordion_default'];
     ?>
     <section class="wm-archive-filter-widget wm-custom-filter wm-custom-filter--price<?php echo $collapsed ? ' is-collapsed' : ''; ?>">
-        <h3 class="wm-archive-filter-widget__title"><?php echo esc_html__( 'محدوده قیمت', 'watchmid' ); ?></h3>
+        <h3 class="wm-archive-filter-widget__title"><?php echo esc_html__( 'محدوده قیمت', 'eshobe-ecommerce' ); ?></h3>
         <div class="wm-custom-filter__price-range" data-price-filter data-price-step="<?php echo esc_attr( (string) $step ); ?>">
             <div class="wm-custom-filter__price-track" aria-hidden="true"></div>
             <input type="range" min="<?php echo esc_attr( (string) $min_bound ); ?>" max="<?php echo esc_attr( (string) $max_bound ); ?>" step="<?php echo esc_attr( (string) $step ); ?>" value="<?php echo esc_attr( (string) $min_value ); ?>" data-price-min-range>
@@ -1015,17 +1015,17 @@ function wm_product_archive_render_price_filter() {
         </div>
         <div class="wm-custom-filter__price-fields">
             <label>
-                <span><?php echo esc_html__( 'از', 'watchmid' ); ?></span>
+                <span><?php echo esc_html__( 'از', 'eshobe-ecommerce' ); ?></span>
                 <span class="wm-custom-filter__price-control">
                     <input type="text" inputmode="numeric" name="min_price" value="<?php echo esc_attr( '' !== $min_price ? number_format( $min_value ) : '' ); ?>" placeholder="<?php echo esc_attr( number_format( $min_bound ) ); ?>" data-price-min-input>
-                    <small><?php echo esc_html__( 'تومان', 'watchmid' ); ?></small>
+                    <small><?php echo esc_html__( 'تومان', 'eshobe-ecommerce' ); ?></small>
                 </span>
             </label>
             <label>
-                <span><?php echo esc_html__( 'تا', 'watchmid' ); ?></span>
+                <span><?php echo esc_html__( 'تا', 'eshobe-ecommerce' ); ?></span>
                 <span class="wm-custom-filter__price-control">
                     <input type="text" inputmode="numeric" name="max_price" value="<?php echo esc_attr( '' !== $max_price ? number_format( $max_value ) : '' ); ?>" placeholder="<?php echo esc_attr( number_format( $max_bound ) ); ?>" data-price-max-input>
-                    <small><?php echo esc_html__( 'تومان', 'watchmid' ); ?></small>
+                    <small><?php echo esc_html__( 'تومان', 'eshobe-ecommerce' ); ?></small>
                 </span>
             </label>
         </div>
@@ -1053,7 +1053,7 @@ function wm_product_archive_render_custom_filters() {
         <?php foreach ( $config['taxonomies'] as $filter ) : ?>
             <?php wm_product_archive_render_tax_filter( $filter ); ?>
         <?php endforeach; ?>
-        <button class="screen-reader-text" type="submit"><?php echo esc_html__( 'اعمال فیلترها', 'watchmid' ); ?></button>
+        <button class="screen-reader-text" type="submit"><?php echo esc_html__( 'اعمال فیلترها', 'eshobe-ecommerce' ); ?></button>
     </form>
     <?php
 }
@@ -1251,7 +1251,7 @@ function wm_product_archive_title() {
     if ( is_search() ) {
         return sprintf(
             /* translators: %s: search query. */
-            esc_html__( 'نتیجه جستجو برای «%s»', 'watchmid' ),
+            esc_html__( 'نتیجه جستجو برای «%s»', 'eshobe-ecommerce' ),
             get_search_query()
         );
     }
@@ -1297,18 +1297,18 @@ function wm_product_archive_reset_url() {
 
 function wm_product_archive_filter_label( $key ) {
     $labels = array(
-        'min_price'     => esc_html__( 'حداقل قیمت', 'watchmid' ),
-        'max_price'     => esc_html__( 'حداکثر قیمت', 'watchmid' ),
-        'rating_filter' => esc_html__( 'امتیاز', 'watchmid' ),
-        'product_cat'   => esc_html__( 'دسته‌بندی', 'watchmid' ),
-        'filter_product_cat' => esc_html__( 'دسته‌بندی', 'watchmid' ),
-        'product_tag'   => esc_html__( 'برچسب', 'watchmid' ),
-        'filter_brand'  => esc_html__( 'برند', 'watchmid' ),
-        'orderby'       => esc_html__( 'مرتب‌سازی', 'watchmid' ),
-        'strap_material' => esc_html__( 'جنس بند', 'watchmid' ),
-        'strap-material' => esc_html__( 'جنس بند', 'watchmid' ),
-        'filter_strap_material' => esc_html__( 'جنس بند', 'watchmid' ),
-        'filter_strap-material' => esc_html__( 'جنس بند', 'watchmid' ),
+        'min_price'     => esc_html__( 'حداقل قیمت', 'eshobe-ecommerce' ),
+        'max_price'     => esc_html__( 'حداکثر قیمت', 'eshobe-ecommerce' ),
+        'rating_filter' => esc_html__( 'امتیاز', 'eshobe-ecommerce' ),
+        'product_cat'   => esc_html__( 'دسته‌بندی', 'eshobe-ecommerce' ),
+        'filter_product_cat' => esc_html__( 'دسته‌بندی', 'eshobe-ecommerce' ),
+        'product_tag'   => esc_html__( 'برچسب', 'eshobe-ecommerce' ),
+        'filter_brand'  => esc_html__( 'برند', 'eshobe-ecommerce' ),
+        'orderby'       => esc_html__( 'مرتب‌سازی', 'eshobe-ecommerce' ),
+        'strap_material' => esc_html__( 'جنس بند', 'eshobe-ecommerce' ),
+        'strap-material' => esc_html__( 'جنس بند', 'eshobe-ecommerce' ),
+        'filter_strap_material' => esc_html__( 'جنس بند', 'eshobe-ecommerce' ),
+        'filter_strap-material' => esc_html__( 'جنس بند', 'eshobe-ecommerce' ),
     );
 
     if ( isset( $labels[ $key ] ) ) {
@@ -1422,12 +1422,12 @@ function wm_product_archive_filter_value_label( $key, $value ) {
 
     if ( 'orderby' === $key ) {
         $order_labels = array(
-            'menu_order' => esc_html__( 'مرتبط‌ترین', 'watchmid' ),
-            'popularity' => esc_html__( 'پرفروش‌ترین', 'watchmid' ),
-            'date'       => esc_html__( 'جدیدترین', 'watchmid' ),
-            'price'      => esc_html__( 'ارزان‌ترین', 'watchmid' ),
-            'price-desc' => esc_html__( 'گران‌ترین', 'watchmid' ),
-            'rating'     => esc_html__( 'پیشنهاد خریداران', 'watchmid' ),
+            'menu_order' => esc_html__( 'مرتبط‌ترین', 'eshobe-ecommerce' ),
+            'popularity' => esc_html__( 'پرفروش‌ترین', 'eshobe-ecommerce' ),
+            'date'       => esc_html__( 'جدیدترین', 'eshobe-ecommerce' ),
+            'price'      => esc_html__( 'ارزان‌ترین', 'eshobe-ecommerce' ),
+            'price-desc' => esc_html__( 'گران‌ترین', 'eshobe-ecommerce' ),
+            'rating'     => esc_html__( 'پیشنهاد خریداران', 'eshobe-ecommerce' ),
         );
 
         if ( isset( $order_labels[ $value ] ) ) {
@@ -1547,20 +1547,20 @@ function wm_product_archive_active_filter_items() {
         if ( null !== $min_price && null !== $max_price ) {
             $price_value = sprintf(
                 /* translators: 1: minimum price, 2: maximum price. */
-                esc_html__( '%1$s تا %2$s تومان', 'watchmid' ),
+                esc_html__( '%1$s تا %2$s تومان', 'eshobe-ecommerce' ),
                 number_format_i18n( $min_price ),
                 number_format_i18n( $max_price )
             );
         } elseif ( null !== $min_price ) {
             $price_value = sprintf(
                 /* translators: %s: minimum price. */
-                esc_html__( 'از %s تومان', 'watchmid' ),
+                esc_html__( 'از %s تومان', 'eshobe-ecommerce' ),
                 number_format_i18n( $min_price )
             );
         } else {
             $price_value = sprintf(
                 /* translators: %s: maximum price. */
-                esc_html__( 'تا %s تومان', 'watchmid' ),
+                esc_html__( 'تا %s تومان', 'eshobe-ecommerce' ),
                 number_format_i18n( $max_price )
             );
         }
@@ -1568,7 +1568,7 @@ function wm_product_archive_active_filter_items() {
         $items[] = array(
             'key'       => 'price',
             'value_raw' => '',
-            'label'     => esc_html__( 'قیمت', 'watchmid' ),
+            'label'     => esc_html__( 'قیمت', 'eshobe-ecommerce' ),
             'value'     => $price_value,
             'url'       => remove_query_arg( array( 'min_price', 'max_price', 'paged' ), $url ),
         );
@@ -1633,11 +1633,11 @@ function wm_product_archive_render_active_filters() {
     $items = wm_product_archive_active_filter_items();
     ?>
     <div class="wm-active-filters-region">
-    <div class="wm-active-filters<?php echo empty( $items ) ? ' is-empty' : ''; ?>" aria-label="<?php echo esc_attr__( 'فیلترهای فعال', 'watchmid' ); ?>">
+    <div class="wm-active-filters<?php echo empty( $items ) ? ' is-empty' : ''; ?>" aria-label="<?php echo esc_attr__( 'فیلترهای فعال', 'eshobe-ecommerce' ); ?>">
         <?php if ( empty( $items ) ) : ?>
-            <span class="screen-reader-text"><?php echo esc_html__( 'فیلتر فعالی وجود ندارد.', 'watchmid' ); ?></span>
+            <span class="screen-reader-text"><?php echo esc_html__( 'فیلتر فعالی وجود ندارد.', 'eshobe-ecommerce' ); ?></span>
         <?php else : ?>
-        <span class="wm-active-filters__label"><?php echo esc_html__( 'فیلترهای فعال', 'watchmid' ); ?></span>
+        <span class="wm-active-filters__label"><?php echo esc_html__( 'فیلترهای فعال', 'eshobe-ecommerce' ); ?></span>
         <div class="wm-active-filters__list">
             <?php foreach ( $items as $item ) : ?>
                 <a class="wm-active-filters__chip" href="<?php echo esc_url( $item['url'] ); ?>" data-filter-key="<?php echo esc_attr( $item['key'] ); ?>" data-filter-value="<?php echo esc_attr( $item['value_raw'] ); ?>">
@@ -1672,9 +1672,9 @@ function wm_product_archive_render_sidebar() {
     <aside class="wm-product-archive__sidebar" data-product-archive-sidebar>
         <div class="wm-product-archive__sidebar-panel">
             <div class="wm-product-archive__sidebar-header">
-                <strong><?php echo esc_html__( 'فیلترها', 'watchmid' ); ?></strong>
-                <a class="wm-product-archive__reset" href="<?php echo esc_url( wm_product_archive_reset_url() ); ?>"><?php echo esc_html__( 'حذف فیلترها', 'watchmid' ); ?></a>
-                <button class="wm-product-archive__sidebar-close" type="button" data-archive-filter-close aria-label="<?php echo esc_attr__( 'بستن فیلترها', 'watchmid' ); ?>">×</button>
+                <strong><?php echo esc_html__( 'فیلترها', 'eshobe-ecommerce' ); ?></strong>
+                <a class="wm-product-archive__reset" href="<?php echo esc_url( wm_product_archive_reset_url() ); ?>"><?php echo esc_html__( 'حذف فیلترها', 'eshobe-ecommerce' ); ?></a>
+                <button class="wm-product-archive__sidebar-close" type="button" data-archive-filter-close aria-label="<?php echo esc_attr__( 'بستن فیلترها', 'eshobe-ecommerce' ); ?>">×</button>
             </div>
             <div class="wm-product-archive__filters">
                 <?php wm_product_archive_render_custom_filters(); ?>
@@ -1696,10 +1696,10 @@ function wm_product_archive_result_count() {
     $first    = 0 < $total ? ( $per_page * ( $current - 1 ) ) + 1 : 0;
     $last     = min( $total, $per_page * $current );
     $label    = 0 < $total && $total <= $per_page
-        ? sprintf( esc_html__( '%s کالا', 'watchmid' ), number_format_i18n( $total ) )
+        ? sprintf( esc_html__( '%s کالا', 'eshobe-ecommerce' ), number_format_i18n( $total ) )
         : sprintf(
             /* translators: 1: first product number, 2: last product number, 3: total products. */
-            esc_html__( 'نمایش %1$s–%2$s از %3$s نتیجه', 'watchmid' ),
+            esc_html__( 'نمایش %1$s–%2$s از %3$s نتیجه', 'eshobe-ecommerce' ),
             number_format_i18n( $first ),
             number_format_i18n( $last ),
             number_format_i18n( $total )
@@ -1718,17 +1718,17 @@ function wm_product_archive_ordering() {
 
     $current_orderby = isset( $_GET['orderby'] ) ? wc_clean( wp_unslash( $_GET['orderby'] ) ) : apply_filters( 'woocommerce_default_catalog_orderby', get_option( 'woocommerce_default_catalog_orderby', 'menu_order' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     $sort_links      = array(
-        'menu_order' => esc_html__( 'مرتبط‌ترین', 'watchmid' ),
-        'popularity' => esc_html__( 'پرفروش‌ترین', 'watchmid' ),
-        'date'       => esc_html__( 'جدیدترین', 'watchmid' ),
-        'price'      => esc_html__( 'ارزان‌ترین', 'watchmid' ),
-        'price-desc' => esc_html__( 'گران‌ترین', 'watchmid' ),
-        'rating'     => esc_html__( 'پیشنهاد خریداران', 'watchmid' ),
+        'menu_order' => esc_html__( 'مرتبط‌ترین', 'eshobe-ecommerce' ),
+        'popularity' => esc_html__( 'پرفروش‌ترین', 'eshobe-ecommerce' ),
+        'date'       => esc_html__( 'جدیدترین', 'eshobe-ecommerce' ),
+        'price'      => esc_html__( 'ارزان‌ترین', 'eshobe-ecommerce' ),
+        'price-desc' => esc_html__( 'گران‌ترین', 'eshobe-ecommerce' ),
+        'rating'     => esc_html__( 'پیشنهاد خریداران', 'eshobe-ecommerce' ),
     );
     ?>
     <div class="wm-product-archive__ordering">
-        <span class="wm-product-archive__ordering-label"><?php echo esc_html__( 'مرتب‌سازی محصولات', 'watchmid' ); ?></span>
-        <div class="wm-product-archive__sort-pills" aria-label="<?php echo esc_attr__( 'گزینه‌های مرتب‌سازی', 'watchmid' ); ?>">
+        <span class="wm-product-archive__ordering-label"><?php echo esc_html__( 'مرتب‌سازی محصولات', 'eshobe-ecommerce' ); ?></span>
+        <div class="wm-product-archive__sort-pills" aria-label="<?php echo esc_attr__( 'گزینه‌های مرتب‌سازی', 'eshobe-ecommerce' ); ?>">
             <?php foreach ( $sort_links as $orderby => $label ) : ?>
                 <?php
                 $url     = remove_query_arg( 'paged', add_query_arg( 'orderby', $orderby ) );
@@ -1749,7 +1749,7 @@ function wm_product_archive_render_toolbar() {
         <div class="wm-product-archive__mobile-actions">
             <button class="wm-product-archive__filter-button" type="button" data-archive-filter-toggle aria-expanded="true">
                 <span aria-hidden="true">☰</span>
-                <?php echo esc_html__( 'فیلترها', 'watchmid' ); ?>
+                <?php echo esc_html__( 'فیلترها', 'eshobe-ecommerce' ); ?>
             </button>
         </div>
     <?php endif; ?>
@@ -1814,8 +1814,8 @@ function wm_product_archive_render_pagination() {
             'end_size'  => 1,
             'mid_size'  => 1,
             'prev_next' => true,
-            'prev_text' => '<span class="screen-reader-text">' . esc_html__( 'صفحه قبلی', 'watchmid' ) . '</span><span class="wm-shop-pagination__arrow wm-shop-pagination__arrow--prev" aria-hidden="true"></span>',
-            'next_text' => '<span class="screen-reader-text">' . esc_html__( 'صفحه بعدی', 'watchmid' ) . '</span><span class="wm-shop-pagination__arrow wm-shop-pagination__arrow--next" aria-hidden="true"></span>',
+            'prev_text' => '<span class="screen-reader-text">' . esc_html__( 'صفحه قبلی', 'eshobe-ecommerce' ) . '</span><span class="wm-shop-pagination__arrow wm-shop-pagination__arrow--prev" aria-hidden="true"></span>',
+            'next_text' => '<span class="screen-reader-text">' . esc_html__( 'صفحه بعدی', 'eshobe-ecommerce' ) . '</span><span class="wm-shop-pagination__arrow wm-shop-pagination__arrow--next" aria-hidden="true"></span>',
         )
     );
 
@@ -1823,7 +1823,7 @@ function wm_product_archive_render_pagination() {
         return;
     }
     ?>
-    <nav class="wm-shop-pagination" aria-label="<?php echo esc_attr__( 'صفحه‌بندی محصولات', 'watchmid' ); ?>">
+    <nav class="wm-shop-pagination" aria-label="<?php echo esc_attr__( 'صفحه‌بندی محصولات', 'eshobe-ecommerce' ); ?>">
         <ul class="wm-shop-pagination__list">
             <?php foreach ( $links as $link ) : ?>
                 <?php
@@ -1856,9 +1856,9 @@ function wm_product_archive_render_empty() {
     $shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' );
     ?>
     <section class="wm-product-archive__empty">
-        <h2><?php echo esc_html__( 'محصولی پیدا نشد.', 'watchmid' ); ?></h2>
-        <p><?php echo esc_html__( 'فیلترها را تغییر دهید یا به فروشگاه برگردید.', 'watchmid' ); ?></p>
-        <a class="wm-product-archive__empty-button" href="<?php echo esc_url( $shop_url ); ?>"><?php echo esc_html__( 'مشاهده همه محصولات', 'watchmid' ); ?></a>
+        <h2><?php echo esc_html__( 'محصولی پیدا نشد.', 'eshobe-ecommerce' ); ?></h2>
+        <p><?php echo esc_html__( 'فیلترها را تغییر دهید یا به فروشگاه برگردید.', 'eshobe-ecommerce' ); ?></p>
+        <a class="wm-product-archive__empty-button" href="<?php echo esc_url( $shop_url ); ?>"><?php echo esc_html__( 'مشاهده همه محصولات', 'eshobe-ecommerce' ); ?></a>
     </section>
     <?php
 }

@@ -4,7 +4,7 @@
 
 **Goal:** Replace the header's inline search panel with a Vercel-style centered modal that shows admin-curated suggested products by default and live AJAX product search results as the user types, with a new "Marketing & Sale" ACF options page to manage it.
 
-**Architecture:** Add a new ACF options sub-page ("بازاریابی و فروش") with search settings (suggested products, placeholder, max results, label) plus reserved placeholder sections for future marketing features. Replace the header search panel markup with a centered overlay modal. Add an `admin-ajax.php` endpoint that searches WooCommerce products and returns JSON. New JS file drives the modal open/close, debounced AJAX fetch, and result rendering using the existing `wm_render_product_card()` markup style (simplified inline row version). New CSS file styles the modal, RTL-first using existing design tokens. Bump `WATCHMID_VERSION`.
+**Architecture:** Add a new ACF options sub-page ("بازاریابی و فروش") with search settings (suggested products, placeholder, max results, label) plus reserved placeholder sections for future marketing features. Replace the header search panel markup with a centered overlay modal. Add an `admin-ajax.php` endpoint that searches WooCommerce products and returns JSON. New JS file drives the modal open/close, debounced AJAX fetch, and result rendering using the existing `wm_render_product_card()` markup style (simplified inline row version). New CSS file styles the modal, RTL-first using existing design tokens. Bump `ESHOBE_ECOMMERCE_VERSION`.
 
 **Tech Stack:** PHP (WordPress/WooCommerce/ACF), vanilla JS, CSS (existing token system). No build step — manual verification via the `run`/`verify` skill in a browser.
 
@@ -18,7 +18,7 @@
 - Create: `inc/ajax/search.php` — AJAX handler for live product search
 - Create: `assets/js/header-search.js` — modal open/close + AJAX search behavior
 - Create: `assets/css/components/search-modal.css` — modal styles (RTL)
-- Modify: `functions.php` — require new file, enqueue new JS/CSS, localize script, bump `WATCHMID_VERSION`
+- Modify: `functions.php` — require new file, enqueue new JS/CSS, localize script, bump `ESHOBE_ECOMMERCE_VERSION`
 
 ---
 
@@ -34,7 +34,7 @@
 /**
  * Marketing & Sale option accessors (search, future campaigns).
  *
- * @package WatchMid
+ * @package Eshobe Ecommerce
  */
 
 function wm_search_get_option( $key, $default = '' ) {
@@ -97,9 +97,9 @@ git commit -m "Add marketing/search options accessor helper"
 In `inc/acf/home-fields.php`, find the `$pages` array (around line 24-31) and add a new entry after the "هدر و فوتر" entry:
 
 ```php
-        array( 'page_title' => 'هدر و فوتر', 'menu_title' => 'هدر و فوتر', 'menu_slug' => 'watchmid-header-footer-settings' ),
-        array( 'page_title' => 'بازاریابی و فروش', 'menu_title' => 'بازاریابی و فروش', 'menu_slug' => 'watchmid-marketing-settings' ),
-        array( 'page_title' => 'تنظیمات فنی', 'menu_title' => 'تنظیمات فنی', 'menu_slug' => 'watchmid-technical-settings' ),
+        array( 'page_title' => 'هدر و فوتر', 'menu_title' => 'هدر و فوتر', 'menu_slug' => 'eshobe-ecommerce-header-footer-settings' ),
+        array( 'page_title' => 'بازاریابی و فروش', 'menu_title' => 'بازاریابی و فروش', 'menu_slug' => 'eshobe-ecommerce-marketing-settings' ),
+        array( 'page_title' => 'تنظیمات فنی', 'menu_title' => 'تنظیمات فنی', 'menu_slug' => 'eshobe-ecommerce-technical-settings' ),
 ```
 
 - [ ] **Step 2: Register the field group**
@@ -109,10 +109,10 @@ In `wm_register_home_acf_fields()`, after the header/footer field group registra
 ```php
     acf_add_local_field_group(
         array(
-            'key'      => 'group_watchmid_marketing_settings',
-            'title'    => 'بازاریابی و فروش WatchMid',
+            'key'      => 'group_eshobe_ecommerce_marketing_settings',
+            'title'    => 'بازاریابی و فروش Eshobe Ecommerce',
             'fields'   => wm_site_settings_marketing_fields(),
-            'location' => wm_site_settings_location( 'watchmid-marketing-settings' ),
+            'location' => wm_site_settings_location( 'eshobe-ecommerce-marketing-settings' ),
         )
     );
 ```
@@ -177,7 +177,7 @@ add_filter( 'acf/fields/relationship/query/name=wm_search_suggested_products', '
 
 - [ ] **Step 5: Verify in WP admin**
 
-Use the `run` skill to start the site, log into `/wp-admin`, and confirm a new "بازاریابی و فروش" sub-page appears under "WatchMid" with three tabs: "جستجو", "تخفیف‌ها و کمپین‌ها", "بنرهای تبلیغاتی". Confirm the search tab shows placeholder text, suggested label, max results, and a relationship picker.
+Use the `run` skill to start the site, log into `/wp-admin`, and confirm a new "بازاریابی و فروش" sub-page appears under "Eshobe Ecommerce" with three tabs: "جستجو", "تخفیف‌ها و کمپین‌ها", "بنرهای تبلیغاتی". Confirm the search tab shows placeholder text, suggested label, max results, and a relationship picker.
 
 - [ ] **Step 6: Commit**
 
@@ -201,7 +201,7 @@ git commit -m "Add Marketing & Sale ACF options page with search settings"
 /**
  * AJAX live product search for the header search modal.
  *
- * @package WatchMid
+ * @package Eshobe Ecommerce
  */
 
 function wm_ajax_search_products() {
@@ -296,7 +296,7 @@ Replace lines 198-216 (the entire `<div class="wm-header-search">...</div>` bloc
                     <div class="wm-header-search">
                         <button class="wm-site-header__action wm-site-header__search-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="wm-search-modal">
                             <span class="wm-site-header__action-icon" aria-hidden="true">⌕</span>
-                            <span class="wm-site-header__action-text"><?php echo esc_html__( 'جستجو', 'watchmid' ); ?></span>
+                            <span class="wm-site-header__action-text"><?php echo esc_html__( 'جستجو', 'eshobe-ecommerce' ); ?></span>
                         </button>
                     </div>
                 <?php endif; ?>
@@ -308,11 +308,11 @@ Find the closing `</header>` tag of `wm_render_site_header()` and add the modal 
 
 ```php
         <?php if ( $show_search ) : ?>
-            <div id="wm-search-modal" class="wm-search-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'جستجو', 'watchmid' ); ?>" hidden>
+            <div id="wm-search-modal" class="wm-search-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'جستجو', 'eshobe-ecommerce' ); ?>" hidden>
                 <div class="wm-search-modal__backdrop" data-search-modal-close></div>
                 <div class="wm-search-modal__panel">
                     <form role="search" method="get" class="wm-search-modal__form" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-                        <label class="screen-reader-text" for="wm-search-modal-field"><?php echo esc_html__( 'جستجو', 'watchmid' ); ?></label>
+                        <label class="screen-reader-text" for="wm-search-modal-field"><?php echo esc_html__( 'جستجو', 'eshobe-ecommerce' ); ?></label>
                         <span class="wm-search-modal__icon" aria-hidden="true">⌕</span>
                         <input
                             id="wm-search-modal-field"
@@ -326,7 +326,7 @@ Find the closing `</header>` tag of `wm_render_site_header()` and add the modal 
                         <?php if ( function_exists( 'wc_get_product_types' ) ) : ?>
                             <input type="hidden" name="post_type" value="product">
                         <?php endif; ?>
-                        <button type="button" class="wm-search-modal__close" data-search-modal-close aria-label="<?php echo esc_attr__( 'بستن', 'watchmid' ); ?>">×</button>
+                        <button type="button" class="wm-search-modal__close" data-search-modal-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>">×</button>
                     </form>
 
                     <div class="wm-search-modal__body">
@@ -347,10 +347,10 @@ Find the closing `</header>` tag of `wm_render_site_header()` and add the modal 
 
                         <div class="wm-search-modal__results-wrap" data-search-results hidden>
                             <ul class="wm-search-modal__results" data-search-results-list></ul>
-                            <a href="#" class="wm-search-modal__view-all" data-search-view-all hidden><?php echo esc_html__( 'مشاهده همه نتایج', 'watchmid' ); ?></a>
+                            <a href="#" class="wm-search-modal__view-all" data-search-view-all hidden><?php echo esc_html__( 'مشاهده همه نتایج', 'eshobe-ecommerce' ); ?></a>
                         </div>
 
-                        <p class="wm-search-modal__empty" data-search-empty hidden><?php echo esc_html__( 'نتیجه‌ای یافت نشد.', 'watchmid' ); ?></p>
+                        <p class="wm-search-modal__empty" data-search-empty hidden><?php echo esc_html__( 'نتیجه‌ای یافت نشد.', 'eshobe-ecommerce' ); ?></p>
                     </div>
                 </div>
             </div>
@@ -823,13 +823,13 @@ git commit -m "Add search modal styles"
 
 - [ ] **Step 2: Enqueue + localize the script in `functions.php`**
 
-In `watchmid_scripts()`, after the line enqueuing `watchmid-header` (line 77: `wp_enqueue_script( 'watchmid-header', ... );`), add:
+In `eshobe_ecommerce_scripts()`, after the line enqueuing `eshobe-ecommerce-header` (line 77: `wp_enqueue_script( 'eshobe-ecommerce-header', ... );`), add:
 
 ```php
-    wp_enqueue_style( 'watchmid-search-modal', get_template_directory_uri() . '/assets/css/components/search-modal.css', array( 'watchmid-style' ), WATCHMID_VERSION );
-    wp_enqueue_script( 'watchmid-header-search', get_template_directory_uri() . '/assets/js/header-search.js', array(), WATCHMID_VERSION, true );
+    wp_enqueue_style( 'eshobe-ecommerce-search-modal', get_template_directory_uri() . '/assets/css/components/search-modal.css', array( 'eshobe-ecommerce-style' ), ESHOBE_ECOMMERCE_VERSION );
+    wp_enqueue_script( 'eshobe-ecommerce-header-search', get_template_directory_uri() . '/assets/js/header-search.js', array(), ESHOBE_ECOMMERCE_VERSION, true );
     wp_localize_script(
-        'watchmid-header-search',
+        'eshobe-ecommerce-header-search',
         'wmSearchData',
         array(
             'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
@@ -839,7 +839,7 @@ In `watchmid_scripts()`, after the line enqueuing `watchmid-header` (line 77: `w
     );
 ```
 
-- [ ] **Step 3: Bump `WATCHMID_VERSION`**
+- [ ] **Step 3: Bump `ESHOBE_ECOMMERCE_VERSION`**
 
 In `functions.php` line 9, bump the version, e.g. from `'0.4.30'` to `'0.4.31'`.
 
@@ -872,7 +872,7 @@ git commit -m "Wire up AJAX search modal JS and enqueue assets"
 
 - [ ] **Step 1: Bump the `Version:` header**
 
-Open `style.css`, find the `Version:` line in the theme header comment, and update it to match the new `WATCHMID_VERSION` from Task 6 Step 3 (e.g. `0.4.31`).
+Open `style.css`, find the `Version:` line in the theme header comment, and update it to match the new `ESHOBE_ECOMMERCE_VERSION` from Task 6 Step 3 (e.g. `0.4.31`).
 
 - [ ] **Step 2: Commit**
 
@@ -886,5 +886,5 @@ git commit -m "Bump theme version for search modal feature"
 ## Self-Review Notes
 
 - Old `.wm-header-search__panel`, `.wm-mobile-search-backdrop`, and related JS in `assets/js/header.js` (lines 2-96) become dead code after Task 4. This plan intentionally leaves `header.js` cleanup out of scope to avoid breaking other header behaviors (mega menu, sticky header) that share the file — however, Task 4's verification step should confirm no console errors arise from the now-missing `#wm-header-search-panel` element. If `header.js`'s search-related code throws errors against the new markup, add a follow-up step to remove the dead `closeSearch`/`openSearch`/search-toggle block (lines 1-96 region) from `header.js` — but only after confirming via Step 4 testing that it's actually broken, since the null-checks (`if (searchWrap && searchToggle && searchPanel)`) may make it silently no-op safely.
-- All Persian strings use `esc_html__`/`esc_attr__` with the `watchmid` text domain, consistent with existing code.
+- All Persian strings use `esc_html__`/`esc_attr__` with the `eshobe-ecommerce` text domain, consistent with existing code.
 - New ACF fields follow the existing `*_get_option()` accessor + tab/accordion/placeholder pattern from `home-fields.php`.

@@ -13,10 +13,10 @@ $wm_requires_otp_login = function_exists( 'wm_technical_otp_enabled' ) && wm_tec
 
 <?php if ( $wm_requires_otp_login ) : ?>
 	<button type="button" class="checkout-button button alt wc-forward wm-cart-summary__cta" data-wm-otp-trigger data-wm-otp-redirect="checkout">
-		<?php echo esc_html__( 'ادامه فرایند خرید', 'watchmid' ); ?>
+		<?php echo esc_html__( 'ادامه فرایند خرید', 'eshobe-ecommerce' ); ?>
 	</button>
 <?php else : ?>
 	<a href="<?php echo esc_url( wc_get_checkout_url() ); ?>" class="checkout-button button alt wc-forward wm-cart-summary__cta">
-		<?php echo esc_html__( 'ادامه فرایند خرید', 'watchmid' ); ?>
+		<?php echo esc_html__( 'ادامه فرایند خرید', 'eshobe-ecommerce' ); ?>
 	</a>
 <?php endif; ?>

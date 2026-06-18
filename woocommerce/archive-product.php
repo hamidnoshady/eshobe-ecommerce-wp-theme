@@ -18,7 +18,7 @@ get_header( 'shop' );
         <div class="wm-product-archive__layout">
             <?php wm_product_archive_render_sidebar(); ?>
 
-            <section class="wm-product-archive__main" aria-label="<?php echo esc_attr__( 'محصولات', 'watchmid' ); ?>">
+            <section class="wm-product-archive__main" aria-label="<?php echo esc_attr__( 'محصولات', 'eshobe-ecommerce' ); ?>">
                 <?php if ( woocommerce_product_loop() ) : ?>
                     <?php wm_product_archive_render_toolbar(); ?>
                     <?php wm_product_archive_render_loop(); ?>

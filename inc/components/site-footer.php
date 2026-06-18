@@ -20,13 +20,13 @@ function wm_footer_default_texts() {
     $site_name = get_bloginfo( 'name' );
 
     return array(
-        'title'       => $site_name ? $site_name : __( 'فروشگاه آنلاین', 'watchmid' ),
-        'description' => __( 'انتخابی مطمئن برای خرید آنلاین با ضمانت اصالت کالا و ارسال سریع.', 'watchmid' ),
+        'title'       => $site_name ? $site_name : __( 'فروشگاه آنلاین', 'eshobe-ecommerce' ),
+        'description' => __( 'انتخابی مطمئن برای خرید آنلاین با ضمانت اصالت کالا و ارسال سریع.', 'eshobe-ecommerce' ),
         'copyright'   => sprintf(
             /* translators: 1: year, 2: site name. */
-            __( '© %1$s %2$s. کلیه حقوق محفوظ است.', 'watchmid' ),
+            __( '© %1$s %2$s. کلیه حقوق محفوظ است.', 'eshobe-ecommerce' ),
             date_i18n( 'Y' ),
-            $site_name ? $site_name : __( 'فروشگاه آنلاین', 'watchmid' )
+            $site_name ? $site_name : __( 'فروشگاه آنلاین', 'eshobe-ecommerce' )
         ),
         'developer'   => '',
     );
@@ -34,10 +34,10 @@ function wm_footer_default_texts() {
 
 function wm_footer_get_fallback_links() {
     return array(
-        array( 'label' => __( 'درباره ما', 'watchmid' ), 'url' => home_url( '/about-us/' ) ),
-        array( 'label' => __( 'تماس با ما', 'watchmid' ), 'url' => home_url( '/contact-us/' ) ),
-        array( 'label' => __( 'راهنمای خرید', 'watchmid' ), 'url' => home_url( '/buying-guide/' ) ),
-        array( 'label' => __( 'پیگیری سفارش', 'watchmid' ), 'url' => home_url( '/order-tracking/' ) ),
+        array( 'label' => __( 'درباره ما', 'eshobe-ecommerce' ), 'url' => home_url( '/about-us/' ) ),
+        array( 'label' => __( 'تماس با ما', 'eshobe-ecommerce' ), 'url' => home_url( '/contact-us/' ) ),
+        array( 'label' => __( 'راهنمای خرید', 'eshobe-ecommerce' ), 'url' => home_url( '/buying-guide/' ) ),
+        array( 'label' => __( 'پیگیری سفارش', 'eshobe-ecommerce' ), 'url' => home_url( '/order-tracking/' ) ),
     );
 }
 
@@ -150,7 +150,7 @@ function wm_footer_render_badges() {
     }
 
     ?>
-    <div class="wm-site-footer__badges" aria-label="<?php echo esc_attr__( 'نمادهای اعتماد', 'watchmid' ); ?>">
+    <div class="wm-site-footer__badges" aria-label="<?php echo esc_attr__( 'نمادهای اعتماد', 'eshobe-ecommerce' ); ?>">
         <?php foreach ( $badges as $badge ) : ?>
             <?php wm_footer_render_badge( $badge ); ?>
         <?php endforeach; ?>

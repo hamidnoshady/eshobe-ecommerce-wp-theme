@@ -35,8 +35,8 @@ function wm_render_product_carousel( $products, $args = array() ) {
                 <?php endif; ?>
             </div>
             <div class="wm-product-carousel__controls">
-                <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="prev" aria-label="<?php esc_attr_e( 'Previous products', 'watchmid' ); ?>"><span aria-hidden="true">‹</span></button>
-                <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="next" aria-label="<?php esc_attr_e( 'Next products', 'watchmid' ); ?>"><span aria-hidden="true">›</span></button>
+                <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="prev" aria-label="<?php esc_attr_e( 'Previous products', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">‹</span></button>
+                <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="next" aria-label="<?php esc_attr_e( 'Next products', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">›</span></button>
             </div>
         </div>
         <div class="wm-product-carousel__viewport">
