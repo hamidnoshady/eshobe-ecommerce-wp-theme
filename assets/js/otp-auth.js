@@ -287,6 +287,9 @@
         .then(function (data) {
           if (data && data.success && data.data && data.data.needsPassword) {
             btn.disabled = false;
+            if (data.data.newNonce) {
+              window.wmOtpData.nonce = data.data.newNonce;
+            }
             setStep('password');
             return;
           }

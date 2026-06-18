@@ -240,8 +240,9 @@ function wm_ajax_otp_verify_code() {
 	if ( $needs_password ) {
 		wp_send_json_success(
 			array(
-				'message'      => 'ورود با موفقیت انجام شد.',
+				'message'       => 'ورود با موفقیت انجام شد.',
 				'needsPassword' => true,
+				'newNonce'      => wp_create_nonce( 'wm_otp_nonce' ),
 			)
 		);
 	}
