@@ -15,8 +15,8 @@ do_action( 'woocommerce_before_customer_login_form' );
 	<div class="wm-account-page__container">
 		<header class="wm-account-page__header">
 			<div>
-				<span class="wm-account-page__eyebrow"><?php echo esc_html__( 'پنل کاربری', 'watchmid' ); ?></span>
-				<h1 class="wm-account-page__title"><?php echo esc_html__( 'ورود به حساب کاربری', 'watchmid' ); ?></h1>
+				<span class="wm-account-page__eyebrow"><?php echo esc_html__( 'پنل کاربری', 'eshobe-ecommerce' ); ?></span>
+				<h1 class="wm-account-page__title"><?php echo esc_html__( 'ورود به حساب کاربری', 'eshobe-ecommerce' ); ?></h1>
 			</div>
 		</header>
 
@@ -37,8 +37,8 @@ do_action( 'woocommerce_before_customer_login_form' );
 
 						<?php if ( $wm_otp_enabled ) : ?>
 							<div class="wm-login-tabs" data-wm-login-tabs>
-								<button type="button" class="wm-login-tabs__button is-active" data-wm-login-tab="password"><?php echo esc_html__( 'ورود با رمز عبور', 'watchmid' ); ?></button>
-								<button type="button" class="wm-login-tabs__button" data-wm-login-tab="otp"><?php echo esc_html__( 'ورود با کد یکبارمصرف', 'watchmid' ); ?></button>
+								<button type="button" class="wm-login-tabs__button is-active" data-wm-login-tab="password"><?php echo esc_html__( 'ورود با رمز عبور', 'eshobe-ecommerce' ); ?></button>
+								<button type="button" class="wm-login-tabs__button" data-wm-login-tab="otp"><?php echo esc_html__( 'ورود با کد یکبارمصرف', 'eshobe-ecommerce' ); ?></button>
 							</div>
 						<?php endif; ?>
 
@@ -49,7 +49,7 @@ do_action( 'woocommerce_before_customer_login_form' );
 							<?php do_action( 'woocommerce_login_form_start' ); ?>
 
 							<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-								<label for="username"><?php echo $wm_otp_enabled ? esc_html__( 'شماره موبایل', 'watchmid' ) : esc_html__( 'Username or email address', 'woocommerce' ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( 'Required', 'woocommerce' ); ?></span></label>
+								<label for="username"><?php echo $wm_otp_enabled ? esc_html__( 'شماره موبایل', 'eshobe-ecommerce' ) : esc_html__( 'Username or email address', 'woocommerce' ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( 'Required', 'woocommerce' ); ?></span></label>
 								<input type="<?php echo $wm_otp_enabled ? 'tel' : 'text'; ?>" class="woocommerce-Input woocommerce-Input--text input-text" name="username" id="username" autocomplete="username" inputmode="<?php echo $wm_otp_enabled ? 'numeric' : 'text'; ?>" placeholder="<?php echo $wm_otp_enabled ? '09xxxxxxxxx' : ''; ?>" value="<?php echo ( ! empty( $_POST['username'] ) && is_string( $_POST['username'] ) ) ? esc_attr( wp_unslash( $_POST['username'] ) ) : ''; ?>" required aria-required="true" /><?php // @codingStandardsIgnoreLine ?>
 							</p>
 							<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
@@ -79,9 +79,9 @@ do_action( 'woocommerce_before_customer_login_form' );
 						<?php if ( $wm_otp_enabled ) : ?>
 							<div class="wm-login-panel" data-wm-login-panel="otp" hidden>
 								<div class="wm-account-otp-cta">
-									<p><?php echo esc_html__( 'کد یکبارمصرف به شماره موبایل شما ارسال می‌شود.', 'watchmid' ); ?></p>
+									<p><?php echo esc_html__( 'کد یکبارمصرف به شماره موبایل شما ارسال می‌شود.', 'eshobe-ecommerce' ); ?></p>
 									<button type="button" class="wm-account-otp-cta__button" data-wm-otp-trigger data-wm-otp-redirect="account">
-										<?php echo esc_html__( 'ارسال کد یکبارمصرف', 'watchmid' ); ?>
+										<?php echo esc_html__( 'ارسال کد یکبارمصرف', 'eshobe-ecommerce' ); ?>
 									</button>
 								</div>
 							</div>

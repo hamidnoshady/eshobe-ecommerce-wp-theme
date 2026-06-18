@@ -498,7 +498,7 @@
     const hasSkeletonOnly = Boolean(next.querySelector('.skeleton, .is-skeleton, .placeholder, .is-loading, .loading')) && !hasControls;
     if (!hasControls || hasSkeletonOnly) {
       if (window.console && typeof window.console.warn === 'function') {
-        window.console.warn('WatchMid archive: skipped incomplete sidebar filter response.');
+        window.console.warn('Eshobe Ecommerce archive: skipped incomplete sidebar filter response.');
       }
       cleanSidebarLoadingState(current);
       return false;

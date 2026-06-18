@@ -186,9 +186,9 @@ function wm_render_product_gallery() {
 
     ob_start();
     ?>
-    <section class="<?php echo esc_attr( $class ); ?>" aria-label="<?php esc_attr_e( 'Product gallery', 'watchmid' ); ?>" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>">
+    <section class="<?php echo esc_attr( $class ); ?>" aria-label="<?php esc_attr_e( 'Product gallery', 'eshobe-ecommerce' ); ?>" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>">
         <?php if ( $main_full ) : ?>
-            <a class="wm-product-gallery__zoom" href="<?php echo esc_url( $main_full ); ?>" aria-label="<?php esc_attr_e( 'View larger product image', 'watchmid' ); ?>">
+            <a class="wm-product-gallery__zoom" href="<?php echo esc_url( $main_full ); ?>" aria-label="<?php esc_attr_e( 'View larger product image', 'eshobe-ecommerce' ); ?>">
                 <span aria-hidden="true">⌕</span>
             </a>
         <?php endif; ?>
@@ -214,7 +214,7 @@ function wm_render_product_gallery() {
             <?php endif; ?>
         </div>
         <?php if ( $image_count > 1 ) : ?>
-            <div class="wm-product-gallery__thumbs" aria-label="<?php esc_attr_e( 'Product image thumbnails', 'watchmid' ); ?>">
+            <div class="wm-product-gallery__thumbs" aria-label="<?php esc_attr_e( 'Product image thumbnails', 'eshobe-ecommerce' ); ?>">
                 <?php foreach ( $image_ids as $index => $image_id ) : ?>
                     <?php
                     $thumb_alt = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
@@ -228,7 +228,7 @@ function wm_render_product_gallery() {
                         data-srcset="<?php echo esc_attr( wp_get_attachment_image_srcset( $image_id, 'large' ) ); ?>"
                         data-sizes="<?php echo esc_attr( wp_get_attachment_image_sizes( $image_id, 'large' ) ); ?>"
                         data-alt="<?php echo esc_attr( $thumb_alt ); ?>"
-                        aria-label="<?php echo esc_attr( sprintf( __( 'Show product image %d', 'watchmid' ), $index + 1 ) ); ?>"
+                        aria-label="<?php echo esc_attr( sprintf( __( 'Show product image %d', 'eshobe-ecommerce' ), $index + 1 ) ); ?>"
                         aria-pressed="<?php echo 0 === $index ? 'true' : 'false'; ?>"
                     >
                         <?php echo wp_get_attachment_image( $image_id, 'woocommerce_gallery_thumbnail', false, array( 'alt' => $thumb_alt ) ); ?>
@@ -313,14 +313,14 @@ function wm_render_product_intro() {
                 <?php if ( ! empty( $brands ) ) : ?>
                     <?php $brand = $brands[0]; ?>
                     <a class="wm-product-intro__meta-item wm-product-intro__meta-item--brand" href="<?php echo esc_url( wm_term_link( $brand ) ); ?>">
-                        <span class="wm-product-intro__meta-label"><?php echo esc_html_x( 'برند', 'product intro meta label', 'watchmid' ); ?></span>
+                        <span class="wm-product-intro__meta-label"><?php echo esc_html_x( 'برند', 'product intro meta label', 'eshobe-ecommerce' ); ?></span>
                         <span class="wm-product-intro__meta-value"><?php echo esc_html( $brand->name ); ?></span>
                     </a>
                 <?php endif; ?>
                 <?php if ( ! empty( $cats ) ) : ?>
                     <?php $cat = $cats[0]; ?>
                     <a class="wm-product-intro__meta-item wm-product-intro__meta-item--category" href="<?php echo esc_url( wm_term_link( $cat ) ); ?>">
-                        <span class="wm-product-intro__meta-label"><?php echo esc_html_x( 'دسته‌بندی', 'product intro meta label', 'watchmid' ); ?></span>
+                        <span class="wm-product-intro__meta-label"><?php echo esc_html_x( 'دسته‌بندی', 'product intro meta label', 'eshobe-ecommerce' ); ?></span>
                         <span class="wm-product-intro__meta-value"><?php echo esc_html( $cat->name ); ?></span>
                     </a>
                 <?php endif; ?>
@@ -350,7 +350,7 @@ function wm_render_product_specs() {
 
     ob_start();
     ?>
-    <section class="<?php echo esc_attr( $class ); ?>" aria-label="<?php esc_attr_e( 'Product specifications', 'watchmid' ); ?>">
+    <section class="<?php echo esc_attr( $class ); ?>" aria-label="<?php esc_attr_e( 'Product specifications', 'eshobe-ecommerce' ); ?>">
         <div class="wm-product-specs__grid">
             <?php foreach ( $items as $item ) : ?>
                 <div class="wm-product-specs__item">
@@ -364,10 +364,10 @@ function wm_render_product_specs() {
             <div class="wm-product-specs__fade" aria-hidden="true"></div>
             <div class="wm-product-specs__toggle-wrap">
             <button class="wm-product-specs__toggle wm-product-specs__toggle--more" type="button" data-specs-toggle aria-expanded="false">
-                <?php echo esc_html__( 'مشاهده بیشتر', 'watchmid' ); ?>
+                <?php echo esc_html__( 'مشاهده بیشتر', 'eshobe-ecommerce' ); ?>
             </button>
             <button class="wm-product-specs__toggle wm-product-specs__toggle--less" type="button" data-specs-toggle aria-expanded="true">
-                <?php echo esc_html__( 'مشاهده کمتر', 'watchmid' ); ?>
+                <?php echo esc_html__( 'مشاهده کمتر', 'eshobe-ecommerce' ); ?>
             </button>
             </div>
         <?php endif; ?>
@@ -459,7 +459,7 @@ function wm_render_mobile_product_bottom_bar() {
 
     ob_start();
     ?>
-    <section class="wm-mobile-bottom-bar wm-mobile-bottom-bar--collapsed" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'watchmid' ); ?>">
+    <section class="wm-mobile-bottom-bar wm-mobile-bottom-bar--collapsed" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'eshobe-ecommerce' ); ?>">
         <button class="wm-mobile-bottom-bar__handle" type="button" aria-expanded="false" aria-controls="wm-mobile-bottom-bar-content">
             <span class="wm-mobile-bottom-bar__chevron" aria-hidden="true"></span>
         </button>
@@ -492,9 +492,9 @@ function wm_render_mobile_product_bottom_bar() {
                 </div>
             <?php endif; ?>
             <div class="wm-mobile-bottom-bar__trust">
-                <span><?php echo esc_html__( 'ضمانت اصالت کالا', 'watchmid' ); ?></span>
-                <span><?php echo esc_html__( 'ارسال سریع', 'watchmid' ); ?></span>
-                <span><?php echo esc_html__( 'پرداخت امن', 'watchmid' ); ?></span>
+                <span><?php echo esc_html__( 'ضمانت اصالت کالا', 'eshobe-ecommerce' ); ?></span>
+                <span><?php echo esc_html__( 'ارسال سریع', 'eshobe-ecommerce' ); ?></span>
+                <span><?php echo esc_html__( 'پرداخت امن', 'eshobe-ecommerce' ); ?></span>
             </div>
         </div>
     </section>
@@ -522,10 +522,10 @@ function wm_get_mobile_collapsible_description( $html ) {
         <div class="wm-product-description__fade" aria-hidden="true"></div>
         <div class="wm-product-description__toggle-wrap">
             <button class="wm-product-description__toggle wm-product-description__toggle--more" type="button" data-description-toggle aria-expanded="false">
-                <?php echo esc_html__( 'مشاهده بیشتر', 'watchmid' ); ?>
+                <?php echo esc_html__( 'مشاهده بیشتر', 'eshobe-ecommerce' ); ?>
             </button>
             <button class="wm-product-description__toggle wm-product-description__toggle--less" type="button" data-description-toggle aria-expanded="true">
-                <?php echo esc_html__( 'مشاهده کمتر', 'watchmid' ); ?>
+                <?php echo esc_html__( 'مشاهده کمتر', 'eshobe-ecommerce' ); ?>
             </button>
         </div>
     </div>
@@ -575,7 +575,7 @@ function wm_render_product_tabs() {
     ?>
     <section class="wm-product-tabs" id="wm-product-tabs">
         <?php if ( count( $panels ) > 1 ) : ?>
-            <div class="wm-product-tabs__nav" role="tablist" aria-label="<?php esc_attr_e( 'Product information', 'watchmid' ); ?>">
+            <div class="wm-product-tabs__nav" role="tablist" aria-label="<?php esc_attr_e( 'Product information', 'eshobe-ecommerce' ); ?>">
                 <?php foreach ( $panels as $key => $panel ) : ?>
                     <?php $is_active = $key === $active_key; ?>
                     <button
@@ -626,14 +626,14 @@ function wm_render_related_products() {
 
     ob_start();
     ?>
-    <section class="wm-related-products" aria-label="<?php esc_attr_e( 'Related products', 'watchmid' ); ?>">
+    <section class="wm-related-products" aria-label="<?php esc_attr_e( 'Related products', 'eshobe-ecommerce' ); ?>">
         <div class="wm-related-products__header">
-            <h2 class="wm-related-products__title"><?php echo esc_html__( 'محصولات مشابه', 'watchmid' ); ?></h2>
-            <div class="wm-related-products__nav wm-related-products__controls" aria-label="<?php esc_attr_e( 'Related products carousel controls', 'watchmid' ); ?>">
-                <button class="wm-related-products__arrow wm-related-products__arrow--prev" type="button" data-related-direction="prev" aria-label="<?php esc_attr_e( 'Previous related products', 'watchmid' ); ?>">
+            <h2 class="wm-related-products__title"><?php echo esc_html__( 'محصولات مشابه', 'eshobe-ecommerce' ); ?></h2>
+            <div class="wm-related-products__nav wm-related-products__controls" aria-label="<?php esc_attr_e( 'Related products carousel controls', 'eshobe-ecommerce' ); ?>">
+                <button class="wm-related-products__arrow wm-related-products__arrow--prev" type="button" data-related-direction="prev" aria-label="<?php esc_attr_e( 'Previous related products', 'eshobe-ecommerce' ); ?>">
                     <span aria-hidden="true">‹</span>
                 </button>
-                <button class="wm-related-products__arrow wm-related-products__arrow--next" type="button" data-related-direction="next" aria-label="<?php esc_attr_e( 'Next related products', 'watchmid' ); ?>">
+                <button class="wm-related-products__arrow wm-related-products__arrow--next" type="button" data-related-direction="next" aria-label="<?php esc_attr_e( 'Next related products', 'eshobe-ecommerce' ); ?>">
                     <span aria-hidden="true">›</span>
                 </button>
             </div>

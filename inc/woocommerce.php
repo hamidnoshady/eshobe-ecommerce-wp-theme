@@ -75,7 +75,7 @@ add_filter( 'the_content', 'wm_use_classic_checkout_template_for_checkout_block'
  */
 function wm_persian_cart_shipping_package_name( $name ) {
     if ( ( function_exists( 'is_cart' ) && is_cart() ) || ( function_exists( 'is_checkout' ) && is_checkout() ) ) {
-        return esc_html__( 'ارسال', 'watchmid' );
+        return esc_html__( 'ارسال', 'eshobe-ecommerce' );
     }
 
     return $name;

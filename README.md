@@ -5,7 +5,7 @@ A lightweight Underscores-inspired WordPress/WooCommerce starter theme prepared 
 ## Font placement
 Put Peyda font files here:
 
-`wp-content/themes/watchmid-underscores-theme/assets/fonts/peyda/`
+`wp-content/themes/eshobe-ecommerce-wp-theme/assets/fonts/peyda/`
 
 Expected files:
 

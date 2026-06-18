@@ -15,27 +15,27 @@ do_action( 'woocommerce_before_cart' );
 	<div class="wm-cart-page__container">
 		<header class="wm-cart-page__header">
 			<div>
-				<h1 class="wm-cart-page__title"><?php echo esc_html__( 'سبد خرید', 'watchmid' ); ?></h1>
+				<h1 class="wm-cart-page__title"><?php echo esc_html__( 'سبد خرید', 'eshobe-ecommerce' ); ?></h1>
 			</div>
 		</header>
 
 		<div class="wm-cart-layout">
 			<form id="wm-cart-form" class="woocommerce-cart-form wm-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
-				<section class="wm-cart-items" aria-label="<?php echo esc_attr__( 'محصولات داخل سبد خرید', 'watchmid' ); ?>">
+				<section class="wm-cart-items" aria-label="<?php echo esc_attr__( 'محصولات داخل سبد خرید', 'eshobe-ecommerce' ); ?>">
 					<div class="wm-cart-items__head">
 						<div>
-							<h2><?php echo esc_html__( 'محصولات شما', 'watchmid' ); ?></h2>
-							<span><?php echo esc_html( sprintf( _n( '%d کالا', '%d کالا', WC()->cart->get_cart_contents_count(), 'watchmid' ), WC()->cart->get_cart_contents_count() ) ); ?></span>
+							<h2><?php echo esc_html__( 'محصولات شما', 'eshobe-ecommerce' ); ?></h2>
+							<span><?php echo esc_html( sprintf( _n( '%d کالا', '%d کالا', WC()->cart->get_cart_contents_count(), 'eshobe-ecommerce' ), WC()->cart->get_cart_contents_count() ) ); ?></span>
 						</div>
-						<button type="submit" class="button wm-cart-items__update" name="update_cart" value="<?php echo esc_attr__( 'به‌روزرسانی سبد خرید', 'watchmid' ); ?>"><?php echo esc_html__( 'به‌روزرسانی سبد', 'watchmid' ); ?></button>
+						<button type="submit" class="button wm-cart-items__update" name="update_cart" value="<?php echo esc_attr__( 'به‌روزرسانی سبد خرید', 'eshobe-ecommerce' ); ?>"><?php echo esc_html__( 'به‌روزرسانی سبد', 'eshobe-ecommerce' ); ?></button>
 					</div>
 
 					<div class="wm-cart-items__table-head" aria-hidden="true">
 						<span></span>
-						<span><?php echo esc_html__( 'مجموع', 'watchmid' ); ?></span>
-						<span><?php echo esc_html__( 'تعداد', 'watchmid' ); ?></span>
-						<span><?php echo esc_html__( 'محصول', 'watchmid' ); ?></span>
-						<span><?php echo esc_html__( 'تصویر', 'watchmid' ); ?></span>
+						<span><?php echo esc_html__( 'مجموع', 'eshobe-ecommerce' ); ?></span>
+						<span><?php echo esc_html__( 'تعداد', 'eshobe-ecommerce' ); ?></span>
+						<span><?php echo esc_html__( 'محصول', 'eshobe-ecommerce' ); ?></span>
+						<span><?php echo esc_html__( 'تصویر', 'eshobe-ecommerce' ); ?></span>
 					</div>
 
 					<div class="wm-cart-items__list">
@@ -81,7 +81,7 @@ do_action( 'woocommerce_before_cart' );
 											echo wc_get_formatted_cart_item_data( $cart_item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 											if ( $_product->backorders_require_notification() && $_product->is_on_backorder( $cart_item['quantity'] ) ) {
-												echo wp_kses_post( apply_filters( 'woocommerce_cart_item_backorder_notification', '<p class="backorder_notification">' . esc_html__( 'موجودی این محصول در حالت پیش‌خرید است.', 'watchmid' ) . '</p>', $product_id ) );
+												echo wp_kses_post( apply_filters( 'woocommerce_cart_item_backorder_notification', '<p class="backorder_notification">' . esc_html__( 'موجودی این محصول در حالت پیش‌خرید است.', 'eshobe-ecommerce' ) . '</p>', $product_id ) );
 											}
 											?>
 										</div>
@@ -90,12 +90,12 @@ do_action( 'woocommerce_before_cart' );
 								</div>
 
 								<div class="wm-cart-item__unit">
-									<span><?php echo esc_html__( 'قیمت واحد', 'watchmid' ); ?></span>
+									<span><?php echo esc_html__( 'قیمت واحد', 'eshobe-ecommerce' ); ?></span>
 									<strong><?php echo apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></strong>
 								</div>
 
 								<div class="wm-cart-item__quantity">
-									<label for="<?php echo esc_attr( 'quantity_' . $cart_item_key ); ?>"><?php echo esc_html__( 'تعداد', 'watchmid' ); ?></label>
+									<label for="<?php echo esc_attr( 'quantity_' . $cart_item_key ); ?>"><?php echo esc_html__( 'تعداد', 'eshobe-ecommerce' ); ?></label>
 									<?php
 									if ( $_product->is_sold_individually() ) {
 										$min_quantity = 1;
@@ -126,7 +126,7 @@ do_action( 'woocommerce_before_cart' );
 								</div>
 
 								<div class="wm-cart-item__subtotal">
-									<span><?php echo esc_html__( 'جمع', 'watchmid' ); ?></span>
+									<span><?php echo esc_html__( 'جمع', 'eshobe-ecommerce' ); ?></span>
 									<strong><?php echo apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></strong>
 								</div>
 
@@ -137,7 +137,7 @@ do_action( 'woocommerce_before_cart' );
 										sprintf(
 											'<a role="button" href="%s" class="wm-cart-item__remove remove" aria-label="%s" data-product_id="%s" data-product_sku="%s"><span aria-hidden="true">&times;</span></a>',
 											esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
-											esc_attr( sprintf( __( 'حذف %s از سبد خرید', 'watchmid' ), wp_strip_all_tags( $product_name ) ) ),
+											esc_attr( sprintf( __( 'حذف %s از سبد خرید', 'eshobe-ecommerce' ), wp_strip_all_tags( $product_name ) ) ),
 											esc_attr( $product_id ),
 											esc_attr( $_product->get_sku() )
 										),
@@ -153,11 +153,11 @@ do_action( 'woocommerce_before_cart' );
 				</section>
 
 				<?php if ( wc_coupons_enabled() ) : ?>
-					<section class="wm-cart-coupon coupon" aria-label="<?php echo esc_attr__( 'کد تخفیف', 'watchmid' ); ?>">
-						<label for="coupon_code"><?php echo esc_html__( 'کد تخفیف', 'watchmid' ); ?></label>
+					<section class="wm-cart-coupon coupon" aria-label="<?php echo esc_attr__( 'کد تخفیف', 'eshobe-ecommerce' ); ?>">
+						<label for="coupon_code"><?php echo esc_html__( 'کد تخفیف', 'eshobe-ecommerce' ); ?></label>
 						<div class="wm-cart-coupon__row">
-							<input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php echo esc_attr__( 'کد تخفیف را وارد کنید', 'watchmid' ); ?>">
-							<button type="submit" class="button wm-cart-coupon__button" name="apply_coupon" value="<?php echo esc_attr__( 'اعمال کد', 'watchmid' ); ?>"><?php echo esc_html__( 'اعمال', 'watchmid' ); ?></button>
+							<input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php echo esc_attr__( 'کد تخفیف را وارد کنید', 'eshobe-ecommerce' ); ?>">
+							<button type="submit" class="button wm-cart-coupon__button" name="apply_coupon" value="<?php echo esc_attr__( 'اعمال کد', 'eshobe-ecommerce' ); ?>"><?php echo esc_html__( 'اعمال', 'eshobe-ecommerce' ); ?></button>
 						</div>
 					</section>
 				<?php endif; ?>
@@ -165,7 +165,7 @@ do_action( 'woocommerce_before_cart' );
 				<?php wp_nonce_field( 'woocommerce-cart', 'woocommerce-cart-nonce' ); ?>
 			</form>
 
-			<aside class="wm-cart-layout__summary" aria-label="<?php echo esc_attr__( 'خلاصه سفارش', 'watchmid' ); ?>">
+			<aside class="wm-cart-layout__summary" aria-label="<?php echo esc_attr__( 'خلاصه سفارش', 'eshobe-ecommerce' ); ?>">
 				<?php wc_get_template( 'cart/cart-totals.php' ); ?>
 			</aside>
 		</div>

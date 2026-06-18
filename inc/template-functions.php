@@ -5,31 +5,31 @@
  * @package WM_Theme
  */
 
-function watchmid_body_classes( $classes ) {
+function eshobe_ecommerce_body_classes( $classes ) {
     if ( ! is_singular() ) {
         $classes[] = 'hfeed';
     }
     if ( is_woocommerce() || is_product() || is_shop() || is_product_taxonomy() ) {
-        $classes[] = 'watchmid-woocommerce';
+        $classes[] = 'eshobe-ecommerce-woocommerce';
     }
-    $font = function_exists( 'wm_get_design_token' ) ? wm_get_design_token( 'wm_font_mode', 'vazirmatn' ) : get_theme_mod( 'watchmid_font_family', 'vazirmatn' );
-    $classes[] = 'watchmid-font-' . sanitize_html_class( $font );
+    $font = function_exists( 'wm_get_design_token' ) ? wm_get_design_token( 'wm_font_mode', 'vazirmatn' ) : get_theme_mod( 'eshobe_ecommerce_font_family', 'vazirmatn' );
+    $classes[] = 'eshobe-ecommerce-font-' . sanitize_html_class( $font );
 
     if ( is_product() ) {
-        $classes[] = 'watchmid-product-image-' . sanitize_html_class( get_theme_mod( 'watchmid_product_image_position', 'right' ) );
-        if ( get_theme_mod( 'watchmid_product_gallery_sticky', true ) ) {
-            $classes[] = 'watchmid-product-gallery-sticky';
+        $classes[] = 'eshobe-ecommerce-product-image-' . sanitize_html_class( get_theme_mod( 'eshobe_ecommerce_product_image_position', 'right' ) );
+        if ( get_theme_mod( 'eshobe_ecommerce_product_gallery_sticky', true ) ) {
+            $classes[] = 'eshobe-ecommerce-product-gallery-sticky';
         }
     }
     return $classes;
 }
-add_filter( 'body_class', 'watchmid_body_classes' );
+add_filter( 'body_class', 'eshobe_ecommerce_body_classes' );
 
-function watchmid_get_design_customizer_css() {
-    $content_width = absint( get_theme_mod( 'watchmid_content_width', 1320 ) );
-    $section_gap   = absint( get_theme_mod( 'watchmid_product_section_gap', 20 ) );
-    $density       = get_theme_mod( 'watchmid_product_card_density', 'comfortable' );
-    $font          = get_theme_mod( 'watchmid_font_family', 'vazirmatn' );
+function eshobe_ecommerce_get_design_customizer_css() {
+    $content_width = absint( get_theme_mod( 'eshobe_ecommerce_content_width', 1320 ) );
+    $section_gap   = absint( get_theme_mod( 'eshobe_ecommerce_product_section_gap', 20 ) );
+    $density       = get_theme_mod( 'eshobe_ecommerce_product_card_density', 'comfortable' );
+    $font          = get_theme_mod( 'eshobe_ecommerce_font_family', 'vazirmatn' );
 
     $content_width = min( max( $content_width, 1040 ), 1440 );
     $section_gap   = min( max( $section_gap, 12 ), 36 );

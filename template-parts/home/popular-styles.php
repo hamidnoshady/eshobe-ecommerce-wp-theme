@@ -26,8 +26,8 @@ if ( empty( $items ) ) {
 <section class="wm-home-section wm-home-styles wm-section-decor wm-section-decor--styles wm-section-decor--soft-grid">
     <div class="wm-home-section__header">
         <div>
-            <h2 class="wm-home-section__title"><?php echo esc_html__( 'سبک‌های محبوب', 'watchmid' ); ?></h2>
-            <p class="wm-home-section__subtitle"><?php echo esc_html__( 'بر اساس زبان طراحی و موقعیت استفاده انتخاب کنید.', 'watchmid' ); ?></p>
+            <h2 class="wm-home-section__title"><?php echo esc_html__( 'سبک‌های محبوب', 'eshobe-ecommerce' ); ?></h2>
+            <p class="wm-home-section__subtitle"><?php echo esc_html__( 'بر اساس زبان طراحی و موقعیت استفاده انتخاب کنید.', 'eshobe-ecommerce' ); ?></p>
         </div>
     </div>
     <div class="wm-home-styles__grid">

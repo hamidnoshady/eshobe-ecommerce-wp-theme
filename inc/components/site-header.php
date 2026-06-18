@@ -174,13 +174,13 @@ function wm_header_render_menu() {
     }
 
     ?>
-    <nav class="wm-site-header__nav" aria-label="<?php echo esc_attr__( 'Primary Menu', 'watchmid' ); ?>">
+    <nav class="wm-site-header__nav" aria-label="<?php echo esc_attr__( 'Primary Menu', 'eshobe-ecommerce' ); ?>">
         <ul class="wm-site-header__menu">
-            <li><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php echo esc_html__( 'خانه', 'watchmid' ); ?></a></li>
+            <li><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php echo esc_html__( 'خانه', 'eshobe-ecommerce' ); ?></a></li>
             <?php if ( function_exists( 'wc_get_page_permalink' ) ) : ?>
-                <li><a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"><?php echo esc_html__( 'فروشگاه', 'watchmid' ); ?></a></li>
+                <li><a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"><?php echo esc_html__( 'فروشگاه', 'eshobe-ecommerce' ); ?></a></li>
             <?php endif; ?>
-            <li><a href="<?php echo esc_url( home_url( '/contact-us/' ) ); ?>"><?php echo esc_html__( 'تماس با ما', 'watchmid' ); ?></a></li>
+            <li><a href="<?php echo esc_url( home_url( '/contact-us/' ) ); ?>"><?php echo esc_html__( 'تماس با ما', 'eshobe-ecommerce' ); ?></a></li>
         </ul>
     </nav>
     <?php
@@ -216,23 +216,23 @@ function wm_render_site_header() {
                     <div class="wm-header-search">
                         <button class="wm-site-header__action wm-site-header__search-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="wm-search-modal">
                             <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                            <span class="wm-site-header__action-text"><?php echo esc_html__( 'جستجو', 'watchmid' ); ?></span>
+                            <span class="wm-site-header__action-text"><?php echo esc_html__( 'جستجو', 'eshobe-ecommerce' ); ?></span>
                         </button>
                     </div>
                 <?php endif; ?>
 
                 <?php if ( $show_account ) : ?>
                     <?php $wm_header_otp_active = ! is_user_logged_in(); ?>
-                    <a class="wm-site-header__action wm-site-header__account" href="<?php echo esc_url( wm_header_get_account_url() ); ?>" aria-label="<?php echo esc_attr__( 'حساب کاربری', 'watchmid' ); ?>"<?php echo $wm_header_otp_active ? ' data-wm-otp-trigger data-wm-otp-redirect="account"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <a class="wm-site-header__action wm-site-header__account" href="<?php echo esc_url( wm_header_get_account_url() ); ?>" aria-label="<?php echo esc_attr__( 'حساب کاربری', 'eshobe-ecommerce' ); ?>"<?php echo $wm_header_otp_active ? ' data-wm-otp-trigger data-wm-otp-redirect="account"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                         <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'account' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                        <span class="wm-site-header__action-text"><?php echo esc_html__( 'حساب', 'watchmid' ); ?></span>
+                        <span class="wm-site-header__action-text"><?php echo esc_html__( 'حساب', 'eshobe-ecommerce' ); ?></span>
                     </a>
                 <?php endif; ?>
 
                 <?php if ( $show_cart ) : ?>
-                    <a class="wm-site-header__action wm-site-header__cart" href="<?php echo esc_url( wm_header_get_cart_url() ); ?>" aria-label="<?php echo esc_attr__( 'سبد خرید', 'watchmid' ); ?>" data-wm-cart-toggle aria-haspopup="dialog" aria-expanded="false" aria-controls="wm-cart-drawer">
+                    <a class="wm-site-header__action wm-site-header__cart" href="<?php echo esc_url( wm_header_get_cart_url() ); ?>" aria-label="<?php echo esc_attr__( 'سبد خرید', 'eshobe-ecommerce' ); ?>" data-wm-cart-toggle aria-haspopup="dialog" aria-expanded="false" aria-controls="wm-cart-drawer">
                         <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'cart' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                        <span class="wm-site-header__action-text"><?php echo esc_html__( 'سبد خرید', 'watchmid' ); ?></span>
+                        <span class="wm-site-header__action-text"><?php echo esc_html__( 'سبد خرید', 'eshobe-ecommerce' ); ?></span>
                         <span class="wm-site-header__cart-count<?php echo $cart_count > 0 ? '' : ' wm-site-header__cart-count--hidden'; ?>" data-wm-cart-count><?php echo esc_html( number_format_i18n( $cart_count ) ); ?></span>
                     </a>
                 <?php endif; ?>
@@ -246,11 +246,11 @@ function wm_render_site_header() {
         ?>
 
         <?php if ( $show_search ) : ?>
-            <div id="wm-search-modal" class="wm-search-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'جستجو', 'watchmid' ); ?>" hidden>
+            <div id="wm-search-modal" class="wm-search-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'جستجو', 'eshobe-ecommerce' ); ?>" hidden>
                 <div class="wm-search-modal__backdrop" data-search-modal-close></div>
                 <div class="wm-search-modal__panel">
                     <form role="search" method="get" class="wm-search-modal__form" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-                        <label class="screen-reader-text" for="wm-search-modal-field"><?php echo esc_html__( 'جستجو', 'watchmid' ); ?></label>
+                        <label class="screen-reader-text" for="wm-search-modal-field"><?php echo esc_html__( 'جستجو', 'eshobe-ecommerce' ); ?></label>
                         <span class="wm-search-modal__icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         <input
                             id="wm-search-modal-field"
@@ -264,7 +264,7 @@ function wm_render_site_header() {
                         <?php if ( function_exists( 'wc_get_product_types' ) ) : ?>
                             <input type="hidden" name="post_type" value="product">
                         <?php endif; ?>
-                        <button type="button" class="wm-search-modal__close" data-search-modal-close aria-label="<?php echo esc_attr__( 'بستن', 'watchmid' ); ?>">×</button>
+                        <button type="button" class="wm-search-modal__close" data-search-modal-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>">×</button>
                     </form>
 
                     <div class="wm-search-modal__body">
@@ -285,10 +285,10 @@ function wm_render_site_header() {
 
                         <div class="wm-search-modal__results-wrap" data-search-results hidden>
                             <ul class="wm-search-modal__results" data-search-results-list></ul>
-                            <a href="#" class="wm-search-modal__view-all" data-search-view-all hidden><?php echo esc_html__( 'مشاهده همه نتایج', 'watchmid' ); ?></a>
+                            <a href="#" class="wm-search-modal__view-all" data-search-view-all hidden><?php echo esc_html__( 'مشاهده همه نتایج', 'eshobe-ecommerce' ); ?></a>
                         </div>
 
-                        <p class="wm-search-modal__empty" data-search-empty hidden><?php echo esc_html__( 'نتیجه‌ای یافت نشد.', 'watchmid' ); ?></p>
+                        <p class="wm-search-modal__empty" data-search-empty hidden><?php echo esc_html__( 'نتیجه‌ای یافت نشد.', 'eshobe-ecommerce' ); ?></p>
                     </div>
                 </div>
             </div>

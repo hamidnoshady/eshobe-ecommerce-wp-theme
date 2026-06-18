@@ -125,12 +125,12 @@ function wm_mobile_nav_primary_links() {
 
     if ( empty( $links ) ) {
         $links = array(
-            array( 'label' => __( 'خانه', 'watchmid' ), 'url' => home_url( '/' ) ),
-            array( 'label' => __( 'فروشگاه', 'watchmid' ), 'url' => wm_mobile_nav_shop_url() ),
-            array( 'label' => __( 'برندها', 'watchmid' ), 'url' => home_url( '/product-brand/' ) ),
-            array( 'label' => __( 'پرفروش‌ها', 'watchmid' ), 'url' => add_query_arg( 'orderby', 'popularity', wm_mobile_nav_shop_url() ) ),
-            array( 'label' => __( 'پیشنهادها', 'watchmid' ), 'url' => add_query_arg( 'on_sale', '1', wm_mobile_nav_shop_url() ) ),
-            array( 'label' => __( 'حساب کاربری', 'watchmid' ), 'url' => wm_mobile_nav_account_url() ),
+            array( 'label' => __( 'خانه', 'eshobe-ecommerce' ), 'url' => home_url( '/' ) ),
+            array( 'label' => __( 'فروشگاه', 'eshobe-ecommerce' ), 'url' => wm_mobile_nav_shop_url() ),
+            array( 'label' => __( 'برندها', 'eshobe-ecommerce' ), 'url' => home_url( '/product-brand/' ) ),
+            array( 'label' => __( 'پرفروش‌ها', 'eshobe-ecommerce' ), 'url' => add_query_arg( 'orderby', 'popularity', wm_mobile_nav_shop_url() ) ),
+            array( 'label' => __( 'پیشنهادها', 'eshobe-ecommerce' ), 'url' => add_query_arg( 'on_sale', '1', wm_mobile_nav_shop_url() ) ),
+            array( 'label' => __( 'حساب کاربری', 'eshobe-ecommerce' ), 'url' => wm_mobile_nav_account_url() ),
         );
     }
 
@@ -139,13 +139,13 @@ function wm_mobile_nav_primary_links() {
 
 function wm_mobile_nav_items() {
     $account_item = is_user_logged_in()
-        ? array( 'key' => 'account', 'label' => __( 'حساب من', 'watchmid' ), 'url' => '#wm-mobile-sheet-account', 'icon' => 'account', 'type' => 'sheet' )
-        : array( 'key' => 'account', 'label' => __( 'ورود', 'watchmid' ), 'url' => wm_mobile_nav_account_url(), 'icon' => 'account', 'type' => 'otp-trigger' );
+        ? array( 'key' => 'account', 'label' => __( 'حساب من', 'eshobe-ecommerce' ), 'url' => '#wm-mobile-sheet-account', 'icon' => 'account', 'type' => 'sheet' )
+        : array( 'key' => 'account', 'label' => __( 'ورود', 'eshobe-ecommerce' ), 'url' => wm_mobile_nav_account_url(), 'icon' => 'account', 'type' => 'otp-trigger' );
 
     return array(
-        array( 'key' => 'home', 'label' => __( 'خانه', 'watchmid' ), 'url' => home_url( '/' ), 'icon' => 'home', 'type' => 'link' ),
-        array( 'key' => 'shop', 'label' => __( 'فروشگاه', 'watchmid' ), 'url' => '#wm-mobile-sheet-shop', 'icon' => 'shop', 'type' => 'sheet' ),
-        array( 'key' => 'cart', 'label' => __( 'سبد خرید', 'watchmid' ), 'url' => '#wm-mobile-sheet-cart', 'icon' => 'cart', 'type' => 'sheet', 'badge' => wm_mobile_nav_cart_count() ),
+        array( 'key' => 'home', 'label' => __( 'خانه', 'eshobe-ecommerce' ), 'url' => home_url( '/' ), 'icon' => 'home', 'type' => 'link' ),
+        array( 'key' => 'shop', 'label' => __( 'فروشگاه', 'eshobe-ecommerce' ), 'url' => '#wm-mobile-sheet-shop', 'icon' => 'shop', 'type' => 'sheet' ),
+        array( 'key' => 'cart', 'label' => __( 'سبد خرید', 'eshobe-ecommerce' ), 'url' => '#wm-mobile-sheet-cart', 'icon' => 'cart', 'type' => 'sheet', 'badge' => wm_mobile_nav_cart_count() ),
         $account_item,
     );
 }
@@ -171,7 +171,7 @@ function wm_mobile_nav_account_links() {
 
     if ( ! is_user_logged_in() ) {
         $login_link = array(
-            'label'       => __( 'ورود / ثبت‌نام', 'watchmid' ),
+            'label'       => __( 'ورود / ثبت‌نام', 'eshobe-ecommerce' ),
             'url'         => $account_url,
             'primary'     => true,
             'otp_trigger' => true,
@@ -181,11 +181,11 @@ function wm_mobile_nav_account_links() {
     }
 
     return array(
-        array( 'label' => __( 'کیف پول', 'watchmid' ), 'url' => $account_url ),
-        array( 'label' => __( 'سفارش‌ها', 'watchmid' ), 'url' => function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'orders' ) : $account_url ),
-        array( 'label' => __( 'آدرس‌ها', 'watchmid' ), 'url' => function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'edit-address' ) : $account_url ),
-        array( 'label' => __( 'جزئیات حساب', 'watchmid' ), 'url' => function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'edit-account' ) : $account_url ),
-        array( 'label' => __( 'خروج از حساب کاربری', 'watchmid' ), 'url' => wp_logout_url( home_url( '/' ) ) ),
+        array( 'label' => __( 'کیف پول', 'eshobe-ecommerce' ), 'url' => $account_url ),
+        array( 'label' => __( 'سفارش‌ها', 'eshobe-ecommerce' ), 'url' => function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'orders' ) : $account_url ),
+        array( 'label' => __( 'آدرس‌ها', 'eshobe-ecommerce' ), 'url' => function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'edit-address' ) : $account_url ),
+        array( 'label' => __( 'جزئیات حساب', 'eshobe-ecommerce' ), 'url' => function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'edit-account' ) : $account_url ),
+        array( 'label' => __( 'خروج از حساب کاربری', 'eshobe-ecommerce' ), 'url' => wp_logout_url( home_url( '/' ) ) ),
     );
 }
 
@@ -194,7 +194,7 @@ function wm_render_mobile_sheet_header( $key, $title, $view_all_url = '' ) {
     <div class="wm-mobile-sheet__header">
         <strong class="wm-mobile-sheet__title"><?php echo esc_html( $title ); ?></strong>
         <?php if ( $view_all_url ) : ?>
-            <a class="wm-mobile-sheet__view-all" href="<?php echo esc_url( $view_all_url ); ?>"><?php echo esc_html__( 'مشاهده همه', 'watchmid' ); ?></a>
+            <a class="wm-mobile-sheet__view-all" href="<?php echo esc_url( $view_all_url ); ?>"><?php echo esc_html__( 'مشاهده همه', 'eshobe-ecommerce' ); ?></a>
         <?php endif; ?>
     </div>
     <?php
@@ -204,9 +204,9 @@ function wm_render_mobile_shop_sheet() {
     ?>
     <section class="wm-mobile-sheet wm-mobile-sheet--shop" id="wm-mobile-sheet-shop" data-mobile-sheet="shop" aria-hidden="true">
         <div class="wm-mobile-sheet__panel">
-            <?php wm_render_mobile_sheet_header( 'shop', __( 'فروشگاه', 'watchmid' ), wm_mobile_nav_shop_url() ); ?>
+            <?php wm_render_mobile_sheet_header( 'shop', __( 'فروشگاه', 'eshobe-ecommerce' ), wm_mobile_nav_shop_url() ); ?>
             <div class="wm-mobile-sheet__body">
-                <nav class="wm-mobile-sheet__links" aria-label="<?php echo esc_attr__( 'لینک‌های فروشگاه', 'watchmid' ); ?>">
+                <nav class="wm-mobile-sheet__links" aria-label="<?php echo esc_attr__( 'لینک‌های فروشگاه', 'eshobe-ecommerce' ); ?>">
                     <?php foreach ( wm_mobile_nav_primary_links() as $link ) : ?>
                         <a href="<?php echo esc_url( $link['url'] ); ?>"><?php echo esc_html( $link['label'] ); ?></a>
                     <?php endforeach; ?>
@@ -223,11 +223,11 @@ function wm_render_mobile_cart_sheet() {
     ?>
     <section class="wm-mobile-sheet wm-mobile-sheet--cart" id="wm-mobile-sheet-cart" data-mobile-sheet="cart" aria-hidden="true">
         <div class="wm-mobile-sheet__panel">
-            <?php wm_render_mobile_sheet_header( 'cart', __( 'سبد خرید', 'watchmid' ) ); ?>
+            <?php wm_render_mobile_sheet_header( 'cart', __( 'سبد خرید', 'eshobe-ecommerce' ) ); ?>
             <div class="wm-mobile-sheet__body">
                 <?php if ( $cart_count && ! empty( $cart_items ) ) : ?>
                     <div class="wm-mobile-cart-sheet__summary">
-                        <span class="wm-mobile-cart-sheet__summary-label"><?php echo esc_html__( 'جمع کل', 'watchmid' ); ?></span>
+                        <span class="wm-mobile-cart-sheet__summary-label"><?php echo esc_html__( 'جمع کل', 'eshobe-ecommerce' ); ?></span>
                         <?php if ( wm_mobile_nav_cart_subtotal() ) : ?>
                             <strong class="wm-mobile-cart-sheet__summary-value"><?php echo wp_kses_post( wm_mobile_nav_cart_subtotal() ); ?></strong>
                         <?php endif; ?>
@@ -247,11 +247,11 @@ function wm_render_mobile_cart_sheet() {
                         <?php endforeach; ?>
                     </div>
                 <?php else : ?>
-                    <p class="wm-mobile-sheet__empty"><?php echo esc_html__( 'سبد خرید شما خالی است.', 'watchmid' ); ?></p>
+                    <p class="wm-mobile-sheet__empty"><?php echo esc_html__( 'سبد خرید شما خالی است.', 'eshobe-ecommerce' ); ?></p>
                 <?php endif; ?>
                 <div class="wm-mobile-cart-sheet__actions">
-                    <a class="wm-mobile-sheet__button wm-mobile-sheet__button--primary wm-mobile-cart-sheet__checkout" href="<?php echo esc_url( wm_mobile_nav_checkout_url() ); ?>"><?php echo esc_html__( 'رفتن به تسویه حساب', 'watchmid' ); ?></a>
-                    <a class="wm-mobile-sheet__button wm-mobile-sheet__button--secondary wm-mobile-cart-sheet__view-cart" href="<?php echo esc_url( $cart_count ? wm_mobile_nav_cart_url() : wm_mobile_nav_shop_url() ); ?>"><?php echo esc_html( $cart_count ? __( 'مشاهده سبد خرید', 'watchmid' ) : __( 'مشاهده محصولات', 'watchmid' ) ); ?></a>
+                    <a class="wm-mobile-sheet__button wm-mobile-sheet__button--primary wm-mobile-cart-sheet__checkout" href="<?php echo esc_url( wm_mobile_nav_checkout_url() ); ?>"><?php echo esc_html__( 'رفتن به تسویه حساب', 'eshobe-ecommerce' ); ?></a>
+                    <a class="wm-mobile-sheet__button wm-mobile-sheet__button--secondary wm-mobile-cart-sheet__view-cart" href="<?php echo esc_url( $cart_count ? wm_mobile_nav_cart_url() : wm_mobile_nav_shop_url() ); ?>"><?php echo esc_html( $cart_count ? __( 'مشاهده سبد خرید', 'eshobe-ecommerce' ) : __( 'مشاهده محصولات', 'eshobe-ecommerce' ) ); ?></a>
                 </div>
             </div>
         </div>
@@ -263,17 +263,17 @@ function wm_render_mobile_account_sheet() {
     ?>
     <section class="wm-mobile-sheet wm-mobile-sheet--account" id="wm-mobile-sheet-account" data-mobile-sheet="account" aria-hidden="true">
         <div class="wm-mobile-sheet__panel">
-            <?php wm_render_mobile_sheet_header( 'account', is_user_logged_in() ? __( 'حساب من', 'watchmid' ) : __( 'ورود به حساب', 'watchmid' ) ); ?>
+            <?php wm_render_mobile_sheet_header( 'account', is_user_logged_in() ? __( 'حساب من', 'eshobe-ecommerce' ) : __( 'ورود به حساب', 'eshobe-ecommerce' ) ); ?>
             <div class="wm-mobile-sheet__body">
                 <?php if ( is_user_logged_in() ) : ?>
                     <div class="wm-mobile-account-sheet__user">
-                        <strong><?php echo esc_html__( 'حساب من', 'watchmid' ); ?></strong>
-                        <span><?php echo esc_html__( 'مدیریت سفارش‌ها و اطلاعات حساب', 'watchmid' ); ?></span>
+                        <strong><?php echo esc_html__( 'حساب من', 'eshobe-ecommerce' ); ?></strong>
+                        <span><?php echo esc_html__( 'مدیریت سفارش‌ها و اطلاعات حساب', 'eshobe-ecommerce' ); ?></span>
                     </div>
                 <?php else : ?>
-                    <p class="wm-mobile-sheet__empty"><?php echo esc_html__( 'برای مشاهده حساب کاربری وارد شوید.', 'watchmid' ); ?></p>
+                    <p class="wm-mobile-sheet__empty"><?php echo esc_html__( 'برای مشاهده حساب کاربری وارد شوید.', 'eshobe-ecommerce' ); ?></p>
                 <?php endif; ?>
-                <nav class="wm-mobile-account-sheet__links" aria-label="<?php echo esc_attr__( 'لینک‌های حساب کاربری', 'watchmid' ); ?>">
+                <nav class="wm-mobile-account-sheet__links" aria-label="<?php echo esc_attr__( 'لینک‌های حساب کاربری', 'eshobe-ecommerce' ); ?>">
                     <?php foreach ( wm_mobile_nav_account_links() as $link ) : ?>
                         <a
                             class="wm-mobile-account-sheet__link <?php echo ! empty( $link['primary'] ) ? 'wm-mobile-sheet__button wm-mobile-sheet__button--primary' : ''; ?>"
@@ -309,7 +309,7 @@ function wm_render_mobile_nav() {
         wm_render_mobile_account_sheet();
         ?>
 
-        <nav class="<?php echo esc_attr( $class ); ?>" aria-label="<?php echo esc_attr__( 'نوار پایین موبایل', 'watchmid' ); ?>">
+        <nav class="<?php echo esc_attr( $class ); ?>" aria-label="<?php echo esc_attr__( 'نوار پایین موبایل', 'eshobe-ecommerce' ); ?>">
             <div class="wm-mobile-nav__inner">
                 <?php foreach ( wm_mobile_nav_items() as $item ) : ?>
                     <?php

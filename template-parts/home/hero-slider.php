@@ -76,13 +76,13 @@ $has_multiple = count( $slides ) > 1;
     </div>
     <?php if ( $has_multiple ) : ?>
         <div class="wm-home-hero__nav">
-            <button type="button" class="wm-home-hero__arrow" data-home-hero-prev aria-label="<?php esc_attr_e( 'Previous slide', 'watchmid' ); ?>">‹</button>
+            <button type="button" class="wm-home-hero__arrow" data-home-hero-prev aria-label="<?php esc_attr_e( 'Previous slide', 'eshobe-ecommerce' ); ?>">‹</button>
             <div class="wm-home-hero__dots">
                 <?php foreach ( $slides as $index => $slide ) : ?>
-                    <button type="button" class="wm-home-hero__dot <?php echo 0 === $index ? 'is-active' : ''; ?>" data-home-hero-dot="<?php echo esc_attr( $index ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Show slide %d', 'watchmid' ), $index + 1 ) ); ?>"></button>
+                    <button type="button" class="wm-home-hero__dot <?php echo 0 === $index ? 'is-active' : ''; ?>" data-home-hero-dot="<?php echo esc_attr( $index ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Show slide %d', 'eshobe-ecommerce' ), $index + 1 ) ); ?>"></button>
                 <?php endforeach; ?>
             </div>
-            <button type="button" class="wm-home-hero__arrow" data-home-hero-next aria-label="<?php esc_attr_e( 'Next slide', 'watchmid' ); ?>">›</button>
+            <button type="button" class="wm-home-hero__arrow" data-home-hero-next aria-label="<?php esc_attr_e( 'Next slide', 'eshobe-ecommerce' ); ?>">›</button>
         </div>
     <?php endif; ?>
 </section>

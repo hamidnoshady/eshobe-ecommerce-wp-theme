@@ -225,7 +225,7 @@ function wm_migrate_legacy_mega_menus() {
 
         $title = ! empty( $menu['mega_title'] )
             ? $menu['mega_title']
-            : ( ! empty( $menu['mega_trigger_key'] ) ? $menu['mega_trigger_key'] : __( 'مگامنو', 'watchmid' ) );
+            : ( ! empty( $menu['mega_trigger_key'] ) ? $menu['mega_trigger_key'] : __( 'مگامنو', 'eshobe-ecommerce' ) );
 
         $post_id = wp_insert_post( array(
             'post_type'   => 'wm_mega_menu',

@@ -1,8 +1,8 @@
 <?php
 /**
  * Title: Single Product Shortcodes
- * Slug: watchmid/single-product-shortcodes
- * Categories: watchmid, woocommerce
+ * Slug: eshobe-ecommerce/single-product-shortcodes
+ * Categories: eshobe-ecommerce, woocommerce
  */
 ?>
 <!-- wp:group {"className":"wm-product-summary-column","layout":{"type":"constrained"}} -->
