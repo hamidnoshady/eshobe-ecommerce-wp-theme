@@ -485,9 +485,15 @@ function wm_otp_create_user_from_phone( $phone ) {
 }
 
 /**
- * Resolve the post-login redirect URL for a given `redirect_to` token.
+ * Resolve the post-login redirect URL.
  *
- * @param string $redirect_to One of 'checkout', 'account', or empty.
+ * Accepts:
+ *   'checkout'        → WooCommerce checkout URL
+ *   'account'         → WooCommerce my-account URL
+ *   'https://...'     → any same-origin URL (JS sends window.location.href)
+ *   '' / anything else → home URL
+ *
+ * @param string $redirect_to Token or full URL from the client.
  * @return string
  */
 function wm_otp_resolve_redirect_url( $redirect_to ) {
@@ -497,6 +503,15 @@ function wm_otp_resolve_redirect_url( $redirect_to ) {
 
 	if ( 'account' === $redirect_to && function_exists( 'wc_get_page_permalink' ) ) {
 		return wc_get_page_permalink( 'myaccount' );
+	}
+
+	// Accept a full URL only when it is on the same host (prevents open redirect).
+	if ( $redirect_to && filter_var( $redirect_to, FILTER_VALIDATE_URL ) ) {
+		$site_host     = wp_parse_url( home_url(), PHP_URL_HOST );
+		$redirect_host = wp_parse_url( $redirect_to, PHP_URL_HOST );
+		if ( $site_host && $site_host === $redirect_host ) {
+			return esc_url_raw( $redirect_to );
+		}
 	}
 
 	return home_url( '/' );

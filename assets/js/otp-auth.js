@@ -255,14 +255,14 @@
   triggers.forEach(function (trigger) {
     trigger.addEventListener('click', function (event) {
       event.preventDefault();
-      redirectTo = trigger.getAttribute('data-wm-otp-redirect') || '';
+      redirectTo = trigger.getAttribute('data-wm-otp-redirect') || window.location.href;
       openModal(trigger.hasAttribute('data-wm-otp-force'));
     });
   });
 
   var autoTriggerEl = document.querySelector('[data-wm-otp-autotrigger]');
   if (autoTriggerEl) {
-    redirectTo = autoTriggerEl.getAttribute('data-wm-otp-redirect') || '';
+    redirectTo = autoTriggerEl.getAttribute('data-wm-otp-redirect') || window.location.href;
     openModal(autoTriggerEl.hasAttribute('data-wm-otp-force'));
   }
 
@@ -489,6 +489,7 @@
     button.addEventListener('click', function () {
       window.clearInterval(countdownTimer);
       clearPhone();
+      passwordToken = '';
       setStep('phone');
     });
   });
