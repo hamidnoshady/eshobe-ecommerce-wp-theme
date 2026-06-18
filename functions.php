@@ -179,7 +179,7 @@ function watchmid_scripts() {
             array(
                 'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
                 'nonce'        => wp_create_nonce( 'wm_otp_nonce' ),
-                'resendSeconds' => 60,
+                'resendSeconds' => wm_technical_get_otp_security_settings()['resend_seconds'],
             )
         );
     }
