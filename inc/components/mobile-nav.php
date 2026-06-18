@@ -138,11 +138,15 @@ function wm_mobile_nav_primary_links() {
 }
 
 function wm_mobile_nav_items() {
+    $account_item = is_user_logged_in()
+        ? array( 'key' => 'account', 'label' => __( 'حساب من', 'watchmid' ), 'url' => '#wm-mobile-sheet-account', 'icon' => 'account', 'type' => 'sheet' )
+        : array( 'key' => 'account', 'label' => __( 'ورود', 'watchmid' ), 'url' => wm_mobile_nav_account_url(), 'icon' => 'account', 'type' => 'otp-trigger' );
+
     return array(
         array( 'key' => 'home', 'label' => __( 'خانه', 'watchmid' ), 'url' => home_url( '/' ), 'icon' => 'home', 'type' => 'link' ),
         array( 'key' => 'shop', 'label' => __( 'فروشگاه', 'watchmid' ), 'url' => '#wm-mobile-sheet-shop', 'icon' => 'shop', 'type' => 'sheet' ),
         array( 'key' => 'cart', 'label' => __( 'سبد خرید', 'watchmid' ), 'url' => '#wm-mobile-sheet-cart', 'icon' => 'cart', 'type' => 'sheet', 'badge' => wm_mobile_nav_cart_count() ),
-        array( 'key' => 'account', 'label' => __( 'حساب من', 'watchmid' ), 'url' => '#wm-mobile-sheet-account', 'icon' => 'account', 'type' => 'sheet' ),
+        $account_item,
     );
 }
 
@@ -322,6 +326,11 @@ function wm_render_mobile_nav() {
                             <?php endif; ?>
                             <span class="wm-mobile-nav__label"><?php echo esc_html( $item['label'] ); ?></span>
                         </button>
+                    <?php elseif ( 'otp-trigger' === $item['type'] ) : ?>
+                        <a <?php echo $attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> href="<?php echo esc_url( $item['url'] ); ?>" data-wm-otp-trigger data-wm-otp-redirect="account">
+                            <span class="wm-mobile-nav__icon"><?php echo wm_mobile_nav_icon( $item['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                            <span class="wm-mobile-nav__label"><?php echo esc_html( $item['label'] ); ?></span>
+                        </a>
                     <?php else : ?>
                         <a <?php echo $attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> href="<?php echo esc_url( $item['url'] ); ?>"<?php echo $is_active ? ' aria-current="page"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <span class="wm-mobile-nav__icon"><?php echo wm_mobile_nav_icon( $item['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>

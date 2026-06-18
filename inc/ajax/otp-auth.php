@@ -135,10 +135,6 @@ function wm_otp_issue_code( $phone ) {
 function wm_ajax_otp_request_code() {
 	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
 
-	if ( ! wm_technical_otp_enabled() ) {
-		wp_send_json_error( array( 'message' => 'ورود با کد یکبارمصرف فعال نیست.' ) );
-	}
-
 	$phone = isset( $_POST['phone'] ) ? wm_otp_normalize_phone( wp_unslash( $_POST['phone'] ) ) : '';
 
 	if ( ! $phone ) {
@@ -163,15 +159,11 @@ add_action( 'wp_ajax_nopriv_wm_otp_request_code', 'wm_ajax_otp_request_code' );
 /**
  * AJAX: check whether a phone number already has an account.
  *
- * If the user does not yet exist, an OTP code is sent immediately so the
- * client can move straight to the verification step.
+ * - Existing user → { exists: true }
+ * - New user      → sends OTP, { exists: false }
  */
 function wm_ajax_otp_check_phone() {
 	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
-
-	if ( ! wm_technical_otp_enabled() ) {
-		wp_send_json_error( array( 'message' => 'ورود با کد یکبارمصرف فعال نیست.' ) );
-	}
 
 	$phone = isset( $_POST['phone'] ) ? wm_otp_normalize_phone( wp_unslash( $_POST['phone'] ) ) : '';
 
@@ -206,10 +198,6 @@ add_action( 'wp_ajax_nopriv_wm_otp_check_phone', 'wm_ajax_otp_check_phone' );
  */
 function wm_ajax_otp_verify_code() {
 	check_ajax_referer( 'wm_otp_nonce', 'nonce' );
-
-	if ( ! wm_technical_otp_enabled() ) {
-		wp_send_json_error( array( 'message' => 'ورود با کد یکبارمصرف فعال نیست.' ) );
-	}
 
 	$phone = isset( $_POST['phone'] ) ? wm_otp_normalize_phone( wp_unslash( $_POST['phone'] ) ) : '';
 	$code  = isset( $_POST['code'] ) ? preg_replace( '/[^0-9]/', '', wp_unslash( $_POST['code'] ) ) : '';
