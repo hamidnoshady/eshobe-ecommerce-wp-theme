@@ -205,6 +205,24 @@ function wm_get_font_face_css() {
 }
 
 function wm_get_design_tokens_css() {
+    $cached = get_transient( 'wm_design_tokens_css' );
+    if ( false !== $cached ) {
+        return $cached;
+    }
+
+    $css = wm_build_design_tokens_css();
+    set_transient( 'wm_design_tokens_css', $css, DAY_IN_SECONDS );
+
+    return $css;
+}
+
+function wm_clear_design_tokens_css_cache() {
+    delete_transient( 'wm_design_tokens_css' );
+}
+add_action( 'acf/save_post', 'wm_clear_design_tokens_css_cache', 20 );
+add_action( 'switch_theme', 'wm_clear_design_tokens_css_cache' );
+
+function wm_build_design_tokens_css() {
     $width   = absint( wm_get_design_token( 'wm_site_width', 1200 ) );
     $width   = min( max( $width, 1040 ), 1440 );
     $radius  = absint( wm_get_design_token( 'wm_global_radius', 24 ) );

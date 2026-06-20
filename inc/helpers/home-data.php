@@ -67,7 +67,7 @@ function wm_home_get_image_html( $image, $size = 'large', $attrs = array() ) {
 
     $alt     = isset( $attrs['alt'] ) ? $attrs['alt'] : '';
     $loading = isset( $attrs['loading'] ) ? $attrs['loading'] : 'lazy';
-    return '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $alt ) . '" loading="' . esc_attr( $loading ) . '">';
+    return '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $alt ) . '" loading="' . esc_attr( $loading ) . '" decoding="async">';
 }
 
 function wm_home_default_sections() {

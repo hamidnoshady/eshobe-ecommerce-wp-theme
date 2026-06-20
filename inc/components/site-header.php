@@ -95,8 +95,11 @@ function wm_header_get_logo_html( $context = 'desktop' ) {
         'wm-header-logo',
         false,
         array(
-            'class' => 'wm-site-header__logo-image',
-            'alt'   => wm_header_get_site_name(),
+            'class'         => 'wm-site-header__logo-image',
+            'alt'           => wm_header_get_site_name(),
+            'loading'       => 'eager',
+            'fetchpriority' => 'high',
+            'decoding'      => 'async',
         )
     );
 }

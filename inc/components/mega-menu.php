@@ -44,6 +44,30 @@ function wm_get_header_mega_menus() {
         return array();
     }
 
+    $debug = defined( 'WP_DEBUG' ) && WP_DEBUG;
+    if ( ! $debug ) {
+        $cached = get_transient( 'wm_header_mega_menus' );
+        if ( false !== $cached ) {
+            return $cached;
+        }
+    }
+
+    $output = wm_build_header_mega_menus();
+
+    if ( ! $debug ) {
+        set_transient( 'wm_header_mega_menus', $output, DAY_IN_SECONDS );
+    }
+
+    return $output;
+}
+
+function wm_clear_header_mega_menus_cache() {
+    delete_transient( 'wm_header_mega_menus' );
+}
+add_action( 'save_post_wm_mega_menu', 'wm_clear_header_mega_menus_cache' );
+add_action( 'acf/save_post', 'wm_clear_header_mega_menus_cache', 20 );
+
+function wm_build_header_mega_menus() {
     $posts = get_posts(
         array(
             'post_type'   => 'wm_mega_menu',
