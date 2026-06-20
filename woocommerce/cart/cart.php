@@ -3,7 +3,7 @@
  * Custom cart page.
  *
  * @package WM_Theme
- * @version 10.1.0
+ * @version 10.8.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -21,6 +21,8 @@ do_action( 'woocommerce_before_cart' );
 
 		<div class="wm-cart-layout">
 			<form id="wm-cart-form" class="woocommerce-cart-form wm-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
+				<?php do_action( 'woocommerce_before_cart_table' ); ?>
+
 				<section class="wm-cart-items" aria-label="<?php echo esc_attr__( 'محصولات داخل سبد خرید', 'eshobe-ecommerce' ); ?>">
 					<div class="wm-cart-items__head">
 						<div>
@@ -40,6 +42,8 @@ do_action( 'woocommerce_before_cart' );
 
 					<div class="wm-cart-items__list">
 						<?php
+						do_action( 'woocommerce_before_cart_contents' );
+
 						foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
 							$_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 							$product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
@@ -148,9 +152,14 @@ do_action( 'woocommerce_before_cart' );
 							</article>
 							<?php
 						}
+
+						do_action( 'woocommerce_cart_contents' );
+						do_action( 'woocommerce_after_cart_contents' );
 						?>
 					</div>
 				</section>
+
+				<?php do_action( 'woocommerce_after_cart_table' ); ?>
 
 				<?php if ( wc_coupons_enabled() ) : ?>
 					<section class="wm-cart-coupon coupon" aria-label="<?php echo esc_attr__( 'کد تخفیف', 'eshobe-ecommerce' ); ?>">
@@ -162,8 +171,12 @@ do_action( 'woocommerce_before_cart' );
 					</section>
 				<?php endif; ?>
 
+				<?php do_action( 'woocommerce_cart_actions' ); ?>
+
 				<?php wp_nonce_field( 'woocommerce-cart', 'woocommerce-cart-nonce' ); ?>
 			</form>
+
+			<?php do_action( 'woocommerce_before_cart_collaterals' ); ?>
 
 			<aside class="wm-cart-layout__summary" aria-label="<?php echo esc_attr__( 'خلاصه سفارش', 'eshobe-ecommerce' ); ?>">
 				<?php wc_get_template( 'cart/cart-totals.php' ); ?>

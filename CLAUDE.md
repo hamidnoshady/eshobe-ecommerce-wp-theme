@@ -6,19 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a WordPress theme (`eshobe-ecommerce-wp-theme`), an Underscores-inspired starter theme for a WooCommerce store ("Eshobe Ecommerce"), built for Persian/RTL with Vazirmatn (and optional Peyda) fonts. There is no build step, package manager, or test suite — it's plain PHP/CSS/JS loaded directly by WordPress.
 
-The theme runs inside a Local (by Flywheel) WordPress install at:
-`app/public/wp-content/themes/eshobe-ecommerce-wp-theme/`
+The theme runs inside a [WordPress Studio](https://developer.wordpress.com/studio/) site at:
+`wp-content/themes/eshobe-ecommerce-wp-theme/`
 
-Local WP manages the WordPress site itself (PHP, MySQL, web server). VS Code is opened directly on this theme directory, so the working directory here is just the theme — the rest of the WordPress install (core, other plugins, wp-config) lives outside this folder under `app/public/`. Start/stop the site and access its DB/PHP via the Local app, not from this directory.
+WordPress Studio manages the site itself (PHP WASM, SQLite, local dev server). The working directory when editing the theme is inside the Studio site root — the rest of the WordPress install (core, mu-plugins, wp-config) lives above this folder. Start/stop the site and run WP-CLI via `studio site start/stop` and `studio wp …` — do **not** use a bare `wp` binary or Local WP. See `STUDIO.md` in the site root for full Studio workflow details.
 
 ## Development workflow
 
-- No build/lint/test commands exist. Edit PHP/CSS/JS directly and reload the site (Local dev environment) to see changes.
+- No build/lint/test commands exist. Edit PHP/CSS/JS directly and reload the site (Studio dev environment) to see changes.
 - **After every change**, bump `ESHOBE_ECOMMERCE_VERSION` in `functions.php` AND `Version:` in `style.css` together (patch increment), then commit and push to GitHub. This is required, not optional.
 - Version format: `MAJOR.MINOR.PATCH` (e.g. `0.4.52` → `0.4.53`). Bump patch for any fix/tweak, minor for new features.
 - CSS/JS for cart and checkout pages use `filemtime()` for versioning instead of `ESHOBE_ECOMMERCE_VERSION`, so those auto-bust on save.
 - For UI changes, use the `run` or `verify` skills to launch/check the site in a browser (Playwright/Chrome DevTools MCP available).
-- **Remote/cloud sessions (no Local WP install available)**: when there's no running WordPress/WooCommerce/ACF stack to hit, verify pure CSS/JS UI changes (header, modals, animations, etc.) with a static Playwright harness instead of skipping verification:
+- **Remote/cloud sessions (no Studio install available)**: when there's no running WordPress/WooCommerce/ACF stack to hit, verify pure CSS/JS UI changes (header, modals, animations, etc.) with a static Playwright harness instead of skipping verification:
   - Build a minimal standalone HTML file under `/tmp` that includes the real markup for the changed component plus the actual theme stylesheets/scripts via `file://` links to `assets/css/...` and `assets/js/...` (copy the relevant markup straight from the PHP template/component).
   - For features that call `admin-ajax.php` (e.g. OTP login), stub `window.fetch` and any localized globals (`wmOtpData`, `wmSearchData`, etc.) in an inline `<script>` so the JS runs end-to-end without a backend.
   - Playwright's bundled browser download usually fails (no network); launch Chromium directly from the pre-installed binary instead: `chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' })` (check `/opt/pw-browsers` for the actual revision present).
@@ -73,5 +73,6 @@ Local WP manages the WordPress site itself (PHP, MySQL, web server). VS Code is 
   git push origin v0.4.53
   ```
   GitHub Action runs → WP admin shows the update badge → click "Update now" or let auto-update handle it.
-- **Private repo requirement**: production `wp-config.php` must have `define('WM_GITHUB_TOKEN', 'ghp_...')` — a GitHub PAT with `repo` (read-only) scope — so WordPress can authenticate to download the release ZIP.
-- To force WP to check for updates immediately: Dashboard → Updates → "Check Again".
+- **Private repo requirement**: production `wp-config.php` must have `define('WM_GITHUB_TOKEN', 'ghp_...')` — a **classic** GitHub PAT with `repo` (read-only) scope — so WordPress can authenticate to download the release ZIP. Fine-grained PATs (`github_pat_…`) require explicit repository access grants; prefer classic PATs for simplicity.
+- **Studio dev environment**: `wp-config.php` already has `WM_GITHUB_TOKEN` set. If it stops working (404 from GitHub API), regenerate a classic PAT at GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) and update the define in `wp-config.php`.
+- To force WP to check for updates immediately: `studio wp eval "delete_transient('wm_theme_update');"` then Dashboard → Updates → "Check Again".
