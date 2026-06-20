@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.4.56' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.4.57' );
 }
 
 /**
@@ -60,6 +60,7 @@ if ( ! function_exists( 'eshobe_ecommerce_setup' ) ) :
             'flex-width'  => true,
             'flex-height' => true,
         ) );
+        add_image_size( 'wm-header-logo', 240, 120, false );
         add_theme_support( 'html5', array( 'search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script' ) );
         add_theme_support( 'customize-selective-refresh-widgets' );
         add_theme_support( 'align-wide' );

@@ -108,14 +108,18 @@
 }
 
 .wm-site-header__logo {
-  width: 60px;
-  height: 60px;
+  --wm-logo-size: 60px;
+  --wm-logo-max-width: 180px;
+  width: auto;
+  height: var(--wm-logo-size);
+  min-width: var(--wm-logo-size);
+  max-width: var(--wm-logo-max-width);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  flex: 0 0 60px;
-  padding: 4px;
+  flex: 0 1 auto;
+  padding: 4px 10px;
   box-sizing: border-box;
   border: 1px solid rgba(229, 224, 216, 0.92);
   border-radius: 18px;
@@ -124,8 +128,9 @@
 
 .wm-site-header__logo img,
 .wm-site-header__logo .custom-logo {
-  width: 100%;
+  width: auto;
   height: 100%;
+  max-width: 100%;
   display: block;
   object-fit: contain;
 }
@@ -417,10 +422,10 @@
   }
 
   .wm-site-header__logo {
-    width: 48px;
-    height: 48px;
-    flex-basis: 48px;
-    padding: 3px;
+    --wm-logo-size: 48px;
+    --wm-logo-max-width: 120px;
+    min-width: var(--wm-logo-size);
+    padding: 3px 8px;
     border-radius: 15px;
   }
 

@@ -52,7 +52,7 @@ function wm_header_get_logo_html() {
     if ( is_array( $logo ) && ! empty( $logo['ID'] ) ) {
         return wp_get_attachment_image(
             absint( $logo['ID'] ),
-            'thumbnail',
+            'wm-header-logo',
             false,
             array(
                 'class' => 'wm-site-header__logo-image',
@@ -64,7 +64,7 @@ function wm_header_get_logo_html() {
     if ( is_numeric( $logo ) ) {
         return wp_get_attachment_image(
             absint( $logo ),
-            'thumbnail',
+            'wm-header-logo',
             false,
             array(
                 'class' => 'wm-site-header__logo-image',
@@ -77,7 +77,7 @@ function wm_header_get_logo_html() {
     if ( $custom_logo_id ) {
         return wp_get_attachment_image(
             absint( $custom_logo_id ),
-            'thumbnail',
+            'wm-header-logo',
             false,
             array(
                 'class' => 'wm-site-header__logo-image',
