@@ -46,47 +46,59 @@ function wm_header_get_site_name() {
     return $site_name ? $site_name : 'فروشگاه آنلاین';
 }
 
-function wm_header_get_logo_html() {
+/**
+ * Resolves the logo attachment ID to use for a given header context.
+ *
+ * 'mobile' context prefers `wm_header_logo_mobile`, falling back to the
+ * desktop logo (and ultimately the WP custom logo) when not set.
+ */
+function wm_header_get_logo_attachment_id( $context = 'desktop' ) {
+    if ( 'mobile' === $context ) {
+        $mobile_logo = wm_header_get_option( 'wm_header_logo_mobile', '' );
+
+        if ( is_array( $mobile_logo ) && ! empty( $mobile_logo['ID'] ) ) {
+            return absint( $mobile_logo['ID'] );
+        }
+
+        if ( is_numeric( $mobile_logo ) ) {
+            return absint( $mobile_logo );
+        }
+    }
+
     $logo = wm_header_get_option( 'wm_header_logo', '' );
 
     if ( is_array( $logo ) && ! empty( $logo['ID'] ) ) {
-        return wp_get_attachment_image(
-            absint( $logo['ID'] ),
-            'wm-header-logo',
-            false,
-            array(
-                'class' => 'wm-site-header__logo-image',
-                'alt'   => wm_header_get_site_name(),
-            )
-        );
+        return absint( $logo['ID'] );
     }
 
     if ( is_numeric( $logo ) ) {
-        return wp_get_attachment_image(
-            absint( $logo ),
-            'wm-header-logo',
-            false,
-            array(
-                'class' => 'wm-site-header__logo-image',
-                'alt'   => wm_header_get_site_name(),
-            )
-        );
+        return absint( $logo );
     }
 
     $custom_logo_id = get_theme_mod( 'custom_logo' );
     if ( $custom_logo_id ) {
-        return wp_get_attachment_image(
-            absint( $custom_logo_id ),
-            'wm-header-logo',
-            false,
-            array(
-                'class' => 'wm-site-header__logo-image',
-                'alt'   => wm_header_get_site_name(),
-            )
-        );
+        return absint( $custom_logo_id );
     }
 
-    return '';
+    return 0;
+}
+
+function wm_header_get_logo_html( $context = 'desktop' ) {
+    $attachment_id = wm_header_get_logo_attachment_id( $context );
+
+    if ( ! $attachment_id ) {
+        return '';
+    }
+
+    return wp_get_attachment_image(
+        $attachment_id,
+        'wm-header-logo',
+        false,
+        array(
+            'class' => 'wm-site-header__logo-image',
+            'alt'   => wm_header_get_site_name(),
+        )
+    );
 }
 
 /**
@@ -187,8 +199,13 @@ function wm_header_render_menu() {
 }
 
 function wm_render_site_header() {
-    $site_name     = wm_header_get_site_name();
-    $logo_html     = wm_header_get_logo_html();
+    $site_name          = wm_header_get_site_name();
+    $desktop_logo_id     = wm_header_get_logo_attachment_id( 'desktop' );
+    $mobile_logo_id      = wm_header_get_logo_attachment_id( 'mobile' );
+    $has_distinct_mobile = $mobile_logo_id && $mobile_logo_id !== $desktop_logo_id;
+    $desktop_logo_html   = wm_header_get_logo_html( 'desktop' );
+    $mobile_logo_html    = $has_distinct_mobile ? wm_header_get_logo_html( 'mobile' ) : '';
+    $logo_html           = $desktop_logo_html ?: $mobile_logo_html;
     $show_search   = (bool) wm_header_get_option( 'wm_header_show_search', true );
     $show_account  = (bool) wm_header_get_option( 'wm_header_show_account', true );
     $show_cart     = (bool) wm_header_get_option( 'wm_header_show_cart', true );
@@ -202,7 +219,12 @@ function wm_render_site_header() {
         <div class="wm-site-header__inner">
             <a class="wm-site-header__brand<?php echo $logo_html ? ' wm-site-header__brand--has-logo' : ''; ?>" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
                 <?php if ( $logo_html ) : ?>
-                    <span class="wm-site-header__logo"><?php echo $logo_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                    <?php if ( $has_distinct_mobile && $mobile_logo_html ) : ?>
+                        <span class="wm-site-header__logo wm-site-header__logo--desktop"><?php echo $desktop_logo_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                        <span class="wm-site-header__logo wm-site-header__logo--mobile"><?php echo $mobile_logo_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                    <?php else : ?>
+                        <span class="wm-site-header__logo"><?php echo $logo_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                    <?php endif; ?>
                     <span class="wm-site-header__site-name screen-reader-text"><?php echo esc_html( $site_name ); ?></span>
                 <?php else : ?>
                     <span class="wm-site-header__site-name"><?php echo esc_html( $site_name ); ?></span>

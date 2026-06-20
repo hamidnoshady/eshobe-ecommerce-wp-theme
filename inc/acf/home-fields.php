@@ -259,12 +259,21 @@ function wm_site_settings_header_footer_fields() {
         ),
         array(
             'key'           => 'field_wm_header_logo',
-            'label'         => 'لوگوی اختصاصی هدر',
+            'label'         => 'لوگوی هدر (دسکتاپ)',
             'name'          => 'wm_header_logo',
             'type'          => 'image',
             'return_format' => 'array',
             'preview_size'  => 'thumbnail',
-            'instructions'  => 'اگر خالی باشد، از لوگوی سفارشی وردپرس استفاده می‌شود.',
+            'instructions'  => 'اگر خالی باشد، از لوگوی سفارشی وردپرس استفاده می‌شود. سایز کادر لوگو متناسب با ابعاد تصویر تنظیم می‌شود.',
+        ),
+        array(
+            'key'           => 'field_wm_header_logo_mobile',
+            'label'         => 'لوگوی هدر (موبایل)',
+            'name'          => 'wm_header_logo_mobile',
+            'type'          => 'image',
+            'return_format' => 'array',
+            'preview_size'  => 'thumbnail',
+            'instructions'  => 'اگر خالی باشد، همان لوگوی دسکتاپ در حالت موبایل استفاده می‌شود.',
         ),
         array(
             'key'           => 'field_wm_header_site_name',
