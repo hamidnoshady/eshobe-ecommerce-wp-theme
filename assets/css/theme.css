@@ -113,11 +113,14 @@ button, input, select, textarea { font-family: var(--wm-font-primary); font-size
   border: 1px solid var(--wm-color-border);
   border-radius: var(--wm-radius-md);
 }
-.wm-single-product .wm-breadcrumb-bar {
-  padding-top: var(--wm-space-5);
-}
 .wm-breadcrumb {
   margin: 0 0 var(--wm-space-2);
+}
+.wm-product-archive__header .wm-breadcrumb {
+  margin-bottom: var(--wm-space-3);
+}
+.wm-product-gallery-column .wm-breadcrumb {
+  margin-bottom: var(--wm-space-4);
 }
 .wm-breadcrumb__list {
   display: flex;
@@ -170,7 +173,6 @@ button, input, select, textarea { font-family: var(--wm-font-primary); font-size
   transform: translateY(-1px);
 }
 @media (max-width: 767px) {
-  .wm-single-product .wm-breadcrumb-bar { padding-top: var(--wm-space-4); }
   .wm-breadcrumb__list { font-size: 12px; gap: 4px; }
   .wm-breadcrumb__item { gap: 4px; }
 }

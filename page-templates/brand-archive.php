@@ -19,21 +19,24 @@ $wm_brand_total  = $wm_brand_data['total'];
 <main id="primary" class="site-main wm-brand-archive">
     <div class="wm-brand-archive__container wm-section-decor wm-section-decor--brands wm-section-decor--dots">
         <header class="wm-brand-archive__header">
-            <div>
-                <h1 class="wm-home-section__title"><?php echo esc_html( get_the_title() ?: __( 'برندها', 'eshobe-ecommerce' ) ); ?></h1>
-                <p class="wm-home-section__subtitle">
-                    <?php
-                    if ( get_the_content() ) {
-                        the_content();
-                    } else {
-                        echo esc_html__( 'مرور برندهای موجود در فروشگاه بر اساس حروف الفبا', 'eshobe-ecommerce' );
-                    }
-                    ?>
-                </p>
+            <?php woocommerce_breadcrumb(); ?>
+            <div class="wm-brand-archive__header-row">
+                <div>
+                    <h1 class="wm-brand-archive__title"><?php echo esc_html( get_the_title() ?: __( 'برندها', 'eshobe-ecommerce' ) ); ?></h1>
+                    <p class="wm-brand-archive__subtitle">
+                        <?php
+                        if ( get_the_content() ) {
+                            the_content();
+                        } else {
+                            echo esc_html__( 'مرور برندهای موجود در فروشگاه بر اساس حروف الفبا', 'eshobe-ecommerce' );
+                        }
+                        ?>
+                    </p>
+                </div>
+                <?php if ( $wm_brand_total > 0 ) : ?>
+                    <span class="wm-brand-archive__count"><?php echo esc_html( sprintf( _n( '%s برند', '%s برند', $wm_brand_total, 'eshobe-ecommerce' ), number_format_i18n( $wm_brand_total ) ) ); ?></span>
+                <?php endif; ?>
             </div>
-            <?php if ( $wm_brand_total > 0 ) : ?>
-                <span class="wm-brand-archive__count"><?php echo esc_html( sprintf( _n( '%s برند', '%s برند', $wm_brand_total, 'eshobe-ecommerce' ), number_format_i18n( $wm_brand_total ) ) ); ?></span>
-            <?php endif; ?>
         </header>
 
         <?php if ( empty( $wm_brand_groups ) ) : ?>

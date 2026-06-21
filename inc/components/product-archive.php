@@ -1656,6 +1656,7 @@ function wm_product_archive_render_header() {
     $description = wm_product_archive_description();
     ?>
     <header class="wm-product-archive__header">
+        <?php woocommerce_breadcrumb(); ?>
         <h1 class="wm-product-archive__title"><?php echo esc_html( wm_product_archive_title() ); ?></h1>
         <?php if ( $description ) : ?>
             <div class="wm-product-archive__description"><?php echo wp_kses_post( $description ); ?></div>
