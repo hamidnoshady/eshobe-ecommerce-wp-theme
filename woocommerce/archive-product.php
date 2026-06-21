@@ -13,6 +13,7 @@ get_header( 'shop' );
 <main id="primary" class="site-main <?php echo esc_attr( wm_product_archive_classes() ); ?>" style="<?php echo esc_attr( wm_product_archive_css_vars() ); ?>" data-product-archive>
     <div class="wm-product-archive__container">
         <?php if ( function_exists( 'wm_marketing_render_promo_banners' ) ) { echo wm_marketing_render_promo_banners( 'archive_top' ); } ?>
+        <?php woocommerce_breadcrumb(); ?>
         <?php wm_product_archive_render_header(); ?>
 
         <div class="wm-product-archive__layout">

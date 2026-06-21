@@ -45,7 +45,11 @@ $has_multiple = count( $slides ) > 1;
                         <span class="wm-home-hero__eyebrow"><?php echo esc_html( $slide['slide_eyebrow'] ); ?></span>
                     <?php endif; ?>
                     <?php if ( ! empty( $slide['slide_title'] ) ) : ?>
-                        <h1 class="wm-home-hero__title"><?php echo esc_html( $slide['slide_title'] ); ?></h1>
+                        <?php if ( 0 === $index ) : ?>
+                            <h1 class="wm-home-hero__title"><?php echo esc_html( $slide['slide_title'] ); ?></h1>
+                        <?php else : ?>
+                            <p class="wm-home-hero__title"><?php echo esc_html( $slide['slide_title'] ); ?></p>
+                        <?php endif; ?>
                     <?php endif; ?>
                     <?php if ( ! empty( $slide['slide_subtitle'] ) ) : ?>
                         <p class="wm-home-hero__subtitle"><?php echo esc_html( $slide['slide_subtitle'] ); ?></p>

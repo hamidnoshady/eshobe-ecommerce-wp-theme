@@ -13,8 +13,13 @@ get_header( 'shop' );
 while ( have_posts() ) :
     the_post();
     global $product;
+
+    if ( function_exists( 'WC' ) && isset( WC()->structured_data ) && $product instanceof WC_Product ) {
+        WC()->structured_data->generate_product_data( $product );
+    }
     ?>
     <main id="primary" class="site-main wm-single-product">
+        <?php woocommerce_breadcrumb(); ?>
         <div <?php wc_product_class( 'wm-product-layout', $product ); ?>>
             <div class="wm-product-gallery-column">
                 <?php woocommerce_show_product_sale_flash(); ?>
