@@ -19,7 +19,9 @@ while ( have_posts() ) :
     }
     ?>
     <main id="primary" class="site-main wm-single-product">
-        <?php woocommerce_breadcrumb(); ?>
+        <div class="wm-container wm-breadcrumb-bar">
+            <?php woocommerce_breadcrumb(); ?>
+        </div>
         <div <?php wc_product_class( 'wm-product-layout', $product ); ?>>
             <div class="wm-product-gallery-column">
                 <?php woocommerce_show_product_sale_flash(); ?>
