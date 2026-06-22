@@ -32,6 +32,22 @@ add_action( 'woocommerce_after_main_content', function() {
 }, 10 );
 
 /**
+ * The single-product template already renders the product name as an <h1>
+ * (wm_render_product_intro()), so drop the duplicate, unlinked product-title
+ * crumb that WC_Breadcrumb::add_crumbs_single() appends to the trail.
+ *
+ * @param array $crumbs Breadcrumb trail.
+ * @return array
+ */
+add_filter( 'woocommerce_get_breadcrumb', function( $crumbs ) {
+    if ( is_product() && count( $crumbs ) > 1 ) {
+        array_pop( $crumbs );
+    }
+
+    return $crumbs;
+} );
+
+/**
  * Force the Cart page back to the classic shortcode when it was built with the
  * WooCommerce Cart Block. Block Cart bypasses PHP template overrides.
  *

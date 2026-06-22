@@ -279,7 +279,7 @@ function wm_render_mobile_account_sheet() {
                             class="wm-mobile-account-sheet__link <?php echo ! empty( $link['primary'] ) ? 'wm-mobile-sheet__button wm-mobile-sheet__button--primary' : ''; ?>"
                             href="<?php echo esc_url( $link['url'] ); ?>"
                             <?php if ( ! empty( $link['otp_trigger'] ) ) : ?>
-                                data-wm-otp-trigger data-wm-otp-redirect="account"
+                                data-wm-otp-trigger
                             <?php endif; ?>
                         ><?php echo esc_html( $link['label'] ); ?></a>
                     <?php endforeach; ?>
@@ -327,7 +327,7 @@ function wm_render_mobile_nav() {
                             <span class="wm-mobile-nav__label"><?php echo esc_html( $item['label'] ); ?></span>
                         </button>
                     <?php elseif ( 'otp-trigger' === $item['type'] ) : ?>
-                        <a <?php echo $attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> href="<?php echo esc_url( $item['url'] ); ?>" data-wm-otp-trigger data-wm-otp-redirect="account">
+                        <a <?php echo $attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> href="<?php echo esc_url( $item['url'] ); ?>" data-wm-otp-trigger>
                             <span class="wm-mobile-nav__icon"><?php echo wm_mobile_nav_icon( $item['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                             <span class="wm-mobile-nav__label"><?php echo esc_html( $item['label'] ); ?></span>
                         </a>

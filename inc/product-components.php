@@ -188,13 +188,13 @@ function wm_render_product_gallery() {
     ?>
     <section class="<?php echo esc_attr( $class ); ?>" aria-label="<?php esc_attr_e( 'Product gallery', 'eshobe-ecommerce' ); ?>" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>">
         <?php if ( $main_full ) : ?>
-            <a class="wm-product-gallery__zoom" href="<?php echo esc_url( $main_full ); ?>" aria-label="<?php esc_attr_e( 'View larger product image', 'eshobe-ecommerce' ); ?>">
+            <button type="button" class="wm-product-gallery__zoom" data-full="<?php echo esc_url( $main_full ); ?>" data-alt="<?php echo esc_attr( $main_alt ); ?>" aria-label="<?php esc_attr_e( 'View larger product image', 'eshobe-ecommerce' ); ?>">
                 <span aria-hidden="true">⌕</span>
-            </a>
+            </button>
         <?php endif; ?>
         <div class="wm-product-gallery__main">
             <?php if ( $main_id ) : ?>
-                <a class="wm-product-gallery__image" href="<?php echo esc_url( $main_full ); ?>">
+                <div class="wm-product-gallery__image" data-full="<?php echo esc_url( $main_full ); ?>">
                     <?php
                     echo wp_get_attachment_image(
                         $main_id,
@@ -206,7 +206,7 @@ function wm_render_product_gallery() {
                         )
                     );
                     ?>
-                </a>
+                </div>
             <?php else : ?>
                 <div class="wm-product-gallery__image">
                     <?php echo wc_placeholder_img( 'woocommerce_single', array( 'class' => 'wm-product-gallery__main-img' ) ); ?>
