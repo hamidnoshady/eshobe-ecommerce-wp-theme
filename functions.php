@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.4.72' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.4.73' );
 }
 
 /**
@@ -151,6 +151,8 @@ function eshobe_ecommerce_scripts() {
         wp_enqueue_script( 'eshobe-ecommerce-product-tabs', wm_asset_uri( 'assets/js/product-tabs.js' ), array(), wm_asset_version( 'assets/js/product-tabs.js' ), true );
         wp_enqueue_script( 'eshobe-ecommerce-related-products', wm_asset_uri( 'assets/js/related-products.js' ), array(), wm_asset_version( 'assets/js/related-products.js' ), true );
         wp_enqueue_script( 'eshobe-ecommerce-product-mobile', wm_asset_uri( 'assets/js/product-mobile.js' ), array(), wm_asset_version( 'assets/js/product-mobile.js' ), true );
+        wp_enqueue_style( 'eshobe-ecommerce-variation-swatches', wm_asset_uri( 'assets/css/components/variation-swatches.css' ), array( 'eshobe-ecommerce-product-components' ), wm_asset_version( 'assets/css/components/variation-swatches.css' ) );
+        wp_enqueue_script( 'eshobe-ecommerce-product-variations', wm_asset_uri( 'assets/js/product-variations.js' ), array( 'jquery', 'wc-add-to-cart-variation' ), wm_asset_version( 'assets/js/product-variations.js' ), true );
     }
 
     if ( function_exists( 'wm_product_archive_is_context' ) && wm_product_archive_is_context() ) {
