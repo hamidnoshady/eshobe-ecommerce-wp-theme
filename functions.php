@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.4.67' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.4.68' );
 }
 
 /**
@@ -211,6 +211,7 @@ require get_template_directory() . '/inc/components/site-footer.php';
 require get_template_directory() . '/inc/components/mobile-nav.php';
 require get_template_directory() . '/inc/product-components.php';
 require get_template_directory() . '/inc/woocommerce.php';
+require get_template_directory() . '/inc/yith-swatches.php';
 require get_template_directory() . '/inc/ajax/search.php';
 require get_template_directory() . '/inc/ajax/otp-auth.php';
 require get_template_directory() . '/inc/customizer/design-settings.php';
