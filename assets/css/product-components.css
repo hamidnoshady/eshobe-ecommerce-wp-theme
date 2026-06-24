@@ -1094,7 +1094,7 @@
 
 @media (max-width: 767px) {
   body.single-product {
-    padding-bottom: calc(126px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(116px + env(safe-area-inset-bottom, 0px));
   }
 
   .wm-product-layout {
@@ -1413,27 +1413,28 @@
 
   .wm-mobile-bottom-bar {
     position: fixed;
-    right: 10px;
-    bottom: 10px;
-    left: 10px;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 1000;
     display: block;
-    padding: 7px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+    padding: 7px 16px calc(12px + env(safe-area-inset-bottom, 0px));
     background: rgba(255, 255, 255, 0.98);
     border: 1px solid rgba(229, 224, 216, 0.95);
-    border-radius: 24px;
+    border-bottom: 0;
+    border-radius: var(--wm-radius-lg) var(--wm-radius-lg) 0 0;
     box-shadow: 0 -10px 34px rgba(17, 24, 39, 0.13);
     backdrop-filter: blur(12px);
     direction: rtl;
   }
 
   .wm-mobile-bottom-bar__handle {
-    width: 48px;
-    height: 20px;
+    width: 100%;
+    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 3px;
+    margin: 0;
     padding: 0;
     border: 0;
     background: transparent;
