@@ -105,3 +105,17 @@ function wm_persian_cart_shipping_package_name( $name ) {
     return $name;
 }
 add_filter( 'woocommerce_shipping_package_name', 'wm_persian_cart_shipping_package_name', 20 );
+
+/**
+ * The theme renders its own variation swatch UI on single-product pages
+ * (see woocommerce/single-product/add-to-cart/variable.php), reading YITH's
+ * term meta directly. Dequeue YITH's own frontend swatch script/style there
+ * to avoid it hijacking the native <select> a second time. Left fully
+ * active everywhere else (shop loop, admin term-meta screens).
+ */
+add_action( 'wp_enqueue_scripts', function() {
+	if ( is_product() ) {
+		wp_dequeue_script( 'yith_wccl_frontend' );
+		wp_dequeue_style( 'yith_wccl_frontend' );
+	}
+}, 20 );
