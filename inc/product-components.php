@@ -454,13 +454,15 @@ function wm_render_mobile_product_bottom_bar() {
         return '';
     }
 
-    $stock      = wm_get_product_stock_data( $product );
-    $meta_items = wm_get_product_purchase_meta_items( $product );
+    $stock           = wm_get_product_stock_data( $product );
+    $meta_items      = wm_get_product_purchase_meta_items( $product );
+    $starts_expanded = $product->is_type( 'variable' );
+    $state_class     = $starts_expanded ? 'wm-mobile-bottom-bar--expanded' : 'wm-mobile-bottom-bar--collapsed';
 
     ob_start();
     ?>
-    <section class="wm-mobile-bottom-bar wm-mobile-bottom-bar--collapsed" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'eshobe-ecommerce' ); ?>">
-        <button class="wm-mobile-bottom-bar__handle" type="button" aria-expanded="false" aria-controls="wm-mobile-bottom-bar-content">
+    <section class="wm-mobile-bottom-bar <?php echo esc_attr( $state_class ); ?>" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'eshobe-ecommerce' ); ?>">
+        <button class="wm-mobile-bottom-bar__handle" type="button" aria-expanded="<?php echo $starts_expanded ? 'true' : 'false'; ?>" aria-controls="wm-mobile-bottom-bar-content">
             <span class="wm-mobile-bottom-bar__chevron" aria-hidden="true"></span>
         </button>
 
@@ -480,7 +482,7 @@ function wm_render_mobile_product_bottom_bar() {
             </div>
         </div>
 
-        <div class="wm-mobile-bottom-bar__content" id="wm-mobile-bottom-bar-content" hidden>
+        <div class="wm-mobile-bottom-bar__content" id="wm-mobile-bottom-bar-content" <?php echo $starts_expanded ? '' : 'hidden'; ?>>
             <?php if ( ! empty( $meta_items ) ) : ?>
                 <div class="wm-mobile-bottom-bar__meta">
                     <?php foreach ( $meta_items as $item ) : ?>

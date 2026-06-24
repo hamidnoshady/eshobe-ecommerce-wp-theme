@@ -27,8 +27,9 @@
       return;
     }
 
+    var startsExpanded = bar.classList.contains('wm-mobile-bottom-bar--expanded');
     content.hidden = false;
-    content.setAttribute('aria-hidden', 'true');
+    content.setAttribute('aria-hidden', startsExpanded ? 'false' : 'true');
 
     handle.addEventListener('click', function() {
       var expanded = bar.classList.contains('wm-mobile-bottom-bar--expanded');
