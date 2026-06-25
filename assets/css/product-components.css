@@ -1522,12 +1522,30 @@
     margin-top: 0;
   }
 
+  /*
+   * form.cart is also the variations_form for variable products, so its
+   * direct children include table.variations (swatches) and
+   * .single_variation_wrap — not just quantity+button like on simple
+   * products. Flexing .cart itself used to force the swatches table and
+   * the price/button block into one horizontal row instead of stacking.
+   * Keep .cart a plain block and flex only the actual button-row wrapper
+   * (.woocommerce-variation-add-to-cart for variable products); simple
+   * products have no such wrapper, but their lone visible child (the
+   * button — quantity is hidden below) already renders full-width as a
+   * block, so they need no flex container at all.
+   */
   .wm-mobile-bottom-bar__cta .cart {
+    display: block;
+    width: 100%;
+    margin: 0;
+  }
+
+  .wm-mobile-bottom-bar__cta .woocommerce-variation-add-to-cart {
     display: flex;
     align-items: stretch;
     gap: 8px;
     width: 100%;
-    margin: 0;
+    margin-top: var(--wm-space-2);
   }
 
   .wm-mobile-bottom-bar__cta .quantity {
