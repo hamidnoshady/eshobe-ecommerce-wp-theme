@@ -1569,6 +1569,32 @@
     display: none !important;
   }
 
+  /*
+   * table.variations has no width constraint by default, so a row with many
+   * swatches (e.g. 16 label options) grows the table cell to fit them all on
+   * one line instead of letting .wm-variation-swatches' own overflow-x:auto
+   * kick in — the excess swatches end up rendered off-screen and unreachable.
+   * table-layout: fixed forces the cell (and everything inside it) to the
+   * bar's actual width, so the swatch row's horizontal scroll works as intended.
+   */
+  .wm-mobile-bottom-bar table.variations {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .wm-mobile-bottom-bar table.variations th.label {
+    width: 64px;
+  }
+
+  .wm-mobile-bottom-bar table.variations td.value {
+    width: auto;
+    min-width: 0;
+  }
+
+  .wm-mobile-bottom-bar .wm-variation-attribute {
+    min-width: 0;
+  }
+
   .wm-mobile-bottom-bar__content {
     max-height: 0;
     margin-top: 0;
