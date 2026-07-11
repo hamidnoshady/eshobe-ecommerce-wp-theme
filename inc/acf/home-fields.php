@@ -1223,5 +1223,20 @@ function wm_site_settings_technical_fields() {
                 ),
             ),
         ),
+
+        wm_site_settings_tab( 'field_wm_technical_tab_theme_update', 'به‌روزرسانی قالب' ),
+        array(
+            'key'          => 'field_wm_technical_theme_update_channel',
+            'label'        => 'کانال به‌روزرسانی',
+            'name'         => 'wm_technical_theme_update_channel',
+            'type'         => 'select',
+            'choices'      => array(
+                'stable' => 'پایدار (Stable) — نسخه‌های منتشرشده از main',
+                'beta'   => 'آزمایشی (Beta) — آخرین build از Pull Request باز',
+            ),
+            'default_value' => 'stable',
+            'ui'            => 1,
+            'instructions'  => 'پایدار برای سایت‌های production. آزمایشی فقط برای تست تغییرات در حال بررسی (PR باز) استفاده شود.',
+        ),
     );
 }

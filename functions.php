@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.5.1' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.5.2' );
 }
 
 /**
@@ -227,5 +227,4 @@ require get_template_directory() . '/inc/acf/design-tokens.php';
 require get_template_directory() . '/inc/acf/home-fields.php';
 require get_template_directory() . '/inc/compat/cache.php';
 require get_template_directory() . '/inc/theme-updater.php';
-require get_template_directory() . '/inc/theme-update-settings.php';
 require get_template_directory() . '/inc/seo.php';

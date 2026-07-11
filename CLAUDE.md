@@ -14,8 +14,17 @@ WordPress Studio manages the site itself (PHP WASM, SQLite, local dev server). T
 ## Development workflow
 
 - No build/lint/test commands exist. Edit PHP/CSS/JS directly and reload the site (Studio dev environment) to see changes.
-- **After every change**, bump `ESHOBE_ECOMMERCE_VERSION` in `functions.php` AND `Version:` in `style.css` together (patch increment), then commit and push to GitHub. This is required, not optional.
+- **After every change**, bump `ESHOBE_ECOMMERCE_VERSION` in `functions.php` AND `Version:` in `style.css` together (patch increment). This is required, not optional.
 - Version format: `MAJOR.MINOR.PATCH` (e.g. `0.4.52` → `0.4.53`). Bump patch for any fix/tweak, minor for new features.
+- **Every change goes through a branch + pull request — never push directly to `main`.**
+  ```
+  git checkout -b fix/short-description
+  git commit -am "..."
+  git push -u origin fix/short-description
+  gh pr create --fill
+  ```
+  - Opening or updating that PR auto-publishes a **beta** build (from the PR branch) — sites on the beta channel pick it up automatically. Use this to test the change for real before merging.
+  - Merging the PR into `main` auto-publishes a **stable** build — sites on the stable channel pick it up automatically. No manual tagging step.
 - CSS/JS for cart and checkout pages use `filemtime()` for versioning instead of `ESHOBE_ECOMMERCE_VERSION`, so those auto-bust on save.
 - For UI changes, use the `run` or `verify` skills to launch/check the site in a browser (Playwright/Chrome DevTools MCP available).
 - **Remote/cloud sessions (no Studio install available)**: when there's no running WordPress/WooCommerce/ACF stack to hit, verify pure CSS/JS UI changes (header, modals, animations, etc.) with a static Playwright harness instead of skipping verification:
@@ -66,16 +75,9 @@ WordPress Studio manages the site itself (PHP WASM, SQLite, local dev server). T
 
 - Source repo: `github.com/hamidnoshady/eshobe-ecommerce-wp-theme` (private).
 - Dist repo: `github.com/hamidnoshady/eshobe-ecommerce-wp-theme-dist` (public, build artifacts only — never source code). WordPress reads only from here, unauthenticated.
-- `.github/workflows/release.yml` — on `git tag vX.Y.Z` push: builds the zip, creates a GitHub Release in the source repo, and publishes `stable/update.json` + `stable/eshobe-ecommerce-wp-theme.zip` to the dist repo.
-- `.github/workflows/beta-release.yml` — on every push to an open PR against `main`: builds the zip from the PR head and publishes `beta/update.json` + `beta/eshobe-ecommerce-wp-theme.zip` to the dist repo. Version is suffixed `-beta.<pr-number>.<run-number>`.
+- **Merge to `main` → stable.** `.github/workflows/release.yml` triggers on every push to `main` (i.e. every merged PR): builds the zip, reads the version straight from `style.css`, tags the commit `vX.Y.Z`, creates a GitHub Release in the source repo, and publishes `stable/update.json` + `stable/eshobe-ecommerce-wp-theme.zip` to the dist repo. No manual tagging — just merge the PR.
+- **Open/update a PR → beta.** `.github/workflows/beta-release.yml` triggers on every push to an open PR against `main`: builds the zip from the PR head and publishes `beta/update.json` + `beta/eshobe-ecommerce-wp-theme.zip` to the dist repo. Version is suffixed `-beta.<pr-number>.<run-number>`.
 - Both workflows push to the dist repo using the `DIST_REPO_TOKEN` repo secret (a fine-grained PAT, scoped to the dist repo only, Contents: read & write). This secret lives in GitHub Actions only — **wp-config.php has zero GitHub credentials.**
 - `inc/theme-updater.php` hooks into WordPress's native update system and reads `https://raw.githubusercontent.com/hamidnoshady/eshobe-ecommerce-wp-theme-dist/main/<channel>/update.json` (stable, cached 6h; beta, cached 1h). No auth, no rate-limit concerns (static file, not GitHub API).
-- `inc/theme-update-settings.php` adds **Appearance → Theme Updates** in wp-admin, letting an admin pick the `stable` or `beta` channel (stored in `wm_theme_update_channel` option).
-- **Deploy workflow (stable)** — after every pushed commit to `main`:
-  ```
-  git tag v0.5.1   # use the exact version from style.css
-  git push origin v0.5.1
-  ```
-  GitHub Action runs → dist repo updated → WP admin shows the update badge → click "Update now" or let auto-update handle it.
-- **Beta channel** — just open/update a PR against `main`; the workflow runs automatically on every push to that PR. No tagging needed.
+- Channel is picked per-site on **Technical Settings ("تنظیمات فنی") → "به‌روزرسانی قالب"** in wp-admin (`wm_technical_theme_update_channel` ACF field, `stable`/`beta`), read via `wm_technical_theme_update_channel()` in `inc/helpers/technical-data.php`.
 - To force WP to check for updates immediately: `studio wp eval "delete_transient('wm_theme_update_stable'); delete_transient('wm_theme_update_beta');"` then Dashboard → Updates → "Check Again".
