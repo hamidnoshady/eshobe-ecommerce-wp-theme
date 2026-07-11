@@ -234,6 +234,12 @@ function wm_render_site_header() {
                 <?php endif; ?>
             </a>
 
+            <button type="button" class="wm-site-header__tablet-toggle" aria-haspopup="dialog" aria-expanded="false" aria-controls="wm-tablet-nav-drawer" aria-label="<?php echo esc_attr__( 'منو', 'eshobe-ecommerce' ); ?>">
+                <span class="wm-site-header__tablet-toggle-bar"></span>
+                <span class="wm-site-header__tablet-toggle-bar"></span>
+                <span class="wm-site-header__tablet-toggle-bar"></span>
+            </button>
+
             <?php wm_header_render_menu(); ?>
 
             <div class="wm-site-header__actions">
@@ -248,10 +254,19 @@ function wm_render_site_header() {
 
                 <?php if ( $show_account ) : ?>
                     <?php $wm_header_otp_active = ! is_user_logged_in(); ?>
-                    <a class="wm-site-header__action wm-site-header__account" href="<?php echo esc_url( wm_header_get_account_url() ); ?>" aria-label="<?php echo esc_attr__( 'حساب کاربری', 'eshobe-ecommerce' ); ?>"<?php echo $wm_header_otp_active ? ' data-wm-otp-trigger' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-                        <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'account' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                        <span class="wm-site-header__action-text"><?php echo esc_html__( 'حساب', 'eshobe-ecommerce' ); ?></span>
-                    </a>
+                    <div class="wm-site-header__account-wrap">
+                        <a class="wm-site-header__action wm-site-header__account" href="<?php echo esc_url( wm_header_get_account_url() ); ?>" aria-label="<?php echo esc_attr__( 'حساب کاربری', 'eshobe-ecommerce' ); ?>"<?php echo $wm_header_otp_active ? ' data-wm-otp-trigger' : ' data-wm-account-toggle aria-haspopup="true" aria-expanded="false"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'account' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                            <span class="wm-site-header__action-text"><?php echo esc_html__( 'حساب', 'eshobe-ecommerce' ); ?></span>
+                        </a>
+                        <?php if ( ! $wm_header_otp_active ) : ?>
+                            <div class="wm-account-dropdown" data-wm-account-dropdown>
+                                <strong class="wm-account-dropdown__title"><?php echo esc_html__( 'اعلان‌ها', 'eshobe-ecommerce' ); ?></strong>
+                                <div class="wm-notification-list" data-wm-notification-list></div>
+                                <a class="wm-account-dropdown__link" href="<?php echo esc_url( wm_header_get_account_url() ); ?>"><?php echo esc_html__( 'مشاهده حساب کاربری', 'eshobe-ecommerce' ); ?></a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
 
                 <?php if ( $show_cart ) : ?>
@@ -318,6 +333,17 @@ function wm_render_site_header() {
                 </div>
             </div>
         <?php endif; ?>
+
+        <div class="wm-tablet-nav-drawer__backdrop" data-tablet-nav-close hidden></div>
+        <div id="wm-tablet-nav-drawer" class="wm-tablet-nav-drawer" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'منو', 'eshobe-ecommerce' ); ?>" hidden>
+            <div class="wm-tablet-nav-drawer__head">
+                <strong><?php echo esc_html__( 'منو', 'eshobe-ecommerce' ); ?></strong>
+                <button type="button" class="wm-tablet-nav-drawer__close" data-tablet-nav-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>">&times;</button>
+            </div>
+            <div class="wm-tablet-nav-drawer__body">
+                <?php wm_header_render_menu(); ?>
+            </div>
+        </div>
     </header>
     <?php
 }

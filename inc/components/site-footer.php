@@ -159,12 +159,13 @@ function wm_footer_render_badges() {
 }
 
 function wm_render_site_footer() {
-    $defaults      = wm_footer_default_texts();
-    $title         = wm_footer_get_option( 'wm_footer_title', $defaults['title'] );
-    $description   = wm_footer_get_option( 'wm_footer_description', $defaults['description'] );
-    $copyright     = wm_footer_get_option( 'wm_footer_copyright', $defaults['copyright'] );
-    $developer     = wm_footer_get_option( 'wm_footer_developer_text', $defaults['developer'] );
-    $developer_url = wm_footer_get_option( 'wm_footer_developer_url', '' );
+    $defaults       = wm_footer_default_texts();
+    $title          = wm_footer_get_option( 'wm_footer_title', $defaults['title'] );
+    $description    = wm_footer_get_option( 'wm_footer_description', $defaults['description'] );
+    $copyright      = wm_footer_get_option( 'wm_footer_copyright', $defaults['copyright'] );
+    $developer      = wm_footer_get_option( 'wm_footer_developer_text', $defaults['developer'] );
+    $developer_url  = wm_footer_get_option( 'wm_footer_developer_url', '' );
+    $guarantee_note = wm_footer_get_option( 'wm_footer_guarantee_note', __( 'ضمانت بازگشت کالا تا ۷ روز پس از تحویل سفارش', 'eshobe-ecommerce' ) );
 
     ?>
     <footer id="colophon" class="wm-site-footer wm-section-decor wm-section-decor--footer">
@@ -180,6 +181,13 @@ function wm_render_site_footer() {
                     <?php endif; ?>
 
                     <?php wm_footer_render_links(); ?>
+
+                    <?php if ( $guarantee_note ) : ?>
+                        <div class="wm-site-footer__guarantee">
+                            <span class="wm-site-footer__guarantee-icon" aria-hidden="true">✓</span>
+                            <?php echo esc_html( $guarantee_note ); ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <?php wm_footer_render_badges(); ?>
@@ -204,5 +212,9 @@ function wm_render_site_footer() {
             </div>
         </div>
     </footer>
+
+    <button type="button" class="wm-back-to-top" data-wm-back-to-top aria-label="<?php echo esc_attr__( 'بازگشت به بالا', 'eshobe-ecommerce' ); ?>">
+        <span aria-hidden="true">↑</span>
+    </button>
     <?php
 }

@@ -106,7 +106,12 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 									);
 								?>
 							<?php endif; ?>
-							<?php echo end( $attribute_keys ) === $attribute_name ? wp_kses_post( apply_filters( 'woocommerce_reset_variations_link', '<a class="reset_variations" href="#" aria-label="' . esc_attr__( 'Clear options', 'woocommerce' ) . '">' . esc_html__( 'Clear', 'woocommerce' ) . '</a>' ) ) : ''; ?>
+							<?php
+								// Hardcoded (not run through __()) because WooCommerce's Persian
+								// language pack mistranslates "Clear" as "صاف" ("plain/smooth").
+								echo end( $attribute_keys ) === $attribute_name ? wp_kses_post( apply_filters( 'woocommerce_reset_variations_link', '<a class="reset_variations" href="#" aria-label="حذف انتخاب‌ها"><span aria-hidden="true">✕</span> پاک کردن انتخاب</a>' ) ) : '';
+							?>
+
 						</td>
 					</tr>
 				<?php endforeach; ?>

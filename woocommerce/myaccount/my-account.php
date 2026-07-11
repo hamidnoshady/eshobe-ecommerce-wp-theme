@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 		<header class="wm-account-page__header">
 			<div>
 				<span class="wm-account-page__eyebrow"><?php echo esc_html__( 'پنل کاربری', 'eshobe-ecommerce' ); ?></span>
-				<h1 class="wm-account-page__title"><?php echo esc_html__( 'حساب کاربری', 'eshobe-ecommerce' ); ?></h1>
+				<h2 class="wm-account-page__title"><?php echo esc_html__( 'حساب کاربری', 'eshobe-ecommerce' ); ?></h2>
 			</div>
 		</header>
 

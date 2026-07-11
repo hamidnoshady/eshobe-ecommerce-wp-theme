@@ -839,8 +839,6 @@
   color: var(--wm-color-accent-dark, #9f7425);
   font-size: 15px;
   font-weight: 850;
-  direction: ltr;
-  text-align: left;
 }
 
 .wm-product-archive .wm-product-card__price .price,
@@ -848,7 +846,6 @@
 .wm-product-archive .wm-product-card__price bdi {
   color: inherit;
   font-weight: inherit;
-  direction: rtl;
 }
 
 .wm-product-archive .wm-product-card__actions {

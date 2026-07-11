@@ -214,6 +214,13 @@
   text-align: right;
 }
 
+.wm-product-intro__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--wm-space-3);
+}
+
 .wm-product-intro__title {
   margin: 0;
   font-size: clamp(21px, 1.6vw, 26px);
@@ -221,6 +228,66 @@
   font-weight: 800;
   color: var(--wm-color-primary);
   overflow-wrap: anywhere;
+}
+
+.wm-product-intro__wishlist {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--wm-color-border);
+  border-radius: 50%;
+  background: var(--wm-color-surface);
+  color: var(--wm-color-muted);
+  cursor: pointer;
+  transition: var(--wm-transition);
+}
+
+.wm-product-intro__wishlist:hover {
+  border-color: var(--wm-color-danger-text);
+  color: var(--wm-color-danger-text);
+}
+
+.wm-product-intro__wishlist-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  background: currentColor;
+  clip-path: path('M9 16.2 2.5 9.9C0.6 8 0.7 4.8 2.8 3.1 4.6 1.6 7.2 1.9 8.7 3.6L9 4l0.3-0.4c1.5-1.7 4.1-2 5.9-0.5 2.1 1.7 2.2 4.9 0.3 6.8L9 16.2Z');
+}
+
+.wm-product-intro__wishlist.is-active {
+  border-color: var(--wm-color-danger-text);
+  background: var(--wm-color-danger-text);
+  color: #fff;
+}
+
+.wm-product-intro__rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.wm-product-intro__rating .star-rating {
+  color: var(--wm-color-accent);
+  font-size: 15px;
+}
+
+.wm-product-intro__rating-count,
+.wm-product-intro__rating--empty a {
+  color: var(--wm-color-muted);
+  text-decoration: none;
+}
+
+.wm-product-intro__rating-count:hover,
+.wm-product-intro__rating--empty a:hover {
+  color: var(--wm-color-accent-dark);
+  text-decoration: underline;
 }
 
 .wm-product-intro__meta {
@@ -344,8 +411,6 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  text-align: left;
-  direction: ltr;
   min-height: 58px;
   padding: 12px 18px;
   background: #fffaf0;
@@ -362,11 +427,13 @@
   font-weight: 800;
 }
 
-.wm-product-purchase__price .price,
-.wm-product-purchase__price .amount,
-.wm-product-purchase__price bdi {
-  direction: rtl;
-  text-align: left;
+.wm-product-purchase__price-note {
+  width: 100%;
+  margin: 6px 0 0;
+  color: var(--wm-color-muted);
+  font-size: 12.5px;
+  line-height: 1.7;
+  text-align: right;
 }
 
 .wm-product-purchase__stock {
@@ -426,7 +493,8 @@
 
 .wm-product-purchase__cart .stock,
 .wm-product-purchase__cart form.cart > .stock,
-.wm-product-purchase__cart .woocommerce-variation-availability {
+.wm-product-purchase__cart .woocommerce-variation-availability,
+.wm-product-purchase__cart .woocommerce-variation-price {
   display: none !important;
 }
 
@@ -1179,8 +1247,19 @@
     max-width: 100%;
   }
 
-  .wm-product-purchase {
+  /*
+   * Price/stock/cart are already shown in .wm-mobile-bottom-bar; only the
+   * SKU/guarantee meta + trust badges are unique to this block on mobile.
+   */
+  .wm-product-purchase__price,
+  .wm-product-purchase__price-note,
+  .wm-product-purchase__stock,
+  .wm-product-purchase__cart {
     display: none;
+  }
+
+  .wm-product-purchase {
+    padding: var(--wm-space-4);
   }
 
   .wm-product-tabs {
@@ -1411,30 +1490,35 @@
     display: none;
   }
 
+  /*
+   * Sits flush on top of .wm-mobile-nav (no gap, no own bottom border/
+   * radius) so the purchase bar and the bottom nav read as one continuous
+   * panel rather than two stacked floating boxes.
+   */
   .wm-mobile-bottom-bar {
     position: fixed;
     right: 0;
-    bottom: 0;
+    bottom: var(--wm-mobile-nav-height, 82px);
     left: 0;
     z-index: 1000;
     display: block;
-    padding: 7px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    padding: 7px 16px 10px;
     background: rgba(255, 255, 255, 0.98);
     border: 1px solid rgba(229, 224, 216, 0.95);
     border-bottom: 0;
     border-radius: var(--wm-radius-lg) var(--wm-radius-lg) 0 0;
-    box-shadow: 0 -10px 34px rgba(17, 24, 39, 0.13);
+    box-shadow: 0 -8px 24px rgba(17, 24, 39, 0.08);
     backdrop-filter: blur(12px);
     direction: rtl;
   }
 
   .wm-mobile-bottom-bar__handle {
     width: 100%;
-    min-height: 44px;
+    min-height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0;
+    margin: 0 0 2px;
     padding: 0;
     border: 0;
     background: transparent;
@@ -1548,15 +1632,27 @@
     margin-top: var(--wm-space-2);
   }
 
+  /*
+   * Plain quantity input is hidden by default (simple products show qty=1
+   * implicitly in this bar). Variable products' quantity is re-parented by
+   * JS into .wm-variation-stock-box's +/- stepper — that nested copy needs
+   * to stay visible, so it's re-shown with higher specificity below.
+   */
   .wm-mobile-bottom-bar__cta .quantity {
     display: none;
+  }
+
+  .wm-mobile-bottom-bar__cta .wm-variation-stock-box .quantity {
+    display: block !important;
   }
 
   .wm-mobile-bottom-bar__cta .stock,
   .wm-mobile-bottom-bar__cta form.cart > .stock,
   .wm-mobile-bottom-bar__cta .woocommerce-variation-availability,
+  .wm-mobile-bottom-bar__cta .woocommerce-variation-price,
   .wm-mobile-bottom-bar form.cart > .stock,
   .wm-mobile-bottom-bar .woocommerce-variation-availability,
+  .wm-mobile-bottom-bar .woocommerce-variation-price,
   .wm-mobile-bottom-bar .stock:not(.wm-mobile-bottom-bar__stock):not(.product-stock-badge) {
     display: none !important;
   }
@@ -1600,17 +1696,67 @@
     table-layout: fixed;
   }
 
+  /*
+   * Default table.variations renders th.label beside td.value, which
+   * wraps a multi-word attribute name (e.g. "Annie Eye Pencil Wooden")
+   * into a vertical stack of single words next to the swatches. Stacking
+   * the row instead puts the (smaller) label above the swatches.
+   */
+  .wm-mobile-bottom-bar table.variations tr {
+    display: block;
+  }
+
   .wm-mobile-bottom-bar table.variations th.label {
-    width: 64px;
+    display: block;
+    width: auto;
+    padding: 0 0 4px;
+    color: var(--wm-color-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-align: right;
   }
 
   .wm-mobile-bottom-bar table.variations td.value {
+    display: block;
     width: auto;
     min-width: 0;
   }
 
   .wm-mobile-bottom-bar .wm-variation-attribute {
     min-width: 0;
+    margin-bottom: 8px;
+  }
+
+  .wm-mobile-bottom-bar .wm-variation-attribute__selected {
+    font-size: 11px;
+    font-weight: 700;
+    min-height: unset;
+    margin-bottom: 6px;
+    color: var(--wm-color-muted);
+  }
+
+  .wm-mobile-bottom-bar .wm-variation-swatch--color,
+  .wm-mobile-bottom-bar .wm-variation-swatch--image {
+    width: 26px;
+    height: 26px;
+  }
+
+  .wm-mobile-bottom-bar .wm-variation-swatch--label {
+    height: 28px;
+    min-width: 28px;
+    padding: 0 8px;
+  }
+
+  .wm-mobile-bottom-bar .wm-variation-swatch__label {
+    font-size: 11px;
+  }
+
+  .wm-mobile-bottom-bar .wm-variation-swatches {
+    gap: 6px;
+  }
+
+  .wm-mobile-bottom-bar .reset_variations {
+    display: none !important;
   }
 
   .wm-mobile-bottom-bar__content {
@@ -1625,8 +1771,8 @@
 
   .wm-mobile-bottom-bar--expanded .wm-mobile-bottom-bar__content {
     max-height: 260px;
-    margin-top: 12px;
-    padding-top: 12px;
+    margin-top: 8px;
+    padding-top: 8px;
     border-top: 1px solid var(--wm-color-border);
     opacity: 1;
   }
@@ -1642,7 +1788,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 9px 10px;
+    padding: 7px 9px;
     border: 1px solid var(--wm-color-border);
     border-radius: 14px;
     background: #f9f8f5;
@@ -1662,14 +1808,14 @@
   .wm-mobile-bottom-bar__trust {
     display: flex;
     flex-wrap: wrap;
-    gap: 7px;
-    margin-top: 12px;
+    gap: 6px;
+    margin-top: 8px;
   }
 
   .wm-mobile-bottom-bar__trust span {
     flex: 1 1 auto;
     min-width: fit-content;
-    padding: 7px 9px;
+    padding: 6px 8px;
     border-radius: var(--wm-radius-pill);
     background: rgba(200, 155, 60, 0.12);
     color: var(--wm-color-accent-dark);

@@ -14,6 +14,25 @@ if ( ! class_exists( 'WooCommerce' ) ) {
 }
 
 /**
+ * Persian fallback for the handful of attribute labels stores commonly leave
+ * in English (custom attributes named literally "Color"/"Size" rather than a
+ * registered pa_* taxonomy with its own translated name). Anything else is
+ * passed through untouched — rename the attribute in WooCommerce admin for
+ * full control over its label.
+ */
+function wm_translate_attribute_label( $label ) {
+    $map = array(
+        'color'  => 'رنگ',
+        'colour' => 'رنگ',
+        'size'   => 'سایز',
+    );
+
+    $key = strtolower( trim( wp_strip_all_tags( (string) $label ) ) );
+    return isset( $map[ $key ] ) ? $map[ $key ] : $label;
+}
+add_filter( 'woocommerce_attribute_label', 'wm_translate_attribute_label' );
+
+/**
  * Get the YITH swatch type configured for a product attribute taxonomy.
  *
  * @param string $taxonomy Attribute taxonomy name, e.g. 'pa_color' or 'color'.

@@ -13,6 +13,13 @@ body {
 }
 a { color: inherit; text-decoration: none; transition: var(--wm-transition); }
 a:hover { color: var(--wm-color-accent-dark); }
+
+/* WooCommerce wraps prices in <bdi>, which auto-detects RTL direction because
+   the currency symbol (e.g. "تومان") is the only bidi-strong character —
+   this silently inverts woocommerce_currency_pos regardless of its value.
+   Forcing ltr here makes the symbol/amount render in the logical order WC
+   already built from that setting. */
+.woocommerce-Price-amount bdi { direction: ltr; }
 img { max-width: 100%; height: auto; }
 button, input, select, textarea { font-family: var(--wm-font-primary); font-size: var(--wm-font-size-base); line-height: var(--wm-line-height-body); }
 .site { min-height: 100vh; display: flex; flex-direction: column; }

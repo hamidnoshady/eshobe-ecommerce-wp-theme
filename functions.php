@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.4.77' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.5.0' );
 }
 
 /**
@@ -108,6 +108,7 @@ function eshobe_ecommerce_scripts() {
     wp_enqueue_style( 'eshobe-ecommerce-footer', wm_asset_uri( 'assets/css/components/footer.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/footer.css' ) );
     wp_enqueue_style( 'eshobe-ecommerce-decorative-motifs', wm_asset_uri( 'assets/css/components/decorative-motifs.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/decorative-motifs.css' ) );
     wp_enqueue_style( 'eshobe-ecommerce-mobile-nav', wm_asset_uri( 'assets/css/components/mobile-nav.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/mobile-nav.css' ) );
+    wp_enqueue_style( 'eshobe-ecommerce-notifications', wm_asset_uri( 'assets/css/components/notifications.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/notifications.css' ) );
     wp_add_inline_style( 'eshobe-ecommerce-style', eshobe_ecommerce_get_design_customizer_css() );
     wp_add_inline_style( 'eshobe-ecommerce-style', wm_get_design_tokens_css() );
     wp_enqueue_style( 'eshobe-ecommerce-product-components', wm_asset_uri( 'assets/css/product-components.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/product-components.css' ) );
@@ -126,6 +127,8 @@ function eshobe_ecommerce_scripts() {
         )
     );
     wp_enqueue_script( 'eshobe-ecommerce-mobile-nav', wm_asset_uri( 'assets/js/mobile-nav.js' ), array(), wm_asset_version( 'assets/js/mobile-nav.js' ), true );
+    wp_enqueue_script( 'eshobe-ecommerce-notifications', wm_asset_uri( 'assets/js/notifications.js' ), array(), wm_asset_version( 'assets/js/notifications.js' ), true );
+    wp_enqueue_script( 'eshobe-ecommerce-back-to-top', wm_asset_uri( 'assets/js/back-to-top.js' ), array(), wm_asset_version( 'assets/js/back-to-top.js' ), true );
 
     if ( function_exists( 'WC' ) ) {
         wp_enqueue_style( 'eshobe-ecommerce-mini-cart', wm_asset_uri( 'assets/css/components/mini-cart.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/mini-cart.css' ) );
@@ -151,6 +154,7 @@ function eshobe_ecommerce_scripts() {
         wp_enqueue_script( 'eshobe-ecommerce-product-tabs', wm_asset_uri( 'assets/js/product-tabs.js' ), array(), wm_asset_version( 'assets/js/product-tabs.js' ), true );
         wp_enqueue_script( 'eshobe-ecommerce-related-products', wm_asset_uri( 'assets/js/related-products.js' ), array(), wm_asset_version( 'assets/js/related-products.js' ), true );
         wp_enqueue_script( 'eshobe-ecommerce-product-mobile', wm_asset_uri( 'assets/js/product-mobile.js' ), array(), wm_asset_version( 'assets/js/product-mobile.js' ), true );
+        wp_enqueue_script( 'eshobe-ecommerce-product-wishlist', wm_asset_uri( 'assets/js/product-wishlist.js' ), array(), wm_asset_version( 'assets/js/product-wishlist.js' ), true );
         wp_enqueue_style( 'eshobe-ecommerce-variation-swatches', wm_asset_uri( 'assets/css/components/variation-swatches.css' ), array( 'eshobe-ecommerce-product-components' ), wm_asset_version( 'assets/css/components/variation-swatches.css' ) );
         wp_enqueue_script( 'eshobe-ecommerce-product-variations', wm_asset_uri( 'assets/js/product-variations.js' ), array( 'jquery', 'wc-add-to-cart-variation' ), wm_asset_version( 'assets/js/product-variations.js' ), true );
     }
@@ -162,6 +166,7 @@ function eshobe_ecommerce_scripts() {
 
     if ( function_exists( 'is_cart' ) && is_cart() ) {
         wp_enqueue_style( 'eshobe-ecommerce-cart', wm_asset_uri( 'assets/css/components/cart.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/cart.css' ) );
+        wp_enqueue_script( 'eshobe-ecommerce-cart', wm_asset_uri( 'assets/js/cart-custom.js' ), array( 'jquery', 'wc-cart' ), wm_asset_version( 'assets/js/cart-custom.js' ), true );
     }
 
     if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_order_received_page() ) {

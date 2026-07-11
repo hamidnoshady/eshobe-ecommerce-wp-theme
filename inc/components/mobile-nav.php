@@ -21,15 +21,11 @@ function wm_mobile_nav_is_enabled() {
 }
 
 function wm_mobile_nav_should_render() {
-    if ( ! wm_mobile_nav_is_enabled() ) {
-        return false;
-    }
+    return wm_mobile_nav_is_enabled();
+}
 
-    if ( function_exists( 'is_product' ) && is_product() && wm_mobile_nav_get_option( 'wm_product_mobile_bottom_bar_enabled', true ) ) {
-        return false;
-    }
-
-    return true;
+function wm_mobile_nav_is_product_page() {
+    return function_exists( 'is_product' ) && is_product();
 }
 
 function wm_mobile_nav_shop_url() {
@@ -270,6 +266,10 @@ function wm_render_mobile_account_sheet() {
                         <strong><?php echo esc_html__( 'حساب من', 'eshobe-ecommerce' ); ?></strong>
                         <span><?php echo esc_html__( 'مدیریت سفارش‌ها و اطلاعات حساب', 'eshobe-ecommerce' ); ?></span>
                     </div>
+                    <div class="wm-mobile-account-sheet__notifications">
+                        <strong class="wm-account-dropdown__title"><?php echo esc_html__( 'اعلان‌ها', 'eshobe-ecommerce' ); ?></strong>
+                        <div class="wm-notification-list" data-wm-notification-list></div>
+                    </div>
                 <?php else : ?>
                     <p class="wm-mobile-sheet__empty"><?php echo esc_html__( 'برای مشاهده حساب کاربری وارد شوید.', 'eshobe-ecommerce' ); ?></p>
                 <?php endif; ?>
@@ -291,15 +291,20 @@ function wm_render_mobile_account_sheet() {
 }
 
 function wm_render_mobile_nav() {
-    if ( ! wm_mobile_nav_should_render() ) {
+    if ( ! wm_mobile_nav_is_enabled() ) {
         return;
     }
+
+    $show_bar = wm_mobile_nav_should_render();
 
     $show_labels = (bool) wm_mobile_nav_get_option( 'wm_mobile_nav_show_labels', true );
     $density     = wm_mobile_nav_get_option( 'wm_mobile_nav_density', 'comfortable' );
     $density     = in_array( $density, array( 'compact', 'comfortable' ), true ) ? $density : 'comfortable';
     $class       = 'wm-mobile-nav wm-mobile-nav--' . sanitize_html_class( $density );
     $class      .= $show_labels ? ' wm-mobile-nav--labels' : ' wm-mobile-nav--icons-only';
+    // On product pages the nav renders alongside the product's own purchase
+    // bar (wm_render_mobile_product_bottom_bar), which sits above it.
+    $class      .= wm_mobile_nav_is_product_page() ? ' wm-product-page-nav' : '';
     ?>
     <div class="wm-mobile-nav-shell" data-mobile-nav-root>
         <div class="wm-mobile-sheet__backdrop" data-mobile-sheet-close hidden></div>
@@ -309,6 +314,7 @@ function wm_render_mobile_nav() {
         wm_render_mobile_account_sheet();
         ?>
 
+        <?php if ( $show_bar ) : ?>
         <nav class="<?php echo esc_attr( $class ); ?>" aria-label="<?php echo esc_attr__( 'نوار پایین موبایل', 'eshobe-ecommerce' ); ?>">
             <div class="wm-mobile-nav__inner">
                 <?php foreach ( wm_mobile_nav_items() as $item ) : ?>
@@ -343,6 +349,7 @@ function wm_render_mobile_nav() {
                 <?php endforeach; ?>
             </div>
         </nav>
+        <?php endif; ?>
     </div>
     <?php
 }

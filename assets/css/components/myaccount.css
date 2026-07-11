@@ -73,7 +73,12 @@
 }
 
 .woocommerce-account .entry-title {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 .wm-account-page__container,
@@ -195,10 +200,11 @@
 }
 
 .woocommerce-MyAccount-navigation ul li.woocommerce-MyAccount-navigation-link--customer-logout a {
-  color: var(--wm-color-danger-text, #b42318);
+  color: var(--wm-color-muted, #6b7280);
 }
 
 .woocommerce-MyAccount-navigation ul li.woocommerce-MyAccount-navigation-link--customer-logout a:hover {
+  color: var(--wm-color-danger-text, #b42318);
   background: var(--wm-color-danger-bg, #fef3f2);
 }
 

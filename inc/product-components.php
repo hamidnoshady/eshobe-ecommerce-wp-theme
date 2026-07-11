@@ -293,6 +293,20 @@ function wm_get_mobile_stock_label( $product, $stock ) {
     return $stock['label'];
 }
 
+function wm_render_product_rating( $product ) {
+    $count = $product->get_review_count();
+
+    if ( $count > 0 ) {
+        return '<div class="wm-product-intro__rating">' . wc_get_rating_html( $product->get_average_rating(), $count ) . '<a class="wm-product-intro__rating-count" href="#wm-product-panel-reviews">(' . esc_html( number_format_i18n( $count ) ) . ')</a></div>';
+    }
+
+    return '<div class="wm-product-intro__rating wm-product-intro__rating--empty"><a href="#wm-product-panel-reviews">' . esc_html__( 'اولین نفر باشید که نظر می‌دهید', 'eshobe-ecommerce' ) . '</a></div>';
+}
+
+function wm_render_product_wishlist_button( $product_id ) {
+    return '<button type="button" class="wm-product-intro__wishlist" data-wm-wishlist-toggle data-product-id="' . esc_attr( $product_id ) . '" aria-pressed="false" aria-label="' . esc_attr__( 'افزودن به علاقه‌مندی‌ها', 'eshobe-ecommerce' ) . '"><span class="wm-product-intro__wishlist-icon" aria-hidden="true"></span></button>';
+}
+
 function wm_render_product_intro() {
     $product = wm_get_current_product();
     if ( ! $product ) {
@@ -307,7 +321,11 @@ function wm_render_product_intro() {
     ob_start();
     ?>
     <section class="wm-product-intro">
-        <h1 class="wm-product-intro__title"><?php echo esc_html( get_the_title( $product_id ) ); ?></h1>
+        <div class="wm-product-intro__heading">
+            <h1 class="wm-product-intro__title"><?php echo esc_html( get_the_title( $product_id ) ); ?></h1>
+            <?php echo wm_render_product_wishlist_button( $product_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+        </div>
+        <?php echo wm_render_product_rating( $product ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         <?php if ( ! empty( $brands ) || ! empty( $cats ) ) : ?>
             <div class="wm-product-intro__meta">
                 <?php if ( ! empty( $brands ) ) : ?>
@@ -428,6 +446,9 @@ function wm_render_product_purchase() {
         <?php if ( $product->get_price_html() ) : ?>
             <div class="wm-product-purchase__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
         <?php endif; ?>
+        <?php if ( $product->is_type( 'variable' ) ) : ?>
+            <p class="wm-product-purchase__price-note"><?php echo esc_html__( 'قیمت بسته به رنگ انتخابی متفاوت است', 'eshobe-ecommerce' ); ?></p>
+        <?php endif; ?>
         <?php echo wm_render_product_stock(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         <div class="wm-product-purchase__cart">
             <?php woocommerce_template_single_add_to_cart(); ?>
@@ -455,7 +476,6 @@ function wm_render_mobile_product_bottom_bar() {
     }
 
     $stock           = wm_get_product_stock_data( $product );
-    $meta_items      = wm_get_product_purchase_meta_items( $product );
     $starts_expanded = $product->is_type( 'variable' );
     $state_class     = $starts_expanded ? 'wm-mobile-bottom-bar--expanded' : 'wm-mobile-bottom-bar--collapsed';
 
@@ -482,23 +502,8 @@ function wm_render_mobile_product_bottom_bar() {
             </div>
         </div>
 
-        <div class="wm-mobile-bottom-bar__content" id="wm-mobile-bottom-bar-content" <?php echo $starts_expanded ? '' : 'hidden'; ?>>
-            <?php if ( ! empty( $meta_items ) ) : ?>
-                <div class="wm-mobile-bottom-bar__meta">
-                    <?php foreach ( $meta_items as $item ) : ?>
-                        <div class="wm-mobile-bottom-bar__meta-item">
-                            <span class="wm-mobile-bottom-bar__meta-label"><?php echo esc_html( $item['label'] ); ?></span>
-                            <span class="wm-mobile-bottom-bar__meta-value"><?php echo esc_html( $item['value'] ); ?></span>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-            <div class="wm-mobile-bottom-bar__trust">
-                <span><?php echo esc_html__( 'ضمانت اصالت کالا', 'eshobe-ecommerce' ); ?></span>
-                <span><?php echo esc_html__( 'ارسال سریع', 'eshobe-ecommerce' ); ?></span>
-                <span><?php echo esc_html__( 'پرداخت امن', 'eshobe-ecommerce' ); ?></span>
-            </div>
-        </div>
+        <?php /* SKU/guarantee + trust badges now live in .wm-product-purchase (visible on mobile); this div stays only so the handle's expand/collapse JS has a target. */ ?>
+        <div class="wm-mobile-bottom-bar__content" id="wm-mobile-bottom-bar-content" <?php echo $starts_expanded ? '' : 'hidden'; ?>></div>
     </section>
     <?php
     return ob_get_clean();

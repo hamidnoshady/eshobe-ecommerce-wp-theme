@@ -125,7 +125,13 @@
 }
 
 .wm-variation-swatch.is-unavailable {
-  opacity: 0.45;
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.wm-variation-swatch.is-unavailable .wm-variation-swatch__fill,
+.wm-variation-swatch.is-unavailable .wm-variation-swatch__label {
+  filter: grayscale(0.85);
 }
 
 .wm-variation-swatch.is-unavailable::after {
@@ -135,19 +141,146 @@
   border-radius: inherit;
   background: linear-gradient(
     to bottom left,
-    transparent calc(50% - 1px),
-    var(--wm-color-danger-text) calc(50% - 1px),
-    var(--wm-color-danger-text) calc(50% + 1px),
-    transparent calc(50% + 1px)
+    transparent calc(50% - 1.5px),
+    var(--wm-color-danger-text) calc(50% - 1.5px),
+    var(--wm-color-danger-text) calc(50% + 1.5px),
+    transparent calc(50% + 1.5px)
   );
   pointer-events: none;
+}
+
+.wm-variation-swatch:disabled {
+  cursor: not-allowed;
+}
+
+.reset_variations {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--wm-space-2);
+  padding: 4px var(--wm-space-3);
+  border: 1px solid var(--wm-color-border);
+  border-radius: var(--wm-radius-pill);
+  background: var(--wm-color-soft);
+  color: var(--wm-color-muted);
+  font-family: var(--wm-font-primary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+  text-decoration: none;
+  transition: var(--wm-transition);
+}
+
+.reset_variations:hover,
+.reset_variations:focus-visible {
+  border-color: var(--wm-color-danger-text);
+  color: var(--wm-color-danger-text);
+}
+
+/* Theme-rendered replacement for WooCommerce's default variation
+ * price/stock box: the page's own price element is updated live via JS
+ * (assets/js/product-variations.js) instead, and this box shows the
+ * per-variation stock status plus a +/- quantity stepper around the real
+ * (re-parented, not cloned) `input.qty`. Hidden until a variation matches.
+ */
+.wm-variation-stock-box[hidden] {
+  display: none;
+}
+
+.wm-variation-stock-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wm-space-3);
+  margin-bottom: var(--wm-space-3);
+  padding: var(--wm-space-2) var(--wm-space-3);
+  border: 1px solid var(--wm-color-border);
+  border-radius: var(--wm-radius-sm);
+  background: var(--wm-color-soft);
+}
+
+.wm-variation-stock-box__status {
+  min-width: 0;
+  font-family: var(--wm-font-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wm-variation-stock-box__status .stock {
+  margin: 0;
+  padding: 0;
+  background: none;
+  color: var(--wm-color-success-text);
+}
+
+.wm-variation-stock-box.is-out-of-stock .wm-variation-stock-box__status .stock,
+.wm-variation-stock-box__status .out-of-stock {
+  color: var(--wm-color-danger-text);
+}
+
+.wm-variation-stock-box__qty {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border: 1px solid var(--wm-color-border);
+  border-radius: var(--wm-radius-pill);
+  background: var(--wm-color-surface);
+  overflow: hidden;
+}
+
+.wm-variation-stock-box__qty-label {
+  padding-inline-start: var(--wm-space-2);
+  color: var(--wm-color-muted);
+  font-family: var(--wm-font-primary);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.wm-variation-stock-box__btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--wm-color-primary);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: var(--wm-transition);
+}
+
+.wm-variation-stock-box__btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.wm-variation-stock-box__qty .quantity {
+  margin: 0;
+}
+
+.wm-variation-stock-box__qty input.qty {
+  width: 40px;
+  height: 36px;
+  margin: 0;
+  border: 0;
+  border-right: 1px solid var(--wm-color-border);
+  border-left: 1px solid var(--wm-color-border);
+  background: transparent;
+  text-align: center;
+  font-family: var(--wm-font-primary);
+  font-size: 14px;
+  font-weight: 700;
 }
 
 @media (max-width: 767px) {
   .wm-variation-swatch--color,
   .wm-variation-swatch--image {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
   }
 
   .wm-variation-swatches {
@@ -159,5 +292,40 @@
 
   .wm-variation-swatch {
     flex-shrink: 0;
+  }
+
+  .wm-variation-attribute {
+    margin-bottom: var(--wm-space-2);
+  }
+
+  .wm-variation-attribute__selected {
+    margin-bottom: var(--wm-space-1);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .wm-variation-stock-box {
+    margin-bottom: var(--wm-space-2);
+    padding: 6px var(--wm-space-2);
+  }
+
+  .wm-variation-stock-box__status {
+    font-size: 12px;
+  }
+
+  .wm-variation-stock-box__btn {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .wm-variation-stock-box__qty input.qty {
+    width: 32px;
+    height: 44px;
+    font-size: 13px;
+  }
+
+  .wm-variation-stock-box__qty-label {
+    font-size: 12px;
   }
 }

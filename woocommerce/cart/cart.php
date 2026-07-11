@@ -17,6 +17,21 @@ do_action( 'woocommerce_before_cart' );
 			<div>
 				<h1 class="wm-cart-page__title"><?php echo esc_html__( 'سبد خرید', 'eshobe-ecommerce' ); ?></h1>
 			</div>
+
+			<ol class="wm-checkout-steps" aria-label="<?php echo esc_attr__( 'مراحل خرید', 'eshobe-ecommerce' ); ?>">
+				<li class="wm-checkout-steps__step is-active">
+					<span class="wm-checkout-steps__circle">۱</span>
+					<span class="wm-checkout-steps__label"><?php echo esc_html__( 'سبد خرید', 'eshobe-ecommerce' ); ?></span>
+				</li>
+				<li class="wm-checkout-steps__step">
+					<span class="wm-checkout-steps__circle">۲</span>
+					<span class="wm-checkout-steps__label"><?php echo esc_html__( 'اطلاعات ارسال', 'eshobe-ecommerce' ); ?></span>
+				</li>
+				<li class="wm-checkout-steps__step">
+					<span class="wm-checkout-steps__circle">۳</span>
+					<span class="wm-checkout-steps__label"><?php echo esc_html__( 'پرداخت', 'eshobe-ecommerce' ); ?></span>
+				</li>
+			</ol>
 		</header>
 
 		<div class="wm-cart-layout">
@@ -166,8 +181,9 @@ do_action( 'woocommerce_before_cart' );
 						<label for="coupon_code"><?php echo esc_html__( 'کد تخفیف', 'eshobe-ecommerce' ); ?></label>
 						<div class="wm-cart-coupon__row">
 							<input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php echo esc_attr__( 'کد تخفیف را وارد کنید', 'eshobe-ecommerce' ); ?>">
-							<button type="submit" class="button wm-cart-coupon__button" name="apply_coupon" value="<?php echo esc_attr__( 'اعمال کد', 'eshobe-ecommerce' ); ?>"><?php echo esc_html__( 'اعمال', 'eshobe-ecommerce' ); ?></button>
+							<button type="submit" class="button wm-cart-coupon__button" name="apply_coupon" value="<?php echo esc_attr__( 'اعمال کد', 'eshobe-ecommerce' ); ?>" data-wm-coupon-submit><?php echo esc_html__( 'اعمال', 'eshobe-ecommerce' ); ?></button>
 						</div>
+						<p class="wm-cart-coupon__feedback" data-wm-coupon-feedback hidden></p>
 					</section>
 				<?php endif; ?>
 
