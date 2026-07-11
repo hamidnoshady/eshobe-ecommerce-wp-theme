@@ -2,32 +2,32 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Hooks into WordPress's native theme update flow to serve releases from GitHub.
+ * Hooks into WordPress's native theme update flow to serve releases from a
+ * public "dist" repo (github.com/hamidnoshady/eshobe-ecommerce-wp-theme-dist).
  *
- * Public repo  — no extra config needed.
- * Private repo — define WM_GITHUB_TOKEN in wp-config.php with a read-only PAT.
+ * The source theme repo stays private. GitHub Actions builds the zip there
+ * (using a fine-grained PAT stored as a repo secret) and pushes it — plus a
+ * small update.json manifest — to the public dist repo. WordPress only ever
+ * reads those two static public files, so no GitHub credentials belong here.
+ *
+ * Channel is picked on Appearance → Theme Updates (stable or beta).
  */
 class WM_Theme_Updater {
 
 	private string $theme_slug;
-	private string $github_user = 'hamidnoshady';
-	private string $github_repo = 'eshobe-ecommerce-wp-theme';
-	private string $token;
 	private string $version;
+	private string $manifest_base = 'https://raw.githubusercontent.com/hamidnoshady/eshobe-ecommerce-wp-theme-dist/main';
 
 	public function __construct() {
-		// Derive the slug from the installed folder name so this still works
-		// if the theme directory on disk doesn't match the GitHub repo name.
 		$this->theme_slug = get_stylesheet();
-		$this->token      = defined( 'WM_GITHUB_TOKEN' ) ? WM_GITHUB_TOKEN : '';
 		$this->version    = wp_get_theme( $this->theme_slug )->get( 'Version' );
 
 		add_filter( 'pre_set_site_transient_update_themes', [ $this, 'check_for_update' ] );
 		add_filter( 'themes_api', [ $this, 'theme_popup' ], 10, 3 );
+	}
 
-		if ( $this->token ) {
-			add_filter( 'upgrader_pre_download', [ $this, 'auth_download' ], 10, 3 );
-		}
+	private function channel(): string {
+		return 'beta' === get_option( 'wm_theme_update_channel', 'stable' ) ? 'beta' : 'stable';
 	}
 
 	/**
@@ -43,7 +43,7 @@ class WM_Theme_Updater {
 			$transient->response[ $this->theme_slug ] = [
 				'theme'       => $this->theme_slug,
 				'new_version' => $release['version'],
-				'url'         => $release['html_url'],
+				'url'         => $release['url'],
 				'package'     => $release['zip_url'],
 			];
 		} else {
@@ -51,7 +51,7 @@ class WM_Theme_Updater {
 			$transient->no_update[ $this->theme_slug ] = [
 				'theme'       => $this->theme_slug,
 				'new_version' => $this->version,
-				'url'         => $release['html_url'],
+				'url'         => $release['url'],
 				'package'     => $release['zip_url'],
 			];
 		}
@@ -75,80 +75,40 @@ class WM_Theme_Updater {
 			'slug'          => $this->theme_slug,
 			'version'       => $release['version'],
 			'last_updated'  => $release['published_at'],
-			'sections'      => [ 'changelog' => nl2br( esc_html( $release['body'] ) ) ],
+			'sections'      => [ 'changelog' => nl2br( esc_html( $release['changelog'] ) ) ],
 			'download_link' => $release['zip_url'],
 		];
 	}
 
 	/**
-	 * For private repos: inject Authorization + Accept headers before WP downloads the asset.
-	 */
-	public function auth_download( $reply, $package, $upgrader ) {
-		if ( strpos( $package, 'api.github.com' ) === false ) return $reply;
-
-		$token = $this->token;
-		add_filter( 'http_request_args', function ( $args, $url ) use ( $package, $token ) {
-			if ( strpos( $url, 'api.github.com' ) !== false ) {
-				$args['headers']['Authorization'] = 'token ' . $token;
-				$args['headers']['Accept']        = 'application/octet-stream';
-			}
-			return $args;
-		}, 10, 2 );
-
-		return $reply;
-	}
-
-	/**
-	 * Fetch the latest GitHub release, cached for 6 hours.
+	 * Fetch the active channel's update.json, cached (beta refreshes hourly
+	 * since PR builds land more often than stable releases).
 	 *
 	 * @return array|false
 	 */
 	private function get_release() {
-		$cache_key = 'wm_theme_update';
+		$channel   = $this->channel();
+		$cache_key = 'wm_theme_update_' . $channel;
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) return $cached;
 
-		$args = [
-			'timeout' => 10,
-			'headers' => [ 'User-Agent' => 'WordPress/' . get_bloginfo( 'version' ) ],
-		];
-		if ( $this->token ) {
-			$args['headers']['Authorization'] = 'token ' . $this->token;
-		}
-
-		$api_url  = "https://api.github.com/repos/{$this->github_user}/{$this->github_repo}/releases/latest";
-		$response = wp_remote_get( $api_url, $args );
-
+		$response = wp_remote_get( "{$this->manifest_base}/{$channel}/update.json", [ 'timeout' => 10 ] );
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return false;
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( empty( $data['tag_name'] ) ) return false;
-
-		$zip_url = null;
-		foreach ( $data['assets'] ?? [] as $asset ) {
-			if ( str_ends_with( $asset['name'], '.zip' ) ) {
-				// Private repo: use the API asset endpoint (auth header injected above).
-				// Public repo:  browser_download_url works directly.
-				$zip_url = $this->token
-					? "https://api.github.com/repos/{$this->github_user}/{$this->github_repo}/releases/assets/{$asset['id']}"
-					: $asset['browser_download_url'];
-				break;
-			}
-		}
-
-		if ( ! $zip_url ) return false;
+		if ( empty( $data['version'] ) || empty( $data['download_url'] ) ) return false;
 
 		$release = [
-			'version'      => ltrim( $data['tag_name'], 'v' ),
-			'html_url'     => $data['html_url'],
-			'published_at' => $data['published_at'],
-			'body'         => $data['body'] ?? '',
-			'zip_url'      => $zip_url,
+			'version'      => $data['version'],
+			'url'          => 'https://github.com/hamidnoshady/eshobe-ecommerce-wp-theme',
+			'published_at' => $data['published_at'] ?? '',
+			'changelog'    => $data['changelog'] ?? '',
+			'zip_url'      => $data['download_url'],
 		];
 
-		set_transient( $cache_key, $release, 6 * HOUR_IN_SECONDS );
+		set_transient( $cache_key, $release, ( 'beta' === $channel ? 1 : 6 ) * HOUR_IN_SECONDS );
 		return $release;
 	}
 }

@@ -64,15 +64,18 @@ WordPress Studio manages the site itself (PHP WASM, SQLite, local dev server). T
 
 ## GitHub & Production Deploy
 
-- Repo: `github.com/hamidnoshady/eshobe-ecommerce-wp-theme` (private).
-- `.github/workflows/release.yml` auto-creates a distributable ZIP and GitHub Release when a version tag is pushed.
-- `inc/theme-updater.php` hooks into WordPress's native update system and checks GitHub releases API every 6 hours.
-- **Deploy workflow** (run after every pushed commit):
+- Source repo: `github.com/hamidnoshady/eshobe-ecommerce-wp-theme` (private).
+- Dist repo: `github.com/hamidnoshady/eshobe-ecommerce-wp-theme-dist` (public, build artifacts only — never source code). WordPress reads only from here, unauthenticated.
+- `.github/workflows/release.yml` — on `git tag vX.Y.Z` push: builds the zip, creates a GitHub Release in the source repo, and publishes `stable/update.json` + `stable/eshobe-ecommerce-wp-theme.zip` to the dist repo.
+- `.github/workflows/beta-release.yml` — on every push to an open PR against `main`: builds the zip from the PR head and publishes `beta/update.json` + `beta/eshobe-ecommerce-wp-theme.zip` to the dist repo. Version is suffixed `-beta.<pr-number>.<run-number>`.
+- Both workflows push to the dist repo using the `DIST_REPO_TOKEN` repo secret (a fine-grained PAT, scoped to the dist repo only, Contents: read & write). This secret lives in GitHub Actions only — **wp-config.php has zero GitHub credentials.**
+- `inc/theme-updater.php` hooks into WordPress's native update system and reads `https://raw.githubusercontent.com/hamidnoshady/eshobe-ecommerce-wp-theme-dist/main/<channel>/update.json` (stable, cached 6h; beta, cached 1h). No auth, no rate-limit concerns (static file, not GitHub API).
+- `inc/theme-update-settings.php` adds **Appearance → Theme Updates** in wp-admin, letting an admin pick the `stable` or `beta` channel (stored in `wm_theme_update_channel` option).
+- **Deploy workflow (stable)** — after every pushed commit to `main`:
   ```
-  git tag v0.4.53   # use the exact version from style.css
-  git push origin v0.4.53
+  git tag v0.5.1   # use the exact version from style.css
+  git push origin v0.5.1
   ```
-  GitHub Action runs → WP admin shows the update badge → click "Update now" or let auto-update handle it.
-- **Private repo requirement**: production `wp-config.php` must have `define('WM_GITHUB_TOKEN', 'ghp_...')` — a **classic** GitHub PAT with `repo` (read-only) scope — so WordPress can authenticate to download the release ZIP. Fine-grained PATs (`github_pat_…`) require explicit repository access grants; prefer classic PATs for simplicity.
-- **Studio dev environment**: `wp-config.php` already has `WM_GITHUB_TOKEN` set. If it stops working (404 from GitHub API), regenerate a classic PAT at GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) and update the define in `wp-config.php`.
-- To force WP to check for updates immediately: `studio wp eval "delete_transient('wm_theme_update');"` then Dashboard → Updates → "Check Again".
+  GitHub Action runs → dist repo updated → WP admin shows the update badge → click "Update now" or let auto-update handle it.
+- **Beta channel** — just open/update a PR against `main`; the workflow runs automatically on every push to that PR. No tagging needed.
+- To force WP to check for updates immediately: `studio wp eval "delete_transient('wm_theme_update_stable'); delete_transient('wm_theme_update_beta');"` then Dashboard → Updates → "Check Again".
