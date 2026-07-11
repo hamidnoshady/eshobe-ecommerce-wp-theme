@@ -200,6 +200,17 @@ function wm_technical_maintenance_mode() {
 add_action( 'template_redirect', 'wm_technical_maintenance_mode' );
 
 /**
+ * Theme update channel: 'stable' (main releases) or 'beta' (latest open-PR build).
+ * Set on Technical Settings → "به‌روزرسانی قالب".
+ *
+ * @return string
+ */
+function wm_technical_theme_update_channel() {
+	$channel = wm_technical_get_option( 'wm_technical_theme_update_channel', 'stable' );
+	return 'beta' === $channel ? 'beta' : 'stable';
+}
+
+/**
  * Whether OTP-based login/registration via Kavenegar is enabled.
  *
  * @return bool
