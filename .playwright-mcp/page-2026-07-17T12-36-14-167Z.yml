@@ -1,0 +1,65 @@
+- generic [active] [ref=f11e1]:
+  - generic [ref=f11e2]:
+    - link "Skip to content" [ref=f11e3] [cursor=pointer]:
+      - /url: "#primary"
+    - banner [ref=f11e4]:
+      - generic [ref=f11e6]:
+        - generic [ref=f11e7]: ضمانت اصالت کالا
+        - generic [ref=f11e8]: ارسال سریع
+        - generic [ref=f11e9]: پرداخت امن
+        - generic [ref=f11e10]: پشتیبانی قبل از خرید
+      - generic [ref=f11e11]:
+        - link "Eshobe Ecommerce theme" [ref=f11e12] [cursor=pointer]:
+          - /url: http://localhost:8881/
+        - navigation [ref=f11e14]:
+          - list [ref=f11e15]:
+            - listitem [ref=f11e16]:
+              - link "Test Category" [ref=f11e17] [cursor=pointer]:
+                - /url: https://example.test/category
+            - listitem [ref=f11e18]:
+              - link "About" [ref=f11e19] [cursor=pointer]:
+                - /url: https://example.test/about
+        - generic [ref=f11e20]:
+          - button "جستجو" [ref=f11e22] [cursor=pointer]
+          - link "حساب کاربری" [ref=f11e29] [cursor=pointer]:
+            - /url: http://localhost:8881/my-account/
+            - generic [ref=f11e34]: حساب
+          - link "سبد خرید" [ref=f11e35] [cursor=pointer]:
+            - /url: http://localhost:8881/cart/
+            - generic [ref=f11e42]: "0"
+      - generic "Mega Menu"
+    - main [ref=f11e43]:
+      - article [ref=f11e44]:
+        - generic [ref=f11e47]:
+          - generic [ref=f11e48]:
+            - paragraph [ref=f11e50]:
+              - generic [ref=f11e51]: سبد خرید
+            - heading "سبد خرید شما خالی است" [level=1] [ref=f11e52]
+            - paragraph [ref=f11e53]: برای انتخاب محصول بعدی، به فروشگاه برگردید و محصولات را مرور کنید.
+            - paragraph [ref=f11e54]:
+              - link "مشاهده محصولات" [ref=f11e55] [cursor=pointer]:
+                - /url: http://localhost:8881/shop/
+          - paragraph
+    - contentinfo [ref=f11e56]:
+      - generic [ref=f11e57]:
+        - generic [ref=f11e59]:
+          - heading "Eshobe Ecommerce theme" [level=2] [ref=f11e60]
+          - paragraph [ref=f11e61]: انتخابی مطمئن برای خرید آنلاین با ضمانت اصالت کالا و ارسال سریع.
+          - list [ref=f11e62]:
+            - listitem [ref=f11e63]:
+              - link "درباره ما" [ref=f11e64] [cursor=pointer]:
+                - /url: http://localhost:8881/about-us/
+            - listitem [ref=f11e65]:
+              - link "تماس با ما" [ref=f11e66] [cursor=pointer]:
+                - /url: http://localhost:8881/contact-us/
+            - listitem [ref=f11e67]:
+              - link "راهنمای خرید" [ref=f11e68] [cursor=pointer]:
+                - /url: http://localhost:8881/buying-guide/
+            - listitem [ref=f11e69]:
+              - link "پیگیری سفارش" [ref=f11e70] [cursor=pointer]:
+                - /url: http://localhost:8881/order-tracking/
+          - generic [ref=f11e71]:
+            - generic [ref=f11e72]: ✓
+            - text: ضمانت بازگشت کالا تا ۷ روز پس از تحویل سفارش
+        - generic [ref=f11e73]: © 2026 Eshobe Ecommerce theme. کلیه حقوق محفوظ است.
+  - status [ref=f11e77]

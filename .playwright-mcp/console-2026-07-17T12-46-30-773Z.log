@@ -1,0 +1,40 @@
+[    2648ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost:8881/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[    3133ms] TypeError: Cannot read properties of undefined (reading 'symbol')
+    at http://localhost:8881/wp-content/plugins/woocommerce/assets/client/blocks/woocommerce/product-filter-price.js?ver=f55bbbbfdd3060dde468:1:406
+[    3140ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:8881/shop/:0
+[    3140ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:8881/shop/:0
+[    5270ms] [LOG] PRODUCT HTML: @ :9
+[    5270ms] [LOG] <li class="wc-block-product post-28 product type-product status-publish product_brand-mido product_cat-15 first instock shipping-taxable purchasable product-type-variable" data-wp-interactive="woocommerce/product-collection" data-wp-context="woocommerce/products::{&quot;productId&quot;:28,&quot;variationId&quot;:null}" data-wp-key="product-item-28">
+					
+				
+<div class="wp-block-group eshobe-product-card is-layout-constrained wp-block-group-is-layout-constrained">
+	
+	<div data-block-name="woocommerce/product-image" data-image-sizing="thumbnail" class="wc-block-components-product-image wc-block-grid__product-image wc-block-components-product-image--aspect-ratio-auto wp-block-woocommerce-product-image"><a href="http://localhost:8881/product/swatch-test-variable-product/" style="" data-wp-on--click="woocommerce/product-collection::actions.viewProduct"><img width="300" height="300" src="http://localhost:8881/wp-content/uploads/woocommerce-placeholder-300x300.webp" class="woocommerce-placeholder wp-post-image" alt="مكان گيرنده" style="object-fit:cover;" decoding="async" loading="lazy" srcset="http://localhost:8881/wp-content/uploads/woocommerce-placeholder-300x300.webp 300w, http://localhost:8881/wp-content/uploads/woocommerce-placeholder-100x100.webp 100w, http://localhost:8881/wp-content/uploads/woocommerce-placeholder-600x600.webp 600w, http://localhost:8881/wp-content/uploads/woocommerce-placeholder-1024x1024.webp 1024w, http://localhost:8881/wp-content/uploads/woocommerce-placeholder-150x150.webp 150w, http://localhost:8881/wp-content/uploads/woocommerce-placeholder-768x768.webp 768w, http://localhost:8881/wp-content/uploads/woocommerce-placeholder.webp 1200w" sizes="auto, (max-width: 300px) 100vw, 300px"><div class="wc-block-components-product-image__inner-container"></div></a></div>
+	<h3 class="wp-block-post-title"><a href="http://localhost:8881/product/swatch-test-variable-product/" target="_self">Swatch Test Variable Product</a></h3>
+	<div data-block-name="woocommerce/product-price" class="wp-block-woocommerce-product-price"><div class="wc-block-components-product-price wc-block-grid__product-price">
+					<span class="woocommerce-Price-amount amount"><bdi>100.00&nbsp;<span class="woocommerce-Price-currencySymbol">تومان</span></bdi></span>
+				</div></div>
+	<div data-block-name="woocommerce/product-button" class="wp-block-button wc-block-components-product-button align- wp-block-woocommerce-product-button" data-wp-context="{&quot;quantityToAdd&quot;:1,&quot;addToCartText&quot;:&quot;\u0627\u0646\u062a\u062e\u0627\u0628 \u06af\u0632\u06cc\u0646\u0647\u200c\u0647\u0627&quot;,&quot;tempQuantity&quot;:0,&quot;animationStatus&quot;:&quot;IDLE&quot;,&quot;inTheCartText&quot;:&quot;### \u062f\u0631 \u0633\u0628\u062f \u062e\u0631\u06cc\u062f&quot;,&quot;noticeId&quot;:&quot;&quot;,&quot;hasPressedButton&quot;:false}">
+					<a class="wp-block-button__link wp-element-button wc-block-components-product-button__button add_to_cart_button product_type_variable wc-interactive" style="" href="http://localhost:8881/product/swatch-test-variable-product/" rel="nofollow" data-product_id="28" data-product_sku="" aria-label="انتخاب گزینه‌ها برای “Swatch Test Variable Product”" data-wp-on--click="woocommerce/product-collection::actions.viewProduct">
+					<span>انتخاب گزینه‌ها</span>
+					</a>
+					
+				</div>
+<div class="variations_form cart in_loop initialized" data-product_id="28" data-active_variation="" data-product_variations="[{&quot;attributes&quot;:{&quot;attribute_pa_color&quot;:&quot;red&quot;,&quot;attribute_pa_size&quot;:&quot;small&quot;},&quot;availability_html&quot;:&quot;&quot;,&quot;backorders_allowed&quot;:false,&quot;display_price&quot;:100,&quot;display_regular_price&quot;:100,&quot;image&quot;:{&quot;title&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;url&quot;:&quot;&quot;,&quot;alt&quot;:&quot;&quot;,&quot;src&quot;:&quot;&quot;,&quot;srcset&quot;:false,&quot;sizes&quot;:false},&quot;image_id&quot;:0,&quot;is_in_stock&quot;:true,&quot;is_purchasable&quot;:true,&quot;price_html&quot;:&quot;&quot;,&quot;sku&quot;:&quot;&quot;,&quot;variation_id&quot;:29,&quot;variation_is_active&quot;:true,&quot;variation_is_visible&quot;:true},{&quot;attributes&quot;:{&quot;attribute_pa_color&quot;:&quot;blue&quot;,&quot;attribute_pa_size&quot;:&quot;small&quot;},&quot;availability_html&quot;:&quot;&quot;,&quot;backorders_allowed&quot;:false,&quot;display_price&quot;:100,&quot;display_regular_price&quot;:100,&quot;image&quot;:{&quot;title&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;url&quot;:&quot;&quot;,&quot;alt&quot;:&quot;&quot;,&quot;src&quot;:&quot;&quot;,&quot;srcset&quot;:false,&quot;sizes&quot;:false},&quot;image_id&quot;:0,&quot;is_in_stock&quot;:true,&quot;is_purchasable&quot;:true,&quot;price_html&quot;:&quot;&quot;,&quot;sku&quot;:&quot;&quot;,&quot;variation_id&quot;:30,&quot;variation_is_active&quot;:true,&quot;variation_is_visible&quot;:true}]" data-number-variation-attributes="2" style="display: block;" current-image="">
+			<div class="variations pa_color yith_wccl_layout_inline yith_wccl_is_custom">
+						<select id="pa_color" name="attribute_pa_color" data-attribute_name="attribute_pa_color" data-type="colorpicker" class="yith_wccl_custom" style="display: none;">
+								<option value="">Choose an option</option>
+				<option value="blue" data-value="#0000ff" data-tooltip="" data-tooltip_image="" data-type="colorpicker" class="attached enabled">Blue</option><option value="red" data-value="#ff0000" data-tooltip="" data-tooltip_image="" data-type="colorpicker" class="attached enabled">Red</option>			</select><div class="select_box_colorpicker select_box attribute_pa_color"><div class="select_option_colorpicker select_option" data-value="blue" data-label="Blue" data-tooltip_image="" data-attr_name="attribute_pa_color"><div class="yith_wccl_value_wrapper"><span class="yith_wccl_value" style="background: rgb(0, 0, 255);"></span></div></div><div class="select_option_colorpicker select_option" data-value="red" data-label="Red" data-tooltip_image="" data-attr_name="attribute_pa_color"><div class="yith_wccl_value_wrapper"><span class="yith_wccl_value" style="background: rgb(255, 0, 0);"></span></div></div></div>
+		</div>
+			<div class="variations pa_size yith_wccl_layout_inline">
+						<select id="pa_size" name="attribute_pa_size" data-attribute_name="attribute_pa_size">
+								<option value="">Choose an option</option>
+				<option value="small" data-value="" data-tooltip="" data-tooltip_image="" class="attached enabled">Small</option>			</select>
+		</div>
+	</div>
+
+</div>
+
+
+				
+				</li> @ :10

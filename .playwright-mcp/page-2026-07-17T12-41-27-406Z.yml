@@ -1,0 +1,128 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - link "Skip to content" [ref=f5e3] [cursor=pointer]:
+      - /url: "#primary"
+    - banner [ref=f5e4]:
+      - generic [ref=f5e5]:
+        - link "Eshobe Ecommerce theme" [ref=f5e6] [cursor=pointer]:
+          - /url: http://localhost:8881/
+        - button [ref=f5e10] [cursor=pointer]
+    - main [ref=f5e15]:
+      - generic [ref=f5e16]:
+        - generic [ref=f5e17]:
+          - navigation "مسیر صفحه" [ref=f5e18]:
+            - list [ref=f5e19]:
+              - listitem [ref=f5e20]:
+                - link "خانه" [ref=f5e25] [cursor=pointer]:
+                  - /url: http://localhost:8881
+              - listitem [ref=f5e26]: ‹
+              - listitem [ref=f5e27]:
+                - generic [ref=f5e28]: دسته-بندی-نشده
+          - region "Product gallery" [ref=f5e29]:
+            - img "مكان گيرنده" [ref=f5e32]
+        - generic [ref=f5e33]:
+          - generic [ref=f5e34]:
+            - generic [ref=f5e35]:
+              - heading "Swatch Test Variable Product" [level=1] [ref=f5e36]
+              - button "افزودن به علاقه‌مندی‌ها" [ref=f5e37] [cursor=pointer]
+            - link "اولین نفر باشید که نظر می‌دهید" [ref=f5e40] [cursor=pointer]:
+              - /url: "#wm-product-panel-reviews"
+            - generic [ref=f5e41]:
+              - link "برند Mido" [ref=f5e42] [cursor=pointer]:
+                - /url: http://localhost:8881/برند/mido/
+                - generic [ref=f5e43]: برند
+                - generic [ref=f5e44]: Mido
+              - link "دسته‌بندی دسته-بندی-نشده" [ref=f5e45] [cursor=pointer]:
+                - /url: http://localhost:8881/product-category/%d8%af%d8%b3%d8%aa%d9%87-%d8%a8%d9%86%d8%af%db%8c-%d9%86%d8%b4%d8%af%d9%87/
+                - generic [ref=f5e46]: دسته‌بندی
+                - generic [ref=f5e47]: دسته-بندی-نشده
+          - generic [ref=f5e49]:
+            - generic [ref=f5e50]: •ضمانت اصالت کالا
+            - generic [ref=f5e51]: •ارسال سریع
+            - generic [ref=f5e52]: •پرداخت امن
+      - tabpanel [ref=f5e56]:
+        - generic [ref=f5e57]:
+          - generic [ref=f5e58]:
+            - heading "نقد و بررسی‌ها" [level=2] [ref=f5e59]
+            - paragraph [ref=f5e60]: هنوز بررسی‌ای ثبت نشده است.
+          - generic [ref=f5e63]:
+            - heading "اولین کسی باشید که دیدگاهی می نویسد “Swatch Test Variable Product”" [level=3] [ref=f5e64]
+            - generic [ref=f5e65]:
+              - paragraph [ref=f5e66]:
+                - text: نشانی ایمیل شما منتشر نخواهد شد.
+                - generic [ref=f5e67]: بخش‌های موردنیاز علامت‌گذاری شده‌اند *
+              - generic [ref=f5e68]:
+                - generic [ref=f5e69]: امتیاز شما *
+                - paragraph [ref=f5e70]:
+                  - group "امتیاز شما *" [ref=f5e71]:
+                    - radio "۱ از ۵ ستاره" [ref=f5e72] [cursor=pointer]
+                    - radio "۲ از ۵ ستاره" [ref=f5e73] [cursor=pointer]
+                    - radio "۳ از ۵ ستاره" [ref=f5e74] [cursor=pointer]
+                    - radio "۴ از ۵ ستاره" [ref=f5e75] [cursor=pointer]
+                    - radio "۵ از ۵ ستاره" [ref=f5e76] [cursor=pointer]
+              - paragraph [ref=f5e77]:
+                - generic [ref=f5e78]: دیدگاه شما *
+                - textbox "دیدگاه شما *" [ref=f5e79]
+              - paragraph [ref=f5e80]:
+                - generic [ref=f5e81]: نام *
+                - textbox "نام *" [ref=f5e82]
+              - paragraph [ref=f5e83]:
+                - generic [ref=f5e84]: ایمیل *
+                - textbox "ایمیل *" [ref=f5e85]
+              - paragraph [ref=f5e86]:
+                - checkbox "ذخیره نام، ایمیل و وبسایت من در مرورگر برای زمانی که دوباره دیدگاهی می‌نویسم." [ref=f5e87]
+                - text: ذخیره نام، ایمیل و وبسایت من در مرورگر برای زمانی که دوباره دیدگاهی می‌نویسم.
+              - paragraph [ref=f5e88]:
+                - button "ثبت" [ref=f5e89]
+      - region "Mobile purchase bar" [ref=f5e90]:
+        - button [expanded] [ref=f5e91]
+        - generic [ref=f5e93]:
+          - generic [ref=f5e94]: 100.00 تومان
+          - generic [ref=f5e96]: در انبار
+          - generic [ref=f5e98]:
+            - text: رنگ
+            - listbox "رنگ" [ref=f5e100]:
+              - option "Red" [ref=f5e101] [cursor=pointer]
+              - option "Blue" [ref=f5e103] [cursor=pointer]
+            - text: سایز
+            - combobox [ref=f5e105]:
+              - option "یک گزینه را انتخاب کنید" [selected]
+              - option "Small"
+            - alert [ref=f5e106]
+            - generic [ref=f5e107]:
+              - alert
+              - button "افزودن به سبد خرید" [ref=f5e109]
+    - contentinfo [ref=f5e111]:
+      - generic [ref=f5e112]:
+        - generic [ref=f5e114]:
+          - heading "Eshobe Ecommerce theme" [level=2] [ref=f5e115]
+          - paragraph [ref=f5e116]: انتخابی مطمئن برای خرید آنلاین با ضمانت اصالت کالا و ارسال سریع.
+          - list [ref=f5e117]:
+            - listitem [ref=f5e118]:
+              - link "درباره ما" [ref=f5e119] [cursor=pointer]:
+                - /url: http://localhost:8881/about-us/
+            - listitem [ref=f5e120]:
+              - link "تماس با ما" [ref=f5e121] [cursor=pointer]:
+                - /url: http://localhost:8881/contact-us/
+            - listitem [ref=f5e122]:
+              - link "راهنمای خرید" [ref=f5e123] [cursor=pointer]:
+                - /url: http://localhost:8881/buying-guide/
+            - listitem [ref=f5e124]:
+              - link "پیگیری سفارش" [ref=f5e125] [cursor=pointer]:
+                - /url: http://localhost:8881/order-tracking/
+          - generic [ref=f5e126]:
+            - generic [ref=f5e127]: ✓
+            - text: ضمانت بازگشت کالا تا ۷ روز پس از تحویل سفارش
+        - generic [ref=f5e128]: © 2026 Eshobe Ecommerce theme. کلیه حقوق محفوظ است.
+  - generic:
+    - navigation "نوار پایین موبایل":
+      - generic [ref=f5e130]:
+        - link "خانه" [ref=f5e131] [cursor=pointer]:
+          - /url: http://localhost:8881/
+        - button "فروشگاه" [ref=f5e136]
+        - button "0 سبد خرید" [ref=f5e142]:
+          - generic [ref=f5e149]: "0"
+          - generic [ref=f5e150]: سبد خرید
+        - link "ورود" [ref=f5e151] [cursor=pointer]:
+          - /url: http://localhost:8881/my-account/
+  - status [ref=f5e157]

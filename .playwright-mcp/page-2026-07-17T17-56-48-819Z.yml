@@ -1,0 +1,152 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - link "Skip to content" [ref=e3] [cursor=pointer]:
+      - /url: "#primary"
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: ضمانت اصالت کالا
+        - generic [ref=e8]: ارسال سریع
+        - generic [ref=e9]: پرداخت امن
+        - generic [ref=e10]: پشتیبانی قبل از خرید
+      - generic [ref=e11]:
+        - link "Eshobe Ecommerce theme" [ref=e12] [cursor=pointer]:
+          - /url: http://localhost:8881/
+        - navigation [ref=e14]:
+          - list [ref=e15]:
+            - listitem [ref=e16]:
+              - link "Test Category" [ref=e17] [cursor=pointer]:
+                - /url: https://example.test/category
+            - listitem [ref=e18]:
+              - link "About" [ref=e19] [cursor=pointer]:
+                - /url: https://example.test/about
+        - generic [ref=e20]:
+          - button "جستجو" [ref=e22] [cursor=pointer]
+          - link "حساب کاربری" [ref=e29] [cursor=pointer]:
+            - /url: http://localhost:8881/my-account/
+            - generic [ref=e34]: حساب
+          - link "سبد خرید" [ref=e35] [cursor=pointer]:
+            - /url: http://localhost:8881/cart/
+            - generic [ref=e42]: "0"
+      - generic "Mega Menu"
+    - main [ref=e43]:
+      - generic [ref=e44]:
+        - article [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]: Test
+            - 'heading "Test: Slide One" [level=1] [ref=e49]'
+            - paragraph [ref=e50]: First test slide
+            - link "مشاهده" [ref=e52] [cursor=pointer]:
+              - /url: http://localhost:8881/
+        - generic:
+          - button "Previous slide" [ref=e55] [cursor=pointer]: ‹
+          - generic:
+            - button "Show slide 1" [ref=e56]
+            - button "Show slide 2" [ref=e57]
+          - button "Next slide" [ref=e58] [cursor=pointer]: ›
+      - generic [ref=e59]:
+        - generic [ref=e61]:
+          - heading "برندهای محبوب" [level=2] [ref=e62]
+          - paragraph [ref=e63]: انتخاب سریع بر اساس برندهای پربازدید فروشگاه
+        - link "Mido 1 محصول" [ref=e65] [cursor=pointer]:
+          - /url: http://localhost:8881/برند/mido/
+          - generic [ref=e67]:
+            - strong [ref=e68]: Mido
+            - generic [ref=e69]: 1 محصول
+      - generic [ref=e70]:
+        - heading "مسیر خرید سریع" [level=2] [ref=e73]
+        - generic [ref=e74]:
+          - link "تا ۵ میلیون شروع اقتصادی و کاربردی مشاهده" [ref=e75] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/?max_price=5000000
+            - generic [ref=e77]:
+              - strong [ref=e78]: تا ۵ میلیون
+              - generic [ref=e79]: شروع اقتصادی و کاربردی
+              - emphasis [ref=e80]: مشاهده
+          - link "کلاسیک طراحی ساده و همیشه قابل استفاده مشاهده" [ref=e81] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/
+            - generic [ref=e83]:
+              - strong [ref=e84]: کلاسیک
+              - generic [ref=e85]: طراحی ساده و همیشه قابل استفاده
+              - emphasis [ref=e86]: مشاهده
+          - link "هدیه انتخاب‌های امن برای مناسبت‌ها مشاهده" [ref=e87] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/
+            - generic [ref=e89]:
+              - strong [ref=e90]: هدیه
+              - generic [ref=e91]: انتخاب‌های امن برای مناسبت‌ها
+              - emphasis [ref=e92]: مشاهده
+      - generic [ref=e93]:
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - heading "پرفروش‌ها" [level=2] [ref=e96]
+            - paragraph [ref=e97]: محصولاتی که بیشتر انتخاب شده‌اند.
+          - generic [ref=e98]:
+            - button "Previous products" [disabled] [ref=e99] [cursor=pointer]:
+              - generic [ref=e100]: ‹
+            - button "Next products" [disabled] [ref=e101] [cursor=pointer]:
+              - generic [ref=e102]: ›
+        - article [ref=e105]:
+          - link "Swatch Test Variable Product" [ref=e106] [cursor=pointer]:
+            - /url: http://localhost:8881/product/swatch-test-variable-product/
+            - img "مكان گيرنده" [ref=e107]
+          - heading [level=3] [ref=e108]:
+            - link "Swatch Test Variable Product" [ref=e109] [cursor=pointer]:
+              - /url: http://localhost:8881/product/swatch-test-variable-product/
+          - generic [ref=e110]: 100.00 تومان
+          - link "انتخاب گزینه‌ها برای “Swatch Test Variable Product”" [ref=e113] [cursor=pointer]:
+            - /url: http://localhost:8881/product/swatch-test-variable-product/
+            - text: انتخاب گزینه‌ها
+      - generic [ref=e114]:
+        - generic [ref=e116]:
+          - heading "سبک‌های محبوب" [level=2] [ref=e117]
+          - paragraph [ref=e118]: بر اساس زبان طراحی و موقعیت استفاده انتخاب کنید.
+        - generic [ref=e119]:
+          - link "کلاسیک ساده، ماندگار و همیشه قابل استفاده" [ref=e120] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/
+            - generic [ref=e122]:
+              - strong [ref=e123]: کلاسیک
+              - generic [ref=e124]: ساده، ماندگار و همیشه قابل استفاده
+          - link "اسپرت برای استفاده روزمره و فعال" [ref=e125] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/
+            - generic [ref=e127]:
+              - strong [ref=e128]: اسپرت
+              - generic [ref=e129]: برای استفاده روزمره و فعال
+          - link "رسمی هماهنگ با استایل کاری و مهمانی" [ref=e130] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/
+            - generic [ref=e132]:
+              - strong [ref=e133]: رسمی
+              - generic [ref=e134]: هماهنگ با استایل کاری و مهمانی
+      - generic [ref=e136]:
+        - generic [ref=e137]:
+          - strong [ref=e139]: ضمانت اصالت کالا
+          - generic [ref=e140]: انتخاب مطمئن از محصولات معتبر
+        - generic [ref=e141]:
+          - strong [ref=e143]: ارسال سریع
+          - generic [ref=e144]: پردازش و ارسال منظم سفارش‌ها
+        - generic [ref=e145]:
+          - strong [ref=e147]: پرداخت امن
+          - generic [ref=e148]: خرید امن با تجربه ساده
+        - generic [ref=e149]:
+          - strong [ref=e151]: پشتیبانی خرید
+          - generic [ref=e152]: راهنمایی پیش از انتخاب نهایی
+    - contentinfo [ref=e153]:
+      - generic [ref=e154]:
+        - generic [ref=e156]:
+          - heading "Eshobe Ecommerce theme" [level=2] [ref=e157]
+          - paragraph [ref=e158]: انتخابی مطمئن برای خرید آنلاین با ضمانت اصالت کالا و ارسال سریع.
+          - list [ref=e159]:
+            - listitem [ref=e160]:
+              - link "درباره ما" [ref=e161] [cursor=pointer]:
+                - /url: http://localhost:8881/about-us/
+            - listitem [ref=e162]:
+              - link "تماس با ما" [ref=e163] [cursor=pointer]:
+                - /url: http://localhost:8881/contact-us/
+            - listitem [ref=e164]:
+              - link "راهنمای خرید" [ref=e165] [cursor=pointer]:
+                - /url: http://localhost:8881/buying-guide/
+            - listitem [ref=e166]:
+              - link "پیگیری سفارش" [ref=e167] [cursor=pointer]:
+                - /url: http://localhost:8881/order-tracking/
+          - generic [ref=e168]:
+            - generic [ref=e169]: ✓
+            - text: ضمانت بازگشت کالا تا ۷ روز پس از تحویل سفارش
+        - generic [ref=e170]: © 2026 Eshobe Ecommerce theme. کلیه حقوق محفوظ است.
+  - status [ref=e172]

@@ -1,0 +1,136 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - link "Skip to content" [ref=f5e3] [cursor=pointer]:
+      - /url: "#primary"
+    - banner [ref=f5e4]:
+      - generic [ref=f5e5]:
+        - link "Eshobe Ecommerce theme" [ref=f5e6] [cursor=pointer]:
+          - /url: http://localhost:8881/
+        - button [ref=f5e10] [cursor=pointer]
+    - main [ref=f5e15]:
+      - generic [ref=f5e16]:
+        - article [ref=f5e18]:
+          - generic [ref=f5e19]:
+            - generic [ref=f5e20]: Test
+            - 'heading "Test: Slide One" [level=1] [ref=f5e21]'
+            - paragraph [ref=f5e22]: First test slide
+            - link "مشاهده" [ref=f5e24] [cursor=pointer]:
+              - /url: http://localhost:8881/
+        - generic:
+          - button "Previous slide" [ref=f5e27] [cursor=pointer]: ‹
+          - generic:
+            - button "Show slide 1" [ref=f5e28]
+            - button "Show slide 2" [ref=f5e29]
+          - button "Next slide" [ref=f5e30] [cursor=pointer]: ›
+      - generic [ref=f5e31]:
+        - generic [ref=f5e33]:
+          - heading "برندهای محبوب" [level=2] [ref=f5e34]
+          - paragraph [ref=f5e35]: انتخاب سریع بر اساس برندهای پربازدید فروشگاه
+        - link "Mido 1 محصول" [ref=f5e37] [cursor=pointer]:
+          - /url: http://localhost:8881/برند/mido/
+          - generic [ref=f5e39]:
+            - strong [ref=f5e40]: Mido
+            - generic [ref=f5e41]: 1 محصول
+      - generic [ref=f5e42]:
+        - heading "مسیر خرید سریع" [level=2] [ref=f5e45]
+        - generic [ref=f5e46]:
+          - link "تا ۵ میلیون شروع اقتصادی و کاربردی مشاهده" [ref=f5e47] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/?max_price=5000000
+            - generic [ref=f5e49]:
+              - strong [ref=f5e50]: تا ۵ میلیون
+              - generic [ref=f5e51]: شروع اقتصادی و کاربردی
+              - emphasis [ref=f5e52]: مشاهده
+          - link "کلاسیک طراحی ساده و همیشه قابل استفاده مشاهده" [ref=f5e53] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/
+            - generic [ref=f5e55]:
+              - strong [ref=f5e56]: کلاسیک
+              - generic [ref=f5e57]: طراحی ساده و همیشه قابل استفاده
+              - emphasis [ref=f5e58]: مشاهده
+          - link "هدیه انتخاب‌های امن برای مناسبت‌ها مشاهده" [ref=f5e59] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/
+            - generic [ref=f5e61]:
+              - strong [ref=f5e62]: هدیه
+              - generic [ref=f5e63]: انتخاب‌های امن برای مناسبت‌ها
+              - emphasis [ref=f5e64]: مشاهده
+      - generic [ref=f5e65]:
+        - generic [ref=f5e67]:
+          - heading "پرفروش‌ها" [level=2] [ref=f5e68]
+          - paragraph [ref=f5e69]: محصولاتی که بیشتر انتخاب شده‌اند.
+        - article [ref=f5e72]:
+          - link "Swatch Test Variable Product" [ref=f5e73] [cursor=pointer]:
+            - /url: http://localhost:8881/product/swatch-test-variable-product/
+            - img "مكان گيرنده" [ref=f5e74]
+          - heading [level=3] [ref=f5e75]:
+            - link "Swatch Test Variable Product" [ref=f5e76] [cursor=pointer]:
+              - /url: http://localhost:8881/product/swatch-test-variable-product/
+          - generic [ref=f5e77]: 100.00 تومان
+          - link "انتخاب گزینه‌ها برای “Swatch Test Variable Product”" [ref=f5e80] [cursor=pointer]:
+            - /url: http://localhost:8881/product/swatch-test-variable-product/
+            - text: انتخاب گزینه‌ها
+      - generic [ref=f5e81]:
+        - generic [ref=f5e83]:
+          - heading "سبک‌های محبوب" [level=2] [ref=f5e84]
+          - paragraph [ref=f5e85]: بر اساس زبان طراحی و موقعیت استفاده انتخاب کنید.
+        - generic [ref=f5e86]:
+          - link "کلاسیک ساده، ماندگار و همیشه قابل استفاده" [ref=f5e87] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/
+            - generic [ref=f5e89]:
+              - strong [ref=f5e90]: کلاسیک
+              - generic [ref=f5e91]: ساده، ماندگار و همیشه قابل استفاده
+          - link "اسپرت برای استفاده روزمره و فعال" [ref=f5e92] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/
+            - generic [ref=f5e94]:
+              - strong [ref=f5e95]: اسپرت
+              - generic [ref=f5e96]: برای استفاده روزمره و فعال
+          - link "رسمی هماهنگ با استایل کاری و مهمانی" [ref=f5e97] [cursor=pointer]:
+            - /url: http://localhost:8881/shop/
+            - generic [ref=f5e99]:
+              - strong [ref=f5e100]: رسمی
+              - generic [ref=f5e101]: هماهنگ با استایل کاری و مهمانی
+      - generic [ref=f5e103]:
+        - generic [ref=f5e104]:
+          - strong [ref=f5e106]: ضمانت اصالت کالا
+          - generic [ref=f5e107]: انتخاب مطمئن از محصولات معتبر
+        - generic [ref=f5e108]:
+          - strong [ref=f5e110]: ارسال سریع
+          - generic [ref=f5e111]: پردازش و ارسال منظم سفارش‌ها
+        - generic [ref=f5e112]:
+          - strong [ref=f5e114]: پرداخت امن
+          - generic [ref=f5e115]: خرید امن با تجربه ساده
+        - generic [ref=f5e116]:
+          - strong [ref=f5e118]: پشتیبانی خرید
+          - generic [ref=f5e119]: راهنمایی پیش از انتخاب نهایی
+    - contentinfo [ref=f5e120]:
+      - generic [ref=f5e121]:
+        - generic [ref=f5e123]:
+          - heading "Eshobe Ecommerce theme" [level=2] [ref=f5e124]
+          - paragraph [ref=f5e125]: انتخابی مطمئن برای خرید آنلاین با ضمانت اصالت کالا و ارسال سریع.
+          - list [ref=f5e126]:
+            - listitem [ref=f5e127]:
+              - link "درباره ما" [ref=f5e128] [cursor=pointer]:
+                - /url: http://localhost:8881/about-us/
+            - listitem [ref=f5e129]:
+              - link "تماس با ما" [ref=f5e130] [cursor=pointer]:
+                - /url: http://localhost:8881/contact-us/
+            - listitem [ref=f5e131]:
+              - link "راهنمای خرید" [ref=f5e132] [cursor=pointer]:
+                - /url: http://localhost:8881/buying-guide/
+            - listitem [ref=f5e133]:
+              - link "پیگیری سفارش" [ref=f5e134] [cursor=pointer]:
+                - /url: http://localhost:8881/order-tracking/
+          - generic [ref=f5e135]:
+            - generic [ref=f5e136]: ✓
+            - text: ضمانت بازگشت کالا تا ۷ روز پس از تحویل سفارش
+        - generic [ref=f5e137]: © 2026 Eshobe Ecommerce theme. کلیه حقوق محفوظ است.
+  - generic:
+    - navigation "نوار پایین موبایل":
+      - generic [ref=f5e139]:
+        - link "خانه" [ref=f5e140] [cursor=pointer]:
+          - /url: http://localhost:8881/
+        - button "فروشگاه" [ref=f5e145]
+        - button "0 سبد خرید" [ref=f5e151]:
+          - generic [ref=f5e158]: "0"
+          - generic [ref=f5e159]: سبد خرید
+        - link "ورود" [ref=f5e160] [cursor=pointer]:
+          - /url: http://localhost:8881/my-account/
+  - status [ref=f5e166]

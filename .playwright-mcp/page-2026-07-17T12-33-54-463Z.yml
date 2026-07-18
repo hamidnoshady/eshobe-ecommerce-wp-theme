@@ -1,0 +1,84 @@
+- generic [active] [ref=f5e1]:
+  - link "رفتن به محتوا" [ref=f5e2] [cursor=pointer]:
+    - /url: "#wp--skip-link--target"
+  - generic [ref=f5e3]:
+    - banner [ref=f5e4]:
+      - banner [ref=f5e5]:
+        - generic [ref=f5e7]:
+          - generic [ref=f5e8]: ضمانت اصالت کالا
+          - generic [ref=f5e9]: ارسال سریع
+          - generic [ref=f5e10]: پرداخت امن
+          - generic [ref=f5e11]: پشتیبانی قبل از خرید
+        - generic [ref=f5e12]:
+          - heading [level=1] [ref=f5e14]:
+            - link "Eshobe Ecommerce theme" [ref=f5e15] [cursor=pointer]:
+              - /url: http://localhost:8881
+          - navigation [ref=f5e16]:
+            - list [ref=f5e17]:
+              - listitem [ref=f5e18]:
+                - link "Test Category" [ref=f5e19] [cursor=pointer]:
+                  - /url: https://example.test/category
+              - listitem [ref=f5e20]:
+                - link "About" [ref=f5e21] [cursor=pointer]:
+                  - /url: https://example.test/about
+          - generic [ref=f5e22]:
+            - button "جستجو" [ref=f5e23] [cursor=pointer]
+            - link "حساب کاربری" [ref=f5e29] [cursor=pointer]:
+              - /url: http://localhost:8881/my-account/
+              - generic [ref=f5e34]: حساب
+            - link "سبد خرید" [ref=f5e35] [cursor=pointer]:
+              - /url: http://localhost:8881/cart/
+              - generic [ref=f5e42]: "0"
+        - generic "Mega Menu"
+    - main [ref=f5e43]:
+      - heading "سبد خرید" [level=1] [ref=f5e44]
+      - generic [ref=f5e47]:
+        - heading "سبد خریدتان در حال حاضر خالی است!" [level=2] [ref=f5e48]
+        - separator [ref=f5e49]: ···
+        - heading "تازه در فروشگاه" [level=2] [ref=f5e50]
+        - list [ref=f5e52]:
+          - listitem [ref=f5e53]:
+            - link "Swatch Test Variable Product" [ref=f5e54] [cursor=pointer]:
+              - /url: http://localhost:8881/product/swatch-test-variable-product/
+            - generic [ref=f5e57]: 100.00 تومان
+            - link "انتخاب گزینه‌ها برای “Swatch Test Variable Product”" [ref=f5e60] [cursor=pointer]:
+              - /url: http://localhost:8881/product/swatch-test-variable-product/
+              - text: انتخاب گزینه‌ها
+          - listitem [ref=f5e61]:
+            - link "Test Product" [ref=f5e62] [cursor=pointer]:
+              - /url: http://localhost:8881/product/test-product/
+            - generic [ref=f5e65]: 150,000.00 تومان
+            - link "بیشتر بخوانید درباره “Test Product”" [ref=f5e68] [cursor=pointer]:
+              - /url: http://localhost:8881/product/test-product/
+              - text: اطلاعات بیشتر
+    - contentinfo [ref=f5e69]:
+      - contentinfo [ref=f5e70]:
+        - generic [ref=f5e71]:
+          - generic [ref=f5e72]:
+            - heading [level=2] [ref=f5e73]:
+              - link "Eshobe Ecommerce theme" [ref=f5e74] [cursor=pointer]:
+                - /url: http://localhost:8881
+            - paragraph [ref=f5e75]: انتخابی مطمئن برای خرید آنلاین با ضمانت اصالت کالا و ارسال سریع.
+            - navigation [ref=f5e76]:
+              - list [ref=f5e77]:
+                - list [ref=f5e78]:
+                  - listitem [ref=f5e79]:
+                    - link "Sample Page" [ref=f5e80] [cursor=pointer]:
+                      - /url: http://localhost:8881/sample-page/
+                  - listitem [ref=f5e81]:
+                    - link "حساب کاربری من" [ref=f5e82] [cursor=pointer]:
+                      - /url: http://localhost:8881/my-account/
+                  - listitem [ref=f5e83]:
+                    - link "سبد خرید" [ref=f5e84] [cursor=pointer]:
+                      - /url: http://localhost:8881/cart/
+                  - listitem [ref=f5e85]:
+                    - link "فروشگاه" [ref=f5e86] [cursor=pointer]:
+                      - /url: http://localhost:8881/shop/
+                  - listitem [ref=f5e87]:
+                    - link "پرداخت" [ref=f5e88] [cursor=pointer]:
+                      - /url: http://localhost:8881/checkout/
+            - generic [ref=f5e89]:
+              - generic [ref=f5e90]: ✓
+              - text: ضمانت بازگشت کالا تا ۷ روز پس از تحویل سفارش
+          - paragraph [ref=f5e92]: © 2026 Eshobe Ecommerce theme. کلیه حقوق محفوظ است.
+  - status [ref=f5e95]
