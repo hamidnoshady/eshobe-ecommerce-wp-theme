@@ -307,7 +307,14 @@ function wm_build_filter_box_url( $item ) {
         $query['filter_gender'] = sanitize_title( is_object( $term ) ? $term->slug : $term );
     }
 
-    // TODO: Map these query keys to the exact YITH filter URL format if YITH changes from WooCommerce-compatible query strings.
+    /**
+     * Filters the query arguments used to build the filter box URL.
+     *
+     * @param array $query The parsed query arguments.
+     * @param array $item  The filter item data.
+     */
+    $query = apply_filters( 'wm_filter_box_query_args', $query, $item );
+
     return esc_url_raw( add_query_arg( $query, $base_url ) );
 }
 
