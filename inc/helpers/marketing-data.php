@@ -147,12 +147,34 @@ function wm_search_get_suggested_products() {
 		return array();
 	}
 
-	$products = array();
+	$parsed_ids = array();
 	foreach ( $ids as $item ) {
-		$product_id = is_object( $item ) ? $item->ID : absint( $item );
-		$product    = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
-		if ( $product instanceof WC_Product && $product->is_visible() ) {
-			$products[] = $product;
+		$parsed_ids[] = is_object( $item ) ? $item->ID : absint( $item );
+	}
+
+	$products = array();
+
+	if ( function_exists( 'wc_get_products' ) ) {
+		$queried_products = wc_get_products(
+			array(
+				'include' => $parsed_ids,
+				'limit'   => -1,
+				'return'  => 'objects',
+				'orderby' => 'post__in',
+			)
+		);
+
+		foreach ( $queried_products as $product ) {
+			if ( $product instanceof WC_Product && $product->is_visible() ) {
+				$products[] = $product;
+			}
+		}
+	} else {
+		foreach ( $parsed_ids as $product_id ) {
+			$product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
+			if ( $product instanceof WC_Product && $product->is_visible() ) {
+				$products[] = $product;
+			}
 		}
 	}
 
