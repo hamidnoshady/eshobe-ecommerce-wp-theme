@@ -10,31 +10,27 @@ function wm_header_mega_get_image_html( $image, $alt = '' ) {
         return '';
     }
 
+    $image_id = 0;
+
     if ( is_array( $image ) && ! empty( $image['ID'] ) ) {
-        return wp_get_attachment_image(
-            absint( $image['ID'] ),
-            'thumbnail',
-            false,
-            array(
-                'alt'     => $alt,
-                'loading' => 'lazy',
-            )
-        );
+        $image_id = absint( $image['ID'] );
+    } elseif ( is_numeric( $image ) ) {
+        $image_id = absint( $image );
     }
 
-    if ( is_numeric( $image ) ) {
-        return wp_get_attachment_image(
-            absint( $image ),
-            'thumbnail',
-            false,
-            array(
-                'alt'     => $alt,
-                'loading' => 'lazy',
-            )
-        );
+    if ( empty( $image_id ) ) {
+        return '';
     }
 
-    return '';
+    return wp_get_attachment_image(
+        $image_id,
+        'thumbnail',
+        false,
+        array(
+            'alt'     => $alt,
+            'loading' => 'lazy',
+        )
+    );
 }
 
 function wm_get_header_mega_menus() {
