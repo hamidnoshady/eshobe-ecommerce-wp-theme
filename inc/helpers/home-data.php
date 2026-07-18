@@ -458,6 +458,32 @@ function wm_home_get_filter_sections() {
     );
 }
 
+function wm_render_filter_card( $item ) {
+    $style       = ! empty( $item['filter_style'] ) ? sanitize_html_class( $item['filter_style'] ) : 'dark_card';
+    $button_text = ! empty( $item['filter_button_text'] ) ? $item['filter_button_text'] : __( 'مشاهده', 'eshobe-ecommerce' );
+    $style_attr  = ! empty( $item['filter_color_value'] ) ? ' style="--wm-filter-accent:' . esc_attr( sanitize_hex_color( $item['filter_color_value'] ) ) . '"' : '';
+
+    ob_start();
+    ?>
+    <a class="wm-home-filter-card wm-home-filter-card--<?php echo esc_attr( $style ); ?>" href="<?php echo esc_url( wm_build_filter_box_url( $item ) ); ?>"<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+        <span class="wm-home-filter-card__media">
+            <?php echo wm_home_get_image_html( ! empty( $item['filter_image'] ) ? $item['filter_image'] : '', 'medium', array( 'alt' => $item['filter_title'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+        </span>
+        <span class="wm-home-filter-card__body">
+            <?php if ( ! empty( $item['filter_badge_text'] ) ) : ?>
+                <span class="wm-home-filter-card__badge"><?php echo esc_html( $item['filter_badge_text'] ); ?></span>
+            <?php endif; ?>
+            <strong><?php echo esc_html( $item['filter_title'] ); ?></strong>
+            <?php if ( ! empty( $item['filter_subtitle'] ) ) : ?>
+                <small><?php echo esc_html( $item['filter_subtitle'] ); ?></small>
+            <?php endif; ?>
+            <em><?php echo esc_html( $button_text ); ?></em>
+        </span>
+    </a>
+    <?php
+    return ob_get_clean();
+}
+
 function wm_render_home_filter_section( $section, $extra_class = '' ) {
     $layout = ! empty( $section['layout'] ) ? sanitize_html_class( $section['layout'] ) : 'cards_3';
     $items  = ! empty( $section['items'] ) ? (array) $section['items'] : array();
@@ -480,26 +506,7 @@ function wm_render_home_filter_section( $section, $extra_class = '' ) {
         </div>
         <div class="wm-home-filters__grid">
             <?php foreach ( $items as $item ) : ?>
-                <?php
-                $style       = ! empty( $item['filter_style'] ) ? sanitize_html_class( $item['filter_style'] ) : 'dark_card';
-                $button_text = ! empty( $item['filter_button_text'] ) ? $item['filter_button_text'] : __( 'مشاهده', 'eshobe-ecommerce' );
-                $style_attr  = ! empty( $item['filter_color_value'] ) ? ' style="--wm-filter-accent:' . esc_attr( sanitize_hex_color( $item['filter_color_value'] ) ) . '"' : '';
-                ?>
-                <a class="wm-home-filter-card wm-home-filter-card--<?php echo esc_attr( $style ); ?>" href="<?php echo esc_url( wm_build_filter_box_url( $item ) ); ?>"<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-                    <span class="wm-home-filter-card__media">
-                        <?php echo wm_home_get_image_html( ! empty( $item['filter_image'] ) ? $item['filter_image'] : '', 'medium', array( 'alt' => $item['filter_title'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                    </span>
-                    <span class="wm-home-filter-card__body">
-                        <?php if ( ! empty( $item['filter_badge_text'] ) ) : ?>
-                            <span class="wm-home-filter-card__badge"><?php echo esc_html( $item['filter_badge_text'] ); ?></span>
-                        <?php endif; ?>
-                        <strong><?php echo esc_html( $item['filter_title'] ); ?></strong>
-                        <?php if ( ! empty( $item['filter_subtitle'] ) ) : ?>
-                            <small><?php echo esc_html( $item['filter_subtitle'] ); ?></small>
-                        <?php endif; ?>
-                        <em><?php echo esc_html( $button_text ); ?></em>
-                    </span>
-                </a>
+                <?php echo wm_render_filter_card( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
             <?php endforeach; ?>
         </div>
     </section>
