@@ -6,14 +6,7 @@
  */
 
 function wm_mobile_nav_get_option( $key, $default = '' ) {
-    if ( function_exists( 'get_field' ) ) {
-        $value = get_field( $key, 'option' );
-        if ( null !== $value && '' !== $value ) {
-            return $value;
-        }
-    }
-
-    return $default;
+	return wm_get_option( $key, $default );
 }
 
 function wm_mobile_nav_is_enabled() {

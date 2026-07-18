@@ -200,6 +200,7 @@ add_action( 'wp_enqueue_scripts', 'eshobe_ecommerce_scripts' );
 
 require get_template_directory() . '/inc/template-functions.php';
 require get_template_directory() . '/inc/template-tags.php';
+require get_template_directory() . '/inc/helpers/options.php';
 require get_template_directory() . '/inc/helpers/home-data.php';
 require get_template_directory() . '/inc/helpers/marketing-data.php';
 require get_template_directory() . '/inc/helpers/technical-data.php';

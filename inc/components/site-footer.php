@@ -6,14 +6,7 @@
  */
 
 function wm_footer_get_option( $key, $default = '' ) {
-    if ( function_exists( 'get_field' ) ) {
-        $value = get_field( $key, 'option' );
-        if ( null !== $value && false !== $value && '' !== $value ) {
-            return $value;
-        }
-    }
-
-    return $default;
+	return wm_get_option( $key, $default );
 }
 
 function wm_footer_default_texts() {

@@ -40,14 +40,7 @@ function wm_product_archive_get_option( $name, $default = null ) {
     $defaults = wm_product_archive_defaults();
     $default  = null === $default && array_key_exists( $name, $defaults ) ? $defaults[ $name ] : $default;
 
-    if ( function_exists( 'get_field' ) ) {
-        $value = get_field( $name, 'option' );
-        if ( null !== $value && '' !== $value ) {
-            return $value;
-        }
-    }
-
-    return $default;
+    return wm_get_option( $name, $default );
 }
 
 function wm_product_archive_int_option( $name, $default, $min, $max ) {
