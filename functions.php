@@ -10,20 +10,30 @@ if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
 }
 
 /**
+ * Resolve the relative path for a theme asset, preferring the minified build unless WP_DEBUG is enabled.
+ *
+ * @param string $relative_path Asset path relative to the theme root.
+ * @return string
+ */
+function wm_get_resolved_asset_path( $relative_path ) {
+    if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+        $min_relative_path = preg_replace( '/\.(css|js)$/', '.min.$1', $relative_path );
+        if ( file_exists( get_theme_file_path( $min_relative_path ) ) ) {
+            return $min_relative_path;
+        }
+    }
+
+    return $relative_path;
+}
+
+/**
  * Resolve the URI for a theme asset, preferring the minified build unless WP_DEBUG is enabled.
  *
  * @param string $relative_path Asset path relative to the theme root, e.g. 'assets/css/theme.css'.
  * @return string
  */
 function wm_asset_uri( $relative_path ) {
-    if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
-        $min_relative_path = preg_replace( '/\.(css|js)$/', '.min.$1', $relative_path );
-        if ( file_exists( get_theme_file_path( $min_relative_path ) ) ) {
-            return get_theme_file_uri( $min_relative_path );
-        }
-    }
-
-    return get_theme_file_uri( $relative_path );
+    return get_theme_file_uri( wm_get_resolved_asset_path( $relative_path ) );
 }
 
 /**
@@ -34,15 +44,8 @@ function wm_asset_uri( $relative_path ) {
  * @return string|int
  */
 function wm_asset_version( $relative_path ) {
-    $resolved_path = get_theme_file_path( $relative_path );
-
-    if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
-        $min_relative_path = preg_replace( '/\.(css|js)$/', '.min.$1', $relative_path );
-        $min_path          = get_theme_file_path( $min_relative_path );
-        if ( file_exists( $min_path ) ) {
-            $resolved_path = $min_path;
-        }
-    }
+    $resolved_relative_path = wm_get_resolved_asset_path( $relative_path );
+    $resolved_path = get_theme_file_path( $resolved_relative_path );
 
     return file_exists( $resolved_path ) ? filemtime( $resolved_path ) : ESHOBE_ECOMMERCE_VERSION;
 }

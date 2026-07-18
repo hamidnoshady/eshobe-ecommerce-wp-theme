@@ -1,8 +1,6 @@
-💡 **What:**
-Replaced the individual `wc_get_product($related_id)` calls inside the `$related_ids` loop with a single batch `wc_get_products()` call. We fetch all related products at once and store them in an associative array keyed by ID for O(1) lookups inside the existing view logic loop.
+# 🧹 Refactor duplicated code in theme-updater.php
 
-🎯 **Why:**
-The previous implementation suffered from an N+1 query problem, as it called `wc_get_product()` on every iteration of the `foreach ( $related_ids as $related_id )` loop. If those products were not present in the object cache, this would result in a separate database query for each related product, degrading performance linearly with the number of related items shown.
-
-📊 **Measured Improvement:**
-Since this project's tests run in isolation using Brain Monkey without a fully booted WordPress database, a reliable database I/O benchmark is impractical to run via unit tests. However, the theoretical optimization turns an O(N) database query pattern (N = number of related products) into an O(1) bulk fetch operation, resulting in significantly fewer network round-trips and lower database contention when the object cache is cold.
+🎯 **What:** The code health issue addressed is a duplicated code block inside `check_for_update` method in `inc/theme-updater.php`. The array construction for `$transient->response` and `$transient->no_update` shared multiple identical key-value assignments.
+💡 **Why:** How this improves maintainability: By extracting the common base array into a variable `$update_data` and conditionally appending the 'new_version' key, we reduce duplication, making the code cleaner and less prone to copy-paste errors when changing the structure in the future.
+✅ **Verification:** How I confirmed the change is safe: I successfully ran PHPUnit tests via `./vendor/bin/phpunit` before and after the change, ensuring that my refactoring did not introduce any regressions.
+✨ **Result:** The improvement achieved is a cleaner and slightly more DRY `check_for_update` function inside the updater without any modification in behavioral logic.
