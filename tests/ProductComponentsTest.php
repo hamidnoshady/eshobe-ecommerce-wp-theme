@@ -69,4 +69,51 @@ class ProductComponentsTest extends TestCase {
         $result = wm_get_product_brand_terms(123);
         $this->assertEquals([], $result);
     }
+
+    public function test_wm_get_mobile_stock_label_empty_label() {
+        $product = \Mockery::mock('WC_Product');
+        $stock = ['label' => ''];
+        $result = wm_get_mobile_stock_label($product, $stock);
+        $this->assertEquals('', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_in_stock() {
+        $product = \Mockery::mock('WC_Product');
+        $product->shouldReceive('managing_stock')->andReturn(true);
+        $product->shouldIgnoreMissing();
+
+        $stock = ['label' => 'In Stock', 'status' => 'in_stock'];
+
+        $result = wm_get_mobile_stock_label($product, $stock);
+        $this->assertEquals('In Stock', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_out_of_stock() {
+        $product = \Mockery::mock('WC_Product');
+        $product->shouldIgnoreMissing();
+
+        $stock = ['label' => 'Out of Stock', 'status' => 'out_of_stock'];
+
+        $result = wm_get_mobile_stock_label($product, $stock);
+        $this->assertEquals('Out of Stock', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_not_managing_stock() {
+        $product = \Mockery::mock('WC_Product');
+        $product->shouldReceive('managing_stock')->andReturn(false);
+        $product->shouldIgnoreMissing();
+
+        $stock = ['label' => 'In Stock', 'status' => 'in_stock'];
+
+        $result = wm_get_mobile_stock_label($product, $stock);
+        $this->assertEquals('In Stock', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_null_product() {
+        $product = null;
+        $stock = ['label' => 'In Stock', 'status' => 'in_stock'];
+
+        $result = wm_get_mobile_stock_label($product, $stock);
+        $this->assertEquals('In Stock', $result);
+    }
 }
