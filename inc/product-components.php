@@ -641,6 +641,17 @@ function wm_render_related_products() {
         return '';
     }
 
+    $related_products = wc_get_products( array(
+        'include' => $related_ids,
+        'limit'   => -1,
+        'return'  => 'objects',
+    ) );
+
+    $products_by_id = array();
+    foreach ( $related_products as $prod ) {
+        $products_by_id[ $prod->get_id() ] = $prod;
+    }
+
     ob_start();
     ?>
     <section class="wm-related-products" aria-label="<?php esc_attr_e( 'Related products', 'eshobe-ecommerce' ); ?>">
@@ -660,10 +671,10 @@ function wm_render_related_products() {
             <div class="wm-related-products__track" tabindex="0">
                 <?php foreach ( $related_ids as $related_id ) : ?>
                     <?php
-                    $related_product = wc_get_product( $related_id );
-                    if ( ! $related_product ) {
+                    if ( ! isset( $products_by_id[ $related_id ] ) ) {
                         continue;
                     }
+                    $related_product = $products_by_id[ $related_id ];
 
                     $image_id      = $related_product->get_image_id();
                     $gallery_ids   = $related_product->get_gallery_image_ids();
