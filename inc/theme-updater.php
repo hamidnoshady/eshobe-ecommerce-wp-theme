@@ -39,21 +39,19 @@ class WM_Theme_Updater {
 		$release = $this->get_release();
 		if ( ! $release ) return $transient;
 
+		$update_data = [
+			'theme'   => $this->theme_slug,
+			'url'     => $release['url'],
+			'package' => $release['zip_url'],
+		];
+
 		if ( version_compare( $release['version'], $this->version, '>' ) ) {
-			$transient->response[ $this->theme_slug ] = [
-				'theme'       => $this->theme_slug,
-				'new_version' => $release['version'],
-				'url'         => $release['url'],
-				'package'     => $release['zip_url'],
-			];
+			$update_data['new_version'] = $release['version'];
+			$transient->response[ $this->theme_slug ] = $update_data;
 		} else {
 			// Mark as "no update" so WP shows the auto-update toggle.
-			$transient->no_update[ $this->theme_slug ] = [
-				'theme'       => $this->theme_slug,
-				'new_version' => $this->version,
-				'url'         => $release['url'],
-				'package'     => $release['zip_url'],
-			];
+			$update_data['new_version'] = $this->version;
+			$transient->no_update[ $this->theme_slug ] = $update_data;
 		}
 
 		return $transient;
