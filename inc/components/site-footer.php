@@ -105,7 +105,6 @@ function wm_footer_render_badge( $badge ) {
 
     $title = ! empty( $badge['badge_title'] ) ? $badge['badge_title'] : '';
     $url   = ! empty( $badge['badge_url'] ) ? $badge['badge_url'] : '';
-    $html  = '';
 
     if ( ! empty( $badge['badge_html_code'] ) ) {
         $html = wp_kses_post( $badge['badge_html_code'] );
