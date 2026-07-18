@@ -148,12 +148,14 @@ class ProductComponentsTest extends TestCase {
     }
 
     public function test_wm_normalize_meta_value_with_object_having_name() {
+        Functions\expect('wp_strip_all_tags')->andReturnFirstArg();
         $obj = new stdClass();
         $obj->name = 'Object Name';
         $this->assertEquals('Object Name', wm_normalize_meta_value($obj));
     }
 
     public function test_wm_normalize_meta_value_with_object_missing_name() {
+        Functions\expect('wp_strip_all_tags')->zeroOrMoreTimes()->andReturnFirstArg();
         $obj = new stdClass();
         $obj->title = 'Object Title';
         $this->assertEquals('', wm_normalize_meta_value($obj));

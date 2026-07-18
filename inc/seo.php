@@ -27,10 +27,11 @@ function wm_seo_truncate_description( $text, $length = 160 ) {
 		return '';
 	}
 
-	if ( function_exists( 'mb_strlen' ) && mb_strlen( $text ) > $length ) {
-		$text = mb_substr( $text, 0, $length - 1 ) . '…';
-	} elseif ( strlen( $text ) > $length ) {
-		$text = substr( $text, 0, $length - 1 ) . '…';
+	$current_length = function_exists( 'mb_strlen' ) ? mb_strlen( $text ) : strlen( $text );
+
+	if ( $current_length > $length ) {
+		$text = function_exists( 'mb_substr' ) ? mb_substr( $text, 0, $length - 1 ) : substr( $text, 0, $length - 1 );
+		$text .= '…';
 	}
 
 	return $text;
