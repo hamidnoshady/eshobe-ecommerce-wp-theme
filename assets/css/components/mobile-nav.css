@@ -261,6 +261,7 @@
   }
 
   .wm-mobile-sheet__links a,
+  .wm-mobile-sheet__links button,
   .wm-mobile-account-sheet__link {
     min-height: 44px;
     display: flex;
@@ -274,6 +275,126 @@
     font-weight: 760;
     line-height: 1.6;
     text-decoration: none;
+  }
+
+  /*
+   * Shop sheet drill-down: each parent menu item with children becomes a
+   * <button> chip with the same look as a link, plus a left-pointing arrow
+   * indicator. Clicking the button swaps the visible .wm-mobile-shop-sheet
+   * pane inside the same modal.
+   */
+  .wm-mobile-shop-sheet__parent {
+    width: 100%;
+    gap: 12px;
+    justify-content: space-between;
+    text-align: start;
+    font-family: inherit;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+
+  .wm-mobile-shop-sheet__parent[aria-expanded="true"] {
+    background: color-mix(in srgb, var(--wm-color-accent) 14%, var(--wm-color-surface));
+    border-color: color-mix(in srgb, var(--wm-color-accent) 32%, var(--wm-color-border));
+  }
+
+  .wm-mobile-shop-sheet__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .wm-mobile-shop-sheet__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    color: var(--wm-color-primary);
+    background: color-mix(in srgb, var(--wm-color-background) 50%, var(--wm-color-surface));
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  .wm-mobile-shop-sheet__arrow svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .wm-mobile-shop-sheet__pane,
+  .wm-mobile-shop-sheet__subview {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .wm-mobile-shop-sheet__pane[hidden],
+  .wm-mobile-shop-sheet__subview[hidden] {
+    display: none !important;
+  }
+
+  .wm-mobile-shop-sheet__subheader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 4px;
+    color: var(--wm-color-primary);
+  }
+
+  .wm-mobile-shop-sheet__back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--wm-color-border) 80%, transparent);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--wm-color-background) 62%, var(--wm-color-surface));
+    color: var(--wm-color-primary);
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    flex-shrink: 0;
+  }
+
+  .wm-mobile-shop-sheet__back:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--wm-color-accent) 60%, transparent);
+    outline-offset: 2px;
+  }
+
+  .wm-mobile-shop-sheet__back-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wm-mobile-shop-sheet__back-icon svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .wm-mobile-shop-sheet__subtitle {
+    margin: 0;
+    color: var(--wm-color-primary);
+    font-size: 14px;
+    font-weight: 850;
+    line-height: 1.5;
   }
 
   .wm-mobile-sheet__empty {
