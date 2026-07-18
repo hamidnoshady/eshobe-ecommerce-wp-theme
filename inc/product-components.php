@@ -65,35 +65,36 @@ function wm_get_product_category_terms( $product_id ) {
 function wm_get_guarantee( $product_id ) {
     $meta_keys = array( 'گارانتی', 'guarantee', 'warranty', 'product_guarantee', 'product_warranty', '_guarantee', '_warranty' );
 
-    if ( function_exists( 'get_field' ) ) {
-        foreach ( $meta_keys as $key ) {
-            $value = get_field( $key, $product_id );
+    $all_meta = get_post_meta( $product_id );
+    if ( empty( $all_meta ) || ! is_array( $all_meta ) ) {
+        return '';
+    }
+
+    $has_acf = function_exists( 'get_field' );
+
+    foreach ( $meta_keys as $key ) {
+        if ( ! empty( $all_meta[ $key ] ) ) {
+            if ( $has_acf ) {
+                $value = get_field( $key, $product_id );
+                if ( ! empty( $value ) ) {
+                    return wm_normalize_meta_value( $value );
+                }
+            }
+            $value = is_array( $all_meta[ $key ] ) ? $all_meta[ $key ][0] : $all_meta[ $key ];
             if ( ! empty( $value ) ) {
-                return wm_normalize_meta_value( $value );
+                return wm_normalize_meta_value( maybe_unserialize( $value ) );
             }
         }
     }
 
-    $all_meta = get_post_meta( $product_id );
-    if ( ! empty( $all_meta ) && is_array( $all_meta ) ) {
-        foreach ( $meta_keys as $key ) {
-            if ( ! empty( $all_meta[ $key ] ) ) {
-                $value = is_array( $all_meta[ $key ] ) ? $all_meta[ $key ][0] : $all_meta[ $key ];
-                if ( ! empty( $value ) ) {
-                    return wm_normalize_meta_value( maybe_unserialize( $value ) );
-                }
-            }
+    foreach ( $all_meta as $key => $values ) {
+        if ( false === strpos( $key, 'گارانتی' ) && false === stripos( $key, 'guarantee' ) && false === stripos( $key, 'warranty' ) ) {
+            continue;
         }
 
-        foreach ( $all_meta as $key => $values ) {
-            if ( false === strpos( $key, 'گارانتی' ) && false === stripos( $key, 'guarantee' ) && false === stripos( $key, 'warranty' ) ) {
-                continue;
-            }
-
-            $value = is_array( $values ) ? reset( $values ) : $values;
-            if ( ! empty( $value ) ) {
-                return wm_normalize_meta_value( maybe_unserialize( $value ) );
-            }
+        $value = is_array( $values ) ? reset( $values ) : $values;
+        if ( ! empty( $value ) ) {
+            return wm_normalize_meta_value( maybe_unserialize( $value ) );
         }
     }
 
