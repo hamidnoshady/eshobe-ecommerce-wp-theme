@@ -1,5 +1,0 @@
-[    2814ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost:8881/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
-[    3202ms] TypeError: Cannot read properties of undefined (reading 'symbol')
-    at http://localhost:8881/wp-content/plugins/woocommerce/assets/client/blocks/woocommerce/product-filter-price.js?ver=f55bbbbfdd3060dde468:1:406
-[    3206ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:8881/shop/?v=0.1.1:0
-[    3207ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:8881/shop/?v=0.1.1:0
