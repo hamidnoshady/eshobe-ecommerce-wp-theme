@@ -69,4 +69,49 @@ class ProductComponentsTest extends TestCase {
         $result = wm_get_product_brand_terms(123);
         $this->assertEquals([], $result);
     }
+
+    public function test_wm_get_mobile_stock_label_empty_label() {
+        $result = wm_get_mobile_stock_label(null, ['label' => '']);
+        $this->assertEquals('', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_no_product() {
+        $result = wm_get_mobile_stock_label(null, ['label' => 'In stock', 'status' => 'in_stock']);
+        $this->assertEquals('In stock', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_not_in_stock() {
+        $product = Mockery::mock('WC_Product');
+        $result = wm_get_mobile_stock_label($product, ['label' => 'Out of stock', 'status' => 'out_of_stock']);
+        $this->assertEquals('Out of stock', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_not_managing_stock() {
+        $product = Mockery::mock('WC_Product');
+        $product->shouldReceive('managing_stock')->once()->andReturn(false);
+        $result = wm_get_mobile_stock_label($product, ['label' => 'In stock', 'status' => 'in_stock']);
+        $this->assertEquals('In stock', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_managing_stock_null_qty() {
+        $product = Mockery::mock('WC_Product');
+        $product->shouldReceive('managing_stock')->once()->andReturn(true);
+        $product->shouldReceive('get_stock_quantity')->once()->andReturn(null);
+        $result = wm_get_mobile_stock_label($product, ['label' => 'In stock', 'status' => 'in_stock']);
+        $this->assertEquals('In stock', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_managing_stock_with_qty() {
+        $product = Mockery::mock('WC_Product');
+        $product->shouldReceive('managing_stock')->once()->andReturn(true);
+        $product->shouldReceive('get_stock_quantity')->once()->andReturn(5);
+
+        Functions\expect('wc_format_stock_quantity_for_display')
+            ->once()
+            ->with(5, $product)
+            ->andReturn('5 in stock');
+
+        $result = wm_get_mobile_stock_label($product, ['label' => 'In stock', 'status' => 'in_stock']);
+        $this->assertEquals('In stock · 5 in stock', $result);
+    }
 }
