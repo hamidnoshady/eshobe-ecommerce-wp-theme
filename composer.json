@@ -1,0 +1,15 @@
+{
+    "name": "eshobe/theme",
+    "type": "wordpress-theme",
+    "authors": [
+        {
+            "name": "Jules",
+            "email": "jules@example.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^12.5",
+        "brain/monkey": "^2.7",
+        "antecedent/patchwork": "^2.2"
+    }
+}
