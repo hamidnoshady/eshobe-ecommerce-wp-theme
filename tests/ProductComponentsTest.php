@@ -172,4 +172,115 @@ class ProductComponentsTest extends TestCase {
         $this->assertEquals('1', wm_normalize_meta_value(true));
         $this->assertEquals('', wm_normalize_meta_value(false));
     }
+
+    public function test_wm_get_product_specs_empty() {
+        Functions\expect('wm_get_terms_for_product')
+            ->times(20) // There are 20 taxonomies
+            ->andReturn([]);
+
+        Functions\expect('wm_get_guarantee')
+            ->once()
+            ->with(123)
+            ->andReturn('');
+
+        $result = wm_get_product_specs(123);
+        $this->assertEquals([], $result);
+    }
+
+    public function test_wm_get_product_specs_with_terms_only() {
+        Functions\expect('wm_get_terms_for_product')
+            ->andReturnUsing(function($product_id, $taxonomy) {
+                if ($taxonomy === 'gender') {
+                    $term = new stdClass();
+                    $term->name = 'مردانه';
+                    return [$term];
+                }
+                return [];
+            });
+
+        Functions\expect('wm_render_linked_terms')
+            ->once()
+            ->andReturn('<a href="...">مردانه</a>');
+
+        Functions\expect('wm_get_guarantee')
+            ->once()
+            ->with(123)
+            ->andReturn('');
+
+        $result = wm_get_product_specs(123);
+
+        $expected = [
+            [
+                'label' => 'جنسیت',
+                'value' => '<a href="...">مردانه</a>'
+            ]
+        ];
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_wm_get_product_specs_with_guarantee_only() {
+        Functions\expect('wm_get_terms_for_product')
+            ->times(20)
+            ->andReturn([]);
+
+        Functions\expect('wm_get_guarantee')
+            ->once()
+            ->with(123)
+            ->andReturn('گارانتی ۱۸ ماهه');
+
+        Functions\expect('esc_html')
+            ->once()
+            ->with('گارانتی ۱۸ ماهه')
+            ->andReturn('گارانتی ۱۸ ماهه');
+
+        $result = wm_get_product_specs(123);
+
+        $expected = [
+            [
+                'label' => 'گارانتی',
+                'value' => 'گارانتی ۱۸ ماهه'
+            ]
+        ];
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_wm_get_product_specs_with_terms_and_guarantee() {
+        Functions\expect('wm_get_terms_for_product')
+            ->andReturnUsing(function($product_id, $taxonomy) {
+                if ($taxonomy === 'style') {
+                    $term = new stdClass();
+                    $term->name = 'کلاسیک';
+                    return [$term];
+                }
+                return [];
+            });
+
+        Functions\expect('wm_render_linked_terms')
+            ->once()
+            ->andReturn('<a href="...">کلاسیک</a>');
+
+        Functions\expect('wm_get_guarantee')
+            ->once()
+            ->with(123)
+            ->andReturn('گارانتی ۱ ساله');
+
+        Functions\expect('esc_html')
+            ->once()
+            ->with('گارانتی ۱ ساله')
+            ->andReturn('گارانتی ۱ ساله');
+
+        $result = wm_get_product_specs(123);
+
+        $expected = [
+            [
+                'label' => 'استایل',
+                'value' => '<a href="...">کلاسیک</a>'
+            ],
+            [
+                'label' => 'گارانتی',
+                'value' => 'گارانتی ۱ ساله'
+            ]
+        ];
+        $this->assertEquals($expected, $result);
+    }
 }
