@@ -12,7 +12,7 @@ function wm_blocks_admin_menu() {
         'eshobe-ecommerce',
         __( 'مدیریت بلوک‌ها', 'eshobe-ecommerce' ),
         __( 'مدیریت بلوک‌ها', 'eshobe-ecommerce' ),
-        'edit_theme_options',
+        'edit_posts',
         'eshobe-ecommerce-blocks',
         'wm_render_blocks_admin_page'
     );
@@ -37,7 +37,7 @@ function wm_home_block_seed_markup() {
 }
 
 function wm_blocks_admin_handle_setup_home() {
-    if ( ! current_user_can( 'edit_theme_options' ) ) {
+    if ( ! current_user_can( 'edit_posts' ) ) {
         wp_die( esc_html__( 'دسترسی غیرمجاز.', 'eshobe-ecommerce' ) );
     }
     check_admin_referer( 'wm_blocks_setup_home' );
@@ -80,7 +80,7 @@ function wm_blocks_admin_handle_setup_home() {
 add_action( 'admin_post_wm_blocks_setup_home', 'wm_blocks_admin_handle_setup_home' );
 
 function wm_blocks_admin_handle_setup_region() {
-    if ( ! current_user_can( 'edit_theme_options' ) ) {
+    if ( ! current_user_can( 'edit_posts' ) ) {
         wp_die( esc_html__( 'دسترسی غیرمجاز.', 'eshobe-ecommerce' ) );
     }
     check_admin_referer( 'wm_blocks_setup_region' );
