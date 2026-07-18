@@ -1,0 +1,31 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/price-filter-card",
+    "title": "کارت فیلتر",
+    "category": "eshobe-ecommerce",
+    "icon": "money-alt",
+    "parent": [ "wm/filter-section" ],
+    "description": "یک کارت داخل «بخش کارت‌های فیلتر»؛ می‌تواند به یک محدوده قیمت، یک دسته/برند خاص یا یک آدرس دلخواه لینک شود.",
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "filterTitle": { "type": "string", "default": "" },
+        "filterSubtitle": { "type": "string", "default": "" },
+        "badgeText": { "type": "string", "default": "" },
+        "buttonText": { "type": "string", "default": "" },
+        "style": { "type": "string", "default": "dark_card" },
+        "imageId": { "type": "number", "default": 0 },
+        "linkMode": { "type": "string", "default": "price_range" },
+        "manualUrl": { "type": "string", "default": "" },
+        "taxonomy": { "type": "string", "default": "product_cat" },
+        "termId": { "type": "number", "default": 0 },
+        "minPrice": { "type": "number", "default": 0 },
+        "maxPrice": { "type": "number", "default": 0 },
+        "colorValue": { "type": "string", "default": "" }
+    },
+    "supports": {
+        "html": false
+    },
+    "editorScript": "eshobe-ecommerce-blocks-editor",
+    "render": "file:./render.php"
+}

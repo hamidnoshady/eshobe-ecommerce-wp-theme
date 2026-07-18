@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.5.10' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.6.0' );
 }
 
 /**
@@ -229,6 +229,9 @@ require get_template_directory() . '/inc/customizer/design-settings.php';
 require get_template_directory() . '/inc/patterns/register-patterns.php';
 require get_template_directory() . '/inc/acf/design-tokens.php';
 require get_template_directory() . '/inc/acf/home-fields.php';
+require get_template_directory() . '/inc/blocks/register-blocks.php';
+require get_template_directory() . '/inc/blocks/block-regions.php';
+require get_template_directory() . '/inc/blocks/block-regions-admin.php';
 require get_template_directory() . '/inc/compat/cache.php';
 require get_template_directory() . '/inc/theme-updater.php';
 require get_template_directory() . '/inc/seo.php';
