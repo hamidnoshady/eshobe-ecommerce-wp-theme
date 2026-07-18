@@ -136,19 +136,44 @@ function wm_normalize_product_ids( $products ) {
 }
 
 function wm_home_get_manual_products( $field_name, $count ) {
-    if ( ! function_exists( 'wc_get_product' ) ) {
+    if ( ! function_exists( 'wc_get_products' ) ) {
         return array();
     }
 
+    $product_ids = wm_normalize_product_ids( wm_home_get_option( $field_name, array() ) );
+
+    if ( empty( $product_ids ) ) {
+        return array();
+    }
+
+    $args = array(
+        'include' => $product_ids,
+        'limit'   => -1,
+        'status'  => 'publish',
+        'return'  => 'objects',
+    );
+
+    $fetched_products = wc_get_products( $args );
+
+    // Index by ID to preserve the original manual sorting order
+    $products_by_id = array();
+    foreach ( $fetched_products as $p ) {
+        if ( is_object( $p ) && method_exists( $p, 'get_id' ) ) {
+            $products_by_id[ $p->get_id() ] = $p;
+        }
+    }
+
     $products = array();
-    foreach ( wm_normalize_product_ids( wm_home_get_option( $field_name, array() ) ) as $product_id ) {
-        if ( count( $products ) >= $count || 'publish' !== get_post_status( $product_id ) ) {
-            continue;
+    foreach ( $product_ids as $product_id ) {
+        if ( count( $products ) >= $count ) {
+            break;
         }
 
-        $product = wc_get_product( $product_id );
-        if ( $product && $product->get_image_id() ) {
-            $products[ $product_id ] = $product;
+        if ( isset( $products_by_id[ $product_id ] ) ) {
+            $product = $products_by_id[ $product_id ];
+            if ( method_exists( $product, 'get_image_id' ) && $product->get_image_id() ) {
+                $products[ $product_id ] = $product;
+            }
         }
     }
 
