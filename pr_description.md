@@ -1,6 +1,15 @@
-# 🧹 Refactor duplicated code in theme-updater.php
+🧪 [testing] Add tests for wm_ajax_search_products
 
-🎯 **What:** The code health issue addressed is a duplicated code block inside `check_for_update` method in `inc/theme-updater.php`. The array construction for `$transient->response` and `$transient->no_update` shared multiple identical key-value assignments.
-💡 **Why:** How this improves maintainability: By extracting the common base array into a variable `$update_data` and conditionally appending the 'new_version' key, we reduce duplication, making the code cleaner and less prone to copy-paste errors when changing the structure in the future.
-✅ **Verification:** How I confirmed the change is safe: I successfully ran PHPUnit tests via `./vendor/bin/phpunit` before and after the change, ensuring that my refactoring did not introduce any regressions.
-✨ **Result:** The improvement achieved is a cleaner and slightly more DRY `check_for_update` function inside the updater without any modification in behavioral logic.
+🎯 **What:** The testing gap addressed
+This PR addresses the missing unit tests for the `wm_ajax_search_products` function, which handles the AJAX live product search for the header modal.
+
+📊 **Coverage:** What scenarios are now tested
+- Empty and missing search terms
+- Short search terms (less than 2 characters)
+- Valid search terms with no matching products
+- Valid search terms with matching products
+- Fallback logic for determining product brand (using category if brand is missing)
+- Edge cases including handling products without images and ignoring non-visible products
+
+✨ **Result:** The improvement in test coverage
+The AJAX search functionality is now fully covered by unit tests using Brain\Monkey and PHPUnit, increasing confidence in future refactoring and ensuring the search logic remains stable.
