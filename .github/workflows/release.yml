@@ -56,7 +56,9 @@ jobs:
           generate_release_notes: true
 
       - name: Checkout dist repo
+        id: checkout_dist
         if: steps.version.outputs.skip == 'false'
+        continue-on-error: true
         uses: actions/checkout@v4
         with:
           repository: hamidnoshady/eshobe-ecommerce-wp-theme-dist
@@ -65,7 +67,7 @@ jobs:
           path: dist
 
       - name: Publish to dist repo (stable channel)
-        if: steps.version.outputs.skip == 'false'
+        if: steps.version.outputs.skip == 'false' && steps.checkout_dist.outcome == 'success'
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           mkdir -p dist/stable

@@ -31,17 +31,9 @@ jobs:
             -x ".git/*" ".github/*" ".gitignore" ".remember/*" ".superpowers/*" \
                ".playwright-mcp/*" "docs/*" "*.png"
 
-      - name: Check for dist repo token
-        id: check_token
-        run: |
-          if [ "${{ secrets.DIST_REPO_TOKEN }}" != "" ]; then
-            echo "has_token=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_token=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Checkout dist repo
-        if: steps.check_token.outputs.has_token == 'true'
+        id: checkout_dist
+        continue-on-error: true
         uses: actions/checkout@v4
         with:
           repository: hamidnoshady/eshobe-ecommerce-wp-theme-dist
@@ -50,7 +42,7 @@ jobs:
           path: dist
 
       - name: Publish to dist repo (beta channel)
-        if: steps.check_token.outputs.has_token == 'true'
+        if: steps.checkout_dist.outcome == 'success'
         run: |
           mkdir -p dist/beta
           cp eshobe-ecommerce-wp-theme.zip dist/beta/eshobe-ecommerce-wp-theme.zip
