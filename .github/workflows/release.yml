@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: hamidnoshady/eshobe-ecommerce-wp-theme-dist
-          token: ${{ secrets.DIST_REPO_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.DIST_REPO_TOKEN || github.token }}
           path: dist
 
       - name: Publish to dist repo (stable channel)
