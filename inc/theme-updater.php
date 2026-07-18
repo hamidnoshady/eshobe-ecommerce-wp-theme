@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * small update.json manifest — to the public dist repo. WordPress only ever
  * reads those two static public files, so no GitHub credentials belong here.
  *
- * Channel is picked on Appearance → Theme Updates (stable or beta).
+ * Channel is picked on Technical Settings → "به‌روزرسانی قالب" (stable or beta).
  */
 class WM_Theme_Updater {
 
@@ -27,7 +27,7 @@ class WM_Theme_Updater {
 	}
 
 	private function channel(): string {
-		return 'beta' === get_option( 'wm_theme_update_channel', 'stable' ) ? 'beta' : 'stable';
+		return function_exists( 'wm_technical_theme_update_channel' ) ? wm_technical_theme_update_channel() : 'stable';
 	}
 
 	/**
