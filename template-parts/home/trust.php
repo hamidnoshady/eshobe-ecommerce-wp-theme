@@ -5,7 +5,7 @@
  * @package WM_Theme
  */
 
-$items = wm_home_get_repeater_items(
+$items = wm_home_get_valid_items(
     'home_trust_items',
     function( $item ) {
         return ! empty( $item['trust_enabled'] ) && ! empty( $item['trust_title'] );

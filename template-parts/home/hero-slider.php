@@ -5,7 +5,7 @@
  * @package WM_Theme
  */
 
-$slides = wm_home_get_repeater_items(
+$slides = wm_home_get_valid_items(
     'home_hero_slides',
     function( $slide ) {
         return ! empty( $slide['slide_enabled'] ) && ( ! empty( $slide['slide_title'] ) || ! empty( $slide['slide_image_desktop'] ) );

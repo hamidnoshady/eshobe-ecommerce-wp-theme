@@ -5,7 +5,7 @@
  * @package WM_Theme
  */
 
-$brands = wm_home_get_repeater_items(
+$brands = wm_home_get_valid_items(
     'home_brand_items',
     function( $item ) {
         return ! empty( $item['brand_enabled'] ) && ! empty( $item['brand_term'] );

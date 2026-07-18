@@ -16,6 +16,23 @@ function wm_footer_get_option( $key, $default = '' ) {
     return $default;
 }
 
+/**
+ * Gets a footer option and filters its items using a callback.
+ *
+ * @param string   $key      The option key.
+ * @param callable $callback The callback function to use for filtering.
+ * @return array The filtered items.
+ */
+function wm_footer_get_valid_items( $key, $callback ) {
+    $items = wm_footer_get_option( $key, array() );
+
+    if ( ! is_array( $items ) || empty( $items ) ) {
+        return array();
+    }
+
+    return array_values( array_filter( $items, $callback ) );
+}
+
 function wm_footer_default_texts() {
     $site_name = get_bloginfo( 'name' );
 
@@ -105,7 +122,6 @@ function wm_footer_render_badge( $badge ) {
 
     $title = ! empty( $badge['badge_title'] ) ? $badge['badge_title'] : '';
     $url   = ! empty( $badge['badge_url'] ) ? $badge['badge_url'] : '';
-    $html  = '';
 
     if ( ! empty( $badge['badge_html_code'] ) ) {
         $html = wp_kses_post( $badge['badge_html_code'] );
@@ -135,16 +151,12 @@ function wm_footer_render_badge( $badge ) {
 }
 
 function wm_footer_render_badges() {
-    $badges = wm_footer_get_option( 'wm_footer_badges', array() );
-    $badges = array_values(
-        array_filter(
-            (array) $badges,
-            function( $badge ) {
-                return ! empty( $badge['badge_enabled'] ) && ( ! empty( $badge['badge_html_code'] ) || ! empty( $badge['badge_image'] ) || ! empty( $badge['badge_title'] ) );
-            }
-        )
+    $badges = wm_footer_get_valid_items(
+        'wm_footer_badges',
+        function( $badge ) {
+            return ! empty( $badge['badge_enabled'] ) && ( ! empty( $badge['badge_html_code'] ) || ! empty( $badge['badge_image'] ) || ! empty( $badge['badge_title'] ) );
+        }
     );
-
     if ( empty( $badges ) ) {
         return;
     }

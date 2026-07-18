@@ -17,22 +17,22 @@ function wm_home_get_option( $key, $default = '' ) {
 }
 
 /**
- * Gets a repeater field and optionally filters its items.
+ * Gets a home option and filters its items using a callback.
  *
- * @param string   $key      The ACF option key.
- * @param callable $callback Optional callback to filter the items.
- * @return array Filtered and re-indexed array of items.
+ * @param string   $key      The option key.
+ * @param callable $callback The callback function to use for filtering.
+ * @return array The filtered items.
  */
-function wm_home_get_repeater_items( $key, $callback = null ) {
+function wm_home_get_valid_items( $key, $callback ) {
     $items = wm_home_get_option( $key, array() );
-    $items = (array) $items;
 
-    if ( is_callable( $callback ) ) {
-        $items = array_filter( $items, $callback );
+    if ( ! is_array( $items ) || empty( $items ) ) {
+        return array();
     }
 
-    return array_values( $items );
+    return array_values( array_filter( $items, $callback ) );
 }
+
 
 function wm_home_enabled( $key, $default = true ) {
     $value = wm_home_get_option( $key, null );
