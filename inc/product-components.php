@@ -183,6 +183,11 @@ function wm_render_product_gallery() {
     $image_count = count( wm_get_product_gallery_ids( $product ) );
     $image_ids   = wm_get_product_gallery_ids( $product );
     $main_id     = ! empty( $image_ids ) ? $image_ids[0] : 0;
+
+    if ( ! empty( $image_ids ) && function_exists( 'update_meta_cache' ) ) {
+        update_meta_cache( 'post', $image_ids );
+    }
+
     $class       = 'wm-product-gallery ' . ( $image_count > 1 ? 'wm-product-gallery--has-thumbs' : 'wm-product-gallery--single' );
     $main_full   = $main_id ? wp_get_attachment_image_url( $main_id, 'full' ) : '';
     $main_large  = $main_id ? wp_get_attachment_image_url( $main_id, 'large' ) : '';
