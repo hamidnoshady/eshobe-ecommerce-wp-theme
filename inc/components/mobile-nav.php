@@ -100,27 +100,40 @@ function wm_mobile_nav_icon( $icon ) {
 }
 
 function wm_mobile_nav_primary_links() {
-    $links = array();
+    $tree = wm_mobile_nav_primary_tree();
+
+    $flat = array();
+    foreach ( $tree as $node ) {
+        if ( ! empty( $node['children'] ) ) {
+            continue;
+        }
+        $flat[] = array(
+            'label' => $node['label'],
+            'url'   => $node['url'],
+        );
+    }
+
+    return array_slice( $flat, 0, 8 );
+}
+
+/**
+ * Returns a hierarchical tree of the primary WordPress menu (top-level items
+ * with their nested children). The shop sheet renders each non-leaf node as a
+ * button that opens a drill-down sub-view in the same modal.
+ *
+ * @return array<int, array{id:int,label:string,url:string,children:array}>
+ */
+function wm_mobile_nav_primary_tree() {
+    $items_raw = array();
 
     if ( has_nav_menu( 'primary' ) || has_nav_menu( 'menu-1' ) ) {
         $locations = get_nav_menu_locations();
         $menu_id   = ! empty( $locations['primary'] ) ? $locations['primary'] : ( ! empty( $locations['menu-1'] ) ? $locations['menu-1'] : 0 );
-        $items     = $menu_id ? wp_get_nav_menu_items( $menu_id ) : array();
-
-        foreach ( (array) $items as $item ) {
-            if ( ! empty( $item->menu_item_parent ) ) {
-                continue;
-            }
-
-            $links[] = array(
-                'label' => $item->title,
-                'url'   => $item->url,
-            );
-        }
+        $items_raw = $menu_id ? wp_get_nav_menu_items( $menu_id ) : array();
     }
 
-    if ( empty( $links ) ) {
-        $links = array(
+    if ( empty( $items_raw ) ) {
+        $fallback = array(
             array( 'label' => __( 'خانه', 'eshobe-ecommerce' ), 'url' => home_url( '/' ) ),
             array( 'label' => __( 'فروشگاه', 'eshobe-ecommerce' ), 'url' => wm_mobile_nav_shop_url() ),
             array( 'label' => __( 'برندها', 'eshobe-ecommerce' ), 'url' => home_url( '/product-brand/' ) ),
@@ -128,9 +141,45 @@ function wm_mobile_nav_primary_links() {
             array( 'label' => __( 'پیشنهادها', 'eshobe-ecommerce' ), 'url' => add_query_arg( 'on_sale', '1', wm_mobile_nav_shop_url() ) ),
             array( 'label' => __( 'حساب کاربری', 'eshobe-ecommerce' ), 'url' => wm_mobile_nav_account_url() ),
         );
+
+        $tree = array();
+        foreach ( $fallback as $link ) {
+            $tree[] = array(
+                'id'       => 0,
+                'label'    => $link['label'],
+                'url'      => $link['url'],
+                'children' => array(),
+            );
+        }
+        return array_slice( $tree, 0, 8 );
     }
 
-    return array_slice( $links, 0, 8 );
+    $by_id = array();
+    foreach ( (array) $items_raw as $item ) {
+        $by_id[ $item->ID ] = array(
+            'id'       => (int) $item->ID,
+            'label'    => (string) $item->title,
+            'url'      => (string) $item->url,
+            'children' => array(),
+        );
+    }
+
+    foreach ( (array) $items_raw as $item ) {
+        $parent_id = (int) $item->menu_item_parent;
+        if ( $parent_id && isset( $by_id[ $parent_id ] ) ) {
+            $by_id[ $parent_id ]['children'][] = $by_id[ $item->ID ];
+        }
+    }
+
+    $root = array();
+    foreach ( (array) $items_raw as $item ) {
+        $parent_id = (int) $item->menu_item_parent;
+        if ( ! $parent_id || ! isset( $by_id[ $parent_id ] ) ) {
+            $root[] = $by_id[ $item->ID ];
+        }
+    }
+
+    return array_slice( $root, 0, 8 );
 }
 
 function wm_mobile_nav_items() {
@@ -196,17 +245,71 @@ function wm_render_mobile_sheet_header( $key, $title, $view_all_url = '' ) {
     <?php
 }
 
+function wm_render_mobile_shop_sheet_back_icon() {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+}
+
+function wm_render_mobile_shop_sheet_arrow_icon() {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+}
+
+/**
+ * Recursively render a list of menu items as a list of <a> and <button>
+ * chips. Items that have children render as buttons with the left-arrow
+ * indicator, plus this same function is invoked again to render their
+ * drill-down sub-view panel beside them.
+ *
+ * @param array  $items       Tree nodes from wm_mobile_nav_primary_tree().
+ * @param string $parent_view data-mobile-shop-view of the panel that contains this list ("root" for the root view).
+ * @param string $parent_key  Dot-separated path used to nest sub-view keys.
+ */
+function wm_render_mobile_shop_sheet_list( $items, $parent_view = 'root', $parent_key = 'root' ) {
+    ?>
+    <nav class="wm-mobile-sheet__links" aria-label="<?php echo esc_attr__( 'منوی فروشگاه', 'eshobe-ecommerce' ); ?>">
+        <?php foreach ( $items as $item ) :
+            $has_children  = ! empty( $item['children'] );
+            $view_key      = ( 'root' === $parent_key ) ? (string) $item['id'] : $parent_key . '__' . $item['id'];
+        ?>
+            <?php if ( $has_children ) : ?>
+                <button type="button" class="wm-mobile-shop-sheet__parent" data-mobile-shop-open="<?php echo esc_attr( $view_key ); ?>" aria-controls="wm-mobile-shop-sheet-view-<?php echo esc_attr( $view_key ); ?>" aria-expanded="false">
+                    <span class="wm-mobile-shop-sheet__label"><?php echo esc_html( $item['label'] ); ?></span>
+                    <span class="wm-mobile-shop-sheet__arrow" aria-hidden="true"><?php echo wm_render_mobile_shop_sheet_arrow_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                </button>
+            <?php else : ?>
+                <a href="<?php echo esc_url( $item['url'] ); ?>"><?php echo esc_html( $item['label'] ); ?></a>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </nav>
+    <?php
+    foreach ( $items as $item ) {
+        if ( empty( $item['children'] ) ) {
+            continue;
+        }
+        $view_key = ( 'root' === $parent_key ) ? (string) $item['id'] : $parent_key . '__' . $item['id'];
+        ?>
+        <section class="wm-mobile-shop-sheet__subview" id="wm-mobile-shop-sheet-view-<?php echo esc_attr( $view_key ); ?>" data-mobile-shop-view="<?php echo esc_attr( $view_key ); ?>" data-mobile-shop-parent="<?php echo esc_attr( $parent_view ); ?>" hidden>
+            <div class="wm-mobile-shop-sheet__subheader">
+                <button type="button" class="wm-mobile-shop-sheet__back" data-mobile-shop-back aria-label="<?php echo esc_attr__( 'بازگشت به منوی قبلی', 'eshobe-ecommerce' ); ?>">
+                    <span class="wm-mobile-shop-sheet__back-icon" aria-hidden="true"><?php echo wm_render_mobile_shop_sheet_back_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                </button>
+                <strong class="wm-mobile-shop-sheet__subtitle"><?php echo esc_html( $item['label'] ); ?></strong>
+            </div>
+            <?php wm_render_mobile_shop_sheet_list( $item['children'], $view_key, $view_key ); ?>
+        </section>
+        <?php
+    }
+}
+
 function wm_render_mobile_shop_sheet() {
+    $tree = wm_mobile_nav_primary_tree();
     ?>
     <section class="wm-mobile-sheet wm-mobile-sheet--shop" id="wm-mobile-sheet-shop" data-mobile-sheet="shop" aria-hidden="true">
         <div class="wm-mobile-sheet__panel">
             <?php wm_render_mobile_sheet_header( 'shop', __( 'فروشگاه', 'eshobe-ecommerce' ), wm_mobile_nav_shop_url() ); ?>
-            <div class="wm-mobile-sheet__body">
-                <nav class="wm-mobile-sheet__links" aria-label="<?php echo esc_attr__( 'لینک‌های فروشگاه', 'eshobe-ecommerce' ); ?>">
-                    <?php foreach ( wm_mobile_nav_primary_links() as $link ) : ?>
-                        <a href="<?php echo esc_url( $link['url'] ); ?>"><?php echo esc_html( $link['label'] ); ?></a>
-                    <?php endforeach; ?>
-                </nav>
+            <div class="wm-mobile-sheet__body wm-mobile-sheet__body--shop" data-mobile-shop-stage="root">
+                <div class="wm-mobile-shop-sheet__pane" data-mobile-shop-view="root" data-mobile-shop-parent="">
+                    <?php wm_render_mobile_shop_sheet_list( $tree, 'root', 'root' ); ?>
+                </div>
             </div>
         </div>
     </section>
