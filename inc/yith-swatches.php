@@ -94,27 +94,22 @@ function wm_get_term_swatch_data( $term, $taxonomy ) {
         $swatch_subtype = ywccl_get_term_meta( $term->term_id, '_yith_wccl_swatch_type', true, $taxonomy );
 
         if ( 'image_color' === $swatch_subtype ) {
-            $image_url = ywccl_get_term_meta( $term->term_id, '_yith_wccl_attribute_image', true, $taxonomy );
+            $value       = ywccl_get_term_meta( $term->term_id, '_yith_wccl_attribute_image', true, $taxonomy );
+            $swatch_type = 'image';
+        } else {
+            $colors = is_string( $value ) ? array_values( array_filter( array_map( 'trim', explode( ',', $value ) ) ) ) : array();
+
+            if ( empty( $colors ) ) {
+                return $fallback;
+            }
+
             return array(
-                'type'    => 'image',
-                'value'   => $image_url ? $image_url : '',
-                'value2'  => '',
+                'type'    => 'color',
+                'value'   => $colors[0],
+                'value2'  => isset( $colors[1] ) ? $colors[1] : '',
                 'tooltip' => $tooltip,
             );
         }
-
-        $colors = is_string( $value ) ? array_values( array_filter( array_map( 'trim', explode( ',', $value ) ) ) ) : array();
-
-        if ( empty( $colors ) ) {
-            return $fallback;
-        }
-
-        return array(
-            'type'    => 'color',
-            'value'   => $colors[0],
-            'value2'  => isset( $colors[1] ) ? $colors[1] : '',
-            'tooltip' => $tooltip,
-        );
     }
 
     if ( 'image' === $swatch_type ) {
