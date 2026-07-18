@@ -215,6 +215,10 @@ function wm_product_archive_filter_config() {
 }
 
 function wm_product_archive_get_filter_values( $key ) {
+    if ( ! isset( $_GET['wm_archive_nonce'] ) || ! wp_verify_nonce( sanitize_key( $_GET['wm_archive_nonce'] ), 'wm_product_archive_filter' ) ) {
+        return array();
+    }
+
     $keys = array( $key );
     if ( 'filter_product_cat' === $key ) {
         $keys[] = 'product_cat';
@@ -239,6 +243,10 @@ function wm_product_archive_get_filter_values( $key ) {
 }
 
 function wm_get_csv_request_values( $key ) {
+    if ( ! isset( $_GET['wm_archive_nonce'] ) || ! wp_verify_nonce( sanitize_key( $_GET['wm_archive_nonce'] ), 'wm_product_archive_filter' ) ) {
+        return array();
+    }
+
     if ( ! isset( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         return array();
     }
@@ -1040,6 +1048,7 @@ function wm_product_archive_render_custom_filters() {
     }
     ?>
     <form class="wm-custom-filters" method="get" action="<?php echo esc_url( wm_product_archive_reset_url() ); ?>" data-wm-custom-filters data-ajax-enabled="<?php echo esc_attr( ! empty( $config['ajax_enabled'] ) ? 'true' : 'false' ); ?>">
+        <?php echo wp_nonce_field( 'wm_product_archive_filter', 'wm_archive_nonce', false, false ); ?>
         <?php if ( isset( $_GET['orderby'] ) && 'menu_order' !== $_GET['orderby'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
             <input type="hidden" name="orderby" value="<?php echo esc_attr( wc_clean( wp_unslash( $_GET['orderby'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>">
         <?php endif; ?>
