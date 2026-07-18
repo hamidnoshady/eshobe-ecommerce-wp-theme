@@ -31,6 +31,18 @@ if ( empty( $items ) ) {
         </div>
     </div>
     <div class="wm-home-styles__grid">
+        <?php
+        // Preload term caches to avoid N+1 queries in the loop.
+        $term_ids_to_cache = array();
+        foreach ( $items as $item ) {
+            if ( empty( $item['style_url'] ) && ! empty( $item['style_term'] ) && is_numeric( $item['style_term'] ) ) {
+                $term_ids_to_cache[] = absint( $item['style_term'] );
+            }
+        }
+        if ( ! empty( $term_ids_to_cache ) ) {
+            _prime_term_caches( $term_ids_to_cache );
+        }
+        ?>
         <?php foreach ( $items as $item ) : ?>
             <?php
             $url = ! empty( $item['style_url'] ) ? $item['style_url'] : '';
