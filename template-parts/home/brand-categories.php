@@ -42,6 +42,23 @@ if ( empty( $brands ) ) {
         </div>
     </div>
     <div class="wm-home-brands__grid">
+        <?php
+        $brand_term_ids = array();
+        foreach ( $brands as $item ) {
+            if ( is_numeric( $item['brand_term'] ) ) {
+                $brand_term_ids[] = absint( $item['brand_term'] );
+            }
+        }
+        if ( ! empty( $brand_term_ids ) ) {
+            get_terms(
+                array(
+                    'taxonomy'   => 'product_brand',
+                    'include'    => $brand_term_ids,
+                    'hide_empty' => false,
+                )
+            );
+        }
+        ?>
         <?php foreach ( $brands as $item ) : ?>
             <?php
             $term = $item['brand_term'];
