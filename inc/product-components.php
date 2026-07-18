@@ -74,21 +74,26 @@ function wm_get_guarantee( $product_id ) {
         }
     }
 
-    foreach ( $meta_keys as $key ) {
-        $value = get_post_meta( $product_id, $key, true );
-        if ( ! empty( $value ) ) {
-            return wm_normalize_meta_value( $value );
+    $all_meta = get_post_meta( $product_id );
+    if ( ! empty( $all_meta ) && is_array( $all_meta ) ) {
+        foreach ( $meta_keys as $key ) {
+            if ( ! empty( $all_meta[ $key ] ) ) {
+                $value = is_array( $all_meta[ $key ] ) ? $all_meta[ $key ][0] : $all_meta[ $key ];
+                if ( ! empty( $value ) ) {
+                    return wm_normalize_meta_value( maybe_unserialize( $value ) );
+                }
+            }
         }
-    }
 
-    foreach ( get_post_meta( $product_id ) as $key => $values ) {
-        if ( false === strpos( $key, 'گارانتی' ) && false === stripos( $key, 'guarantee' ) && false === stripos( $key, 'warranty' ) ) {
-            continue;
-        }
+        foreach ( $all_meta as $key => $values ) {
+            if ( false === strpos( $key, 'گارانتی' ) && false === stripos( $key, 'guarantee' ) && false === stripos( $key, 'warranty' ) ) {
+                continue;
+            }
 
-        $value = reset( $values );
-        if ( ! empty( $value ) ) {
-            return wm_normalize_meta_value( maybe_unserialize( $value ) );
+            $value = is_array( $values ) ? reset( $values ) : $values;
+            if ( ! empty( $value ) ) {
+                return wm_normalize_meta_value( maybe_unserialize( $value ) );
+            }
         }
     }
 
