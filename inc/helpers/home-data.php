@@ -16,6 +16,17 @@ function wm_home_get_option( $key, $default = '' ) {
     return $default;
 }
 
+
+function wm_home_get_filtered_items( $key, $callback ) {
+    $items = wm_home_get_option( $key, array() );
+    return array_values(
+        array_filter(
+            (array) $items,
+            $callback
+        )
+    );
+}
+
 function wm_home_enabled( $key, $default = true ) {
     $value = wm_home_get_option( $key, null );
     return null === $value ? $default : (bool) $value;

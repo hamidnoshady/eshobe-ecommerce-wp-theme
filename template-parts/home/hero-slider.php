@@ -5,14 +5,11 @@
  * @package WM_Theme
  */
 
-$slides = wm_home_get_option( 'home_hero_slides', array() );
-$slides = array_values(
-    array_filter(
-        (array) $slides,
-        function( $slide ) {
-            return ! empty( $slide['slide_enabled'] ) && ( ! empty( $slide['slide_title'] ) || ! empty( $slide['slide_image_desktop'] ) );
-        }
-    )
+$slides = wm_home_get_filtered_items(
+    'home_hero_slides',
+    function( $slide ) {
+        return ! empty( $slide['slide_enabled'] ) && ( ! empty( $slide['slide_title'] ) || ! empty( $slide['slide_image_desktop'] ) );
+    }
 );
 
 if ( empty( $slides ) ) {

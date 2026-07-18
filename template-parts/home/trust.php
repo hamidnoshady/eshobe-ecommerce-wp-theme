@@ -5,14 +5,11 @@
  * @package WM_Theme
  */
 
-$items = wm_home_get_option( 'home_trust_items', array() );
-$items = array_values(
-    array_filter(
-        (array) $items,
-        function( $item ) {
-            return ! empty( $item['trust_enabled'] ) && ! empty( $item['trust_title'] );
-        }
-    )
+$items = wm_home_get_filtered_items(
+    'home_trust_items',
+    function( $item ) {
+        return ! empty( $item['trust_enabled'] ) && ! empty( $item['trust_title'] );
+    }
 );
 
 if ( empty( $items ) ) {

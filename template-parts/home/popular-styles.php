@@ -5,14 +5,11 @@
  * @package WM_Theme
  */
 
-$items = wm_home_get_option( 'home_popular_styles', array() );
-$items = array_values(
-    array_filter(
-        (array) $items,
-        function( $item ) {
-            return ! empty( $item['style_enabled'] ) && ! empty( $item['style_title'] ) && ( ! empty( $item['style_url'] ) || ! empty( $item['style_term'] ) );
-        }
-    )
+$items = wm_home_get_filtered_items(
+    'home_popular_styles',
+    function( $item ) {
+        return ! empty( $item['style_enabled'] ) && ! empty( $item['style_title'] ) && ( ! empty( $item['style_url'] ) || ! empty( $item['style_term'] ) );
+    }
 );
 
 if ( empty( $items ) ) {
