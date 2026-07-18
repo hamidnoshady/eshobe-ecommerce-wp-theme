@@ -82,9 +82,13 @@ function wm_build_header_mega_menus() {
 
     foreach ( $posts as $post ) {
         $key = (string) $post->ID;
+        $fields = get_fields( $post->ID );
+        if ( ! is_array( $fields ) ) {
+            $fields = array();
+        }
 
         $columns = array();
-        foreach ( (array) get_field( 'mega_columns', $post->ID ) as $column ) {
+        foreach ( (array) ( $fields['mega_columns'] ?? array() ) as $column ) {
             if ( empty( $column['column_enabled'] ) ) {
                 continue;
             }
@@ -110,14 +114,14 @@ function wm_build_header_mega_menus() {
         $menu = array(
             'mega_trigger_key'          => $key,
             'mega_title'                => $post->post_title,
-            'mega_subtitle'             => get_field( 'mega_subtitle', $post->ID ),
+            'mega_subtitle'             => $fields['mega_subtitle'] ?? '',
             'mega_columns'              => $columns,
-            'mega_feature_card_enabled' => get_field( 'mega_feature_card_enabled', $post->ID ),
-            'mega_feature_title'        => get_field( 'mega_feature_title', $post->ID ),
-            'mega_feature_text'         => get_field( 'mega_feature_text', $post->ID ),
-            'mega_feature_image'        => get_field( 'mega_feature_image', $post->ID ),
-            'mega_feature_url'          => get_field( 'mega_feature_url', $post->ID ),
-            'mega_feature_button_text'  => get_field( 'mega_feature_button_text', $post->ID ),
+            'mega_feature_card_enabled' => $fields['mega_feature_card_enabled'] ?? '',
+            'mega_feature_title'        => $fields['mega_feature_title'] ?? '',
+            'mega_feature_text'         => $fields['mega_feature_text'] ?? '',
+            'mega_feature_image'        => $fields['mega_feature_image'] ?? '',
+            'mega_feature_url'          => $fields['mega_feature_url'] ?? '',
+            'mega_feature_button_text'  => $fields['mega_feature_button_text'] ?? '',
         );
 
         $has_feature = ! empty( $menu['mega_feature_card_enabled'] ) && ( ! empty( $menu['mega_feature_title'] ) || ! empty( $menu['mega_feature_text'] ) || ! empty( $menu['mega_feature_image'] ) );
