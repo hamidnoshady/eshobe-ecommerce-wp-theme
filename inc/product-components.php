@@ -107,7 +107,7 @@ function wm_normalize_meta_value( $value ) {
     }
 
     if ( is_object( $value ) ) {
-        return '';
+        return isset( $value->name ) ? trim( function_exists('wp_strip_all_tags') ? wp_strip_all_tags( (string) $value->name ) : strip_tags( (string) $value->name ) ) : '';
     }
 
     return trim( wp_strip_all_tags( (string) $value ) );

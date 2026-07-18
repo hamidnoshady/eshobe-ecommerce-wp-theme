@@ -16,16 +16,23 @@ function wm_home_get_option( $key, $default = '' ) {
     return $default;
 }
 
-
-function wm_home_get_filtered_items( $key, $callback ) {
+/**
+ * Gets a home option and filters its items using a callback.
+ *
+ * @param string   $key      The option key.
+ * @param callable $callback The callback function to use for filtering.
+ * @return array The filtered items.
+ */
+function wm_home_get_valid_items( $key, $callback ) {
     $items = wm_home_get_option( $key, array() );
-    return array_values(
-        array_filter(
-            (array) $items,
-            $callback
-        )
-    );
+
+    if ( ! is_array( $items ) || empty( $items ) ) {
+        return array();
+    }
+
+    return array_values( array_filter( $items, $callback ) );
 }
+
 
 function wm_home_enabled( $key, $default = true ) {
     $value = wm_home_get_option( $key, null );
