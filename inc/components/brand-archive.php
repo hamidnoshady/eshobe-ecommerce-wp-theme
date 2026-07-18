@@ -8,6 +8,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * The fallback index bucket for brands with no English (Latin) characters.
+ */
+define( 'WM_BRAND_ARCHIVE_FALLBACK_INDEX', '#' );
+
+/**
  * Whether the current request is rendering the brand directory template.
  */
 function wm_brand_archive_is_context() {
@@ -29,14 +34,14 @@ function wm_brand_archive_index_letter( $name ) {
         return strtoupper( $matches[0] );
     }
 
-    return '#';
+    return WM_BRAND_ARCHIVE_FALLBACK_INDEX;
 }
 
 /**
  * Build the ordered list of index buckets: A-Z, then "#".
  */
 function wm_brand_archive_letter_order() {
-    return array_merge( range( 'A', 'Z' ), array( '#' ) );
+    return array_merge( range( 'A', 'Z' ), array( WM_BRAND_ARCHIVE_FALLBACK_INDEX ) );
 }
 
 /**
