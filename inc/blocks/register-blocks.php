@@ -11,7 +11,7 @@
  */
 
 function wm_blocks_get_registry() {
-    return array( 'home-section', 'product-carousel', 'filter-section', 'price-filter-card' );
+    return array( 'home-section', 'product-carousel', 'post-carousel', 'filter-section', 'price-filter-card' );
 }
 
 function wm_register_blocks_editor_script() {

@@ -1,7 +1,7 @@
 (function() {
-  document.querySelectorAll('[data-product-carousel]').forEach(function(section) {
-    var track = section.querySelector('.wm-product-carousel__track');
-    var arrows = section.querySelectorAll('.wm-product-carousel__arrow');
+  document.querySelectorAll('[data-product-carousel], [data-post-carousel]').forEach(function(section) {
+    var track = section.querySelector('.wm-product-carousel__track, .wm-post-carousel__track');
+    var arrows = section.querySelectorAll('.wm-product-carousel__arrow, .wm-post-carousel__arrow');
 
     if (!track || !arrows.length) {
       return;
@@ -22,8 +22,8 @@
           return;
         }
 
-        var card = track.querySelector('.wm-product-card');
-        var amount = card ? card.getBoundingClientRect().width + 18 : track.clientWidth * 0.8;
+        var card = track.firstElementChild;
+        var amount = card ? card.getBoundingClientRect().width + parseInt(window.getComputedStyle(track).gap || 16) : track.clientWidth * 0.8;
         var direction = arrow.getAttribute('data-carousel-direction');
         var rtl = window.getComputedStyle(track).direction === 'rtl';
         var delta = direction === 'next' ? amount : -amount;

@@ -203,6 +203,125 @@
 	} );
 
 	/* ---------------------------------------------------------------------
+	 * wm/post-carousel
+	 * ------------------------------------------------------------------ */
+	registerBlockType( 'wm/post-carousel', {
+		edit: function ( props ) {
+			var attributes = props.attributes;
+			var setAttributes = props.setAttributes;
+			var blockProps = useBlockProps();
+
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el(
+						PanelBody,
+						{ title: __( 'تنظیمات مقالات', 'eshobe-ecommerce' ) },
+						el( TextControl, {
+							label: __( 'اسلاگ دسته مقالات (خالی = همه)', 'eshobe-ecommerce' ),
+							value: attributes.category,
+							onChange: function ( value ) {
+								setAttributes( { category: value } );
+							},
+						} ),
+						el( RangeControl, {
+							label: __( 'تعداد مقالات', 'eshobe-ecommerce' ),
+							value: attributes.count,
+							min: 1,
+							max: 24,
+							onChange: function ( value ) {
+								setAttributes( { count: value } );
+							},
+						} ),
+						el( SelectControl, {
+							label: __( 'ترتیب بر اساس', 'eshobe-ecommerce' ),
+							value: attributes.orderby,
+							options: [
+								{ label: __( 'تاریخ', 'eshobe-ecommerce' ), value: 'date' },
+								{ label: __( 'عنوان', 'eshobe-ecommerce' ), value: 'title' },
+								{ label: __( 'تصادفی', 'eshobe-ecommerce' ), value: 'rand' },
+							],
+							onChange: function ( value ) {
+								setAttributes( { orderby: value } );
+							},
+						} ),
+						el( SelectControl, {
+							label: __( 'جهت ترتیب', 'eshobe-ecommerce' ),
+							value: attributes.order,
+							options: [
+								{ label: __( 'نزولی', 'eshobe-ecommerce' ), value: 'DESC' },
+								{ label: __( 'صعودی', 'eshobe-ecommerce' ), value: 'ASC' },
+							],
+							onChange: function ( value ) {
+								setAttributes( { order: value } );
+							},
+						} )
+					),
+					el(
+						PanelBody,
+						{ title: __( 'نمایش', 'eshobe-ecommerce' ) },
+						el( TextControl, {
+							label: __( 'عنوان', 'eshobe-ecommerce' ),
+							value: attributes.title,
+							onChange: function ( value ) {
+								setAttributes( { title: value } );
+							},
+						} ),
+						el( TextControl, {
+							label: __( 'زیرعنوان', 'eshobe-ecommerce' ),
+							value: attributes.subtitle,
+							onChange: function ( value ) {
+								setAttributes( { subtitle: value } );
+							},
+						} ),
+						el( RangeControl, {
+							label: __( 'ستون‌ها (دسکتاپ)', 'eshobe-ecommerce' ),
+							value: attributes.columnsDesktop,
+							min: 1,
+							max: 6,
+							onChange: function ( value ) {
+								setAttributes( { columnsDesktop: value } );
+							},
+						} ),
+						el( RangeControl, {
+							label: __( 'ستون‌ها (تبلت)', 'eshobe-ecommerce' ),
+							value: attributes.columnsTablet,
+							min: 1,
+							max: 4,
+							onChange: function ( value ) {
+								setAttributes( { columnsTablet: value } );
+							},
+						} ),
+						el( RangeControl, {
+							label: __( 'ستون‌ها (موبایل)', 'eshobe-ecommerce' ),
+							value: attributes.columnsMobile,
+							min: 1,
+							max: 3,
+							onChange: function ( value ) {
+								setAttributes( { columnsMobile: value } );
+							},
+						} )
+					)
+				),
+				el(
+					'div',
+					blockProps,
+					el( ServerSideRender, {
+						block: 'wm/post-carousel',
+						attributes: attributes,
+					} )
+				)
+			);
+		},
+		save: function () {
+			return null;
+		},
+	} );
+
+	/* ---------------------------------------------------------------------
 	 * wm/filter-section (InnerBlocks container for wm/price-filter-card)
 	 * ------------------------------------------------------------------ */
 	registerBlockType( 'wm/filter-section', {
