@@ -255,7 +255,74 @@
 	/* ---------------------------------------------------------------------
 	 * wm/price-filter-card
 	 * ------------------------------------------------------------------ */
-	function TermSelect( props ) {
+	// Two-level picker for hierarchical taxonomies: a parent dropdown (top-level
+	// terms only) plus an optional child dropdown that appears once a parent
+	// with children is chosen. Picking a parent alone links to the parent
+	// term itself; picking a child narrows to that child.
+	function HierarchicalTermSelect( props ) {
+		var taxonomy = props.taxonomy;
+		var value = props.value;
+		var onChange = props.onChange;
+
+		var selectedTerm = useSelect(
+			function ( select ) {
+				return value ? select( 'core' ).getEntityRecord( 'taxonomy', taxonomy, value ) : null;
+			},
+			[ taxonomy, value ]
+		);
+		var parents = useSelect(
+			function ( select ) {
+				return select( 'core' ).getEntityRecords( 'taxonomy', taxonomy, { parent: 0, per_page: -1, hide_empty: false, orderby: 'name', order: 'asc' } );
+			},
+			[ taxonomy ]
+		);
+
+		var parentValue = selectedTerm ? ( selectedTerm.parent || selectedTerm.id ) : 0;
+
+		var children = useSelect(
+			function ( select ) {
+				return parentValue ? select( 'core' ).getEntityRecords( 'taxonomy', taxonomy, { parent: parentValue, per_page: -1, hide_empty: false, orderby: 'name', order: 'asc' } ) : null;
+			},
+			[ taxonomy, parentValue ]
+		);
+
+		var parentOptions = [ { label: __( 'انتخاب کنید…', 'eshobe-ecommerce' ), value: 0 } ].concat(
+			( parents || [] ).map( function ( term ) {
+				return { label: term.name, value: term.id };
+			} )
+		);
+		var childValue = selectedTerm && selectedTerm.parent ? selectedTerm.id : 0;
+		var childOptions = [ { label: __( 'استفاده از دسته والد (بدون زیرمجموعه)', 'eshobe-ecommerce' ), value: 0 } ].concat(
+			( children || [] ).map( function ( term ) {
+				return { label: term.name, value: term.id };
+			} )
+		);
+
+		return el(
+			Fragment,
+			null,
+			el( SelectControl, {
+				label: __( 'طبقه‌بندی والد', 'eshobe-ecommerce' ),
+				value: parentValue,
+				options: parentOptions,
+				onChange: function ( newValue ) {
+					onChange( parseInt( newValue, 10 ) || 0 );
+				},
+			} ),
+			!! ( parentValue && children && children.length ) &&
+				el( SelectControl, {
+					label: __( 'زیرمجموعه (اختیاری)', 'eshobe-ecommerce' ),
+					value: childValue,
+					options: childOptions,
+					onChange: function ( newValue ) {
+						var id = parseInt( newValue, 10 ) || 0;
+						onChange( id || parentValue );
+					},
+				} )
+		);
+	}
+
+	function FlatTermSelect( props ) {
 		var taxonomy = props.taxonomy;
 		var value = props.value;
 		var onChange = props.onChange;
@@ -267,10 +334,11 @@
 			[ taxonomy ]
 		);
 
-		var options = [ { label: __( 'انتخاب کنید…', 'eshobe-ecommerce' ), value: 0 } ];
-		( terms || [] ).forEach( function ( term ) {
-			options.push( { label: term.name, value: term.id } );
-		} );
+		var options = [ { label: __( 'انتخاب کنید…', 'eshobe-ecommerce' ), value: 0 } ].concat(
+			( terms || [] ).map( function ( term ) {
+				return { label: term.name, value: term.id };
+			} )
+		);
 
 		return el( SelectControl, {
 			label: __( 'ترم', 'eshobe-ecommerce' ),
@@ -280,6 +348,10 @@
 				onChange( parseInt( newValue, 10 ) || 0 );
 			},
 		} );
+	}
+
+	function TermSelect( props ) {
+		return props.hierarchical ? el( HierarchicalTermSelect, props ) : el( FlatTermSelect, props );
 	}
 
 	registerBlockType( 'wm/price-filter-card', {
@@ -409,6 +481,7 @@
 						needsTerm &&
 							el( TermSelect, {
 								taxonomy: attributes.taxonomy,
+								hierarchical: !! ( data.taxonomies[ attributes.taxonomy ] && data.taxonomies[ attributes.taxonomy ].hierarchical ),
 								value: attributes.termId,
 								onChange: function ( value ) {
 									setAttributes( { termId: value } );

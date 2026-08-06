@@ -164,8 +164,12 @@ function wm_header_render_topbar() {
     <?php
 }
 
-function wm_header_render_menu() {
+function wm_header_render_menu( $context = 'desktop' ) {
     $menu_location = has_nav_menu( 'primary' ) ? 'primary' : 'menu-1';
+
+    if ( 'mobile' === $context && has_nav_menu( 'mobile' ) ) {
+        $menu_location = 'mobile';
+    }
 
     if ( has_nav_menu( $menu_location ) ) {
         wp_nav_menu(
@@ -334,7 +338,7 @@ function wm_render_site_header() {
                 <button type="button" class="wm-tablet-nav-drawer__close" data-tablet-nav-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>">&times;</button>
             </div>
             <div class="wm-tablet-nav-drawer__body">
-                <?php wm_header_render_menu(); ?>
+                <?php wm_header_render_menu( 'mobile' ); ?>
             </div>
         </div>
     </header>

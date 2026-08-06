@@ -58,6 +58,7 @@ $item = array(
     'filter_link_mode'   => $a['linkMode'],
     'filter_manual_url'  => $a['manualUrl'],
     'filter_term'        => $term,
+    'filter_taxonomy'    => $a['taxonomy'],
     'filter_min_price'   => $a['minPrice'] ? $a['minPrice'] : '',
     'filter_max_price'   => $a['maxPrice'] ? $a['maxPrice'] : '',
     'filter_color_value' => $a['colorValue'],

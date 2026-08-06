@@ -61,24 +61,114 @@
   }
 
   // Shop drill-down: each non-leaf menu item renders as a button with
-  // data-mobile-shop-open="<view>"; clicking it swaps which sub-view stack
-  // panel is visible inside the same modal sheet.
+  // data-mobile-shop-open="<view>"; clicking it crossfades to that item's
+  // own pane (a flat sibling in the DOM, see wm_render_mobile_shop_sheet_panes())
+  // inside the same modal sheet.
+  const SHOP_ANIM_MS = 200;
+
+  // The header's "مشاهده همه" or "تمام مدل های [نام دسته]" link points at
+  // whatever is currently shown, and the back button shows when drilled down.
+  function updateShopHeader(sheet, activeKey) {
+    if (!sheet) {
+      return;
+    }
+    const stage = sheet.querySelector('[data-mobile-shop-stage]');
+    const header = sheet.querySelector('[data-mobile-shop-header]');
+    if (!stage || !header) {
+      return;
+    }
+    const pane = stage.querySelector('[data-mobile-shop-view="' + activeKey + '"]');
+    if (!pane) {
+      return;
+    }
+    const title = header.querySelector('[data-mobile-shop-title]');
+    const viewAll = header.querySelector('[data-mobile-shop-view-all]');
+    const backBtn = header.querySelector('[data-mobile-shop-back]');
+
+    const isRoot = activeKey === 'root';
+
+    if (backBtn) {
+      backBtn.hidden = isRoot;
+    }
+
+    if (title) {
+      const label = pane.getAttribute('data-mobile-shop-label');
+      if (label) {
+        title.textContent = isRoot ? 'فروشگاه' : label;
+      }
+    }
+    if (viewAll) {
+      const url = pane.getAttribute('data-mobile-shop-url');
+      if (url) {
+        viewAll.setAttribute('href', url);
+      }
+      const label = pane.getAttribute('data-mobile-shop-label');
+      if (isRoot) {
+        viewAll.textContent = 'مشاهده همه';
+      } else if (label) {
+        viewAll.textContent = 'تمام مدل های ' + label;
+      }
+    }
+  }
+
+  // Crossfades from whichever pane is currently visible to `targetKey`
+  // (drilling deeper is the only direction — there's no in-modal way back,
+  // the header's "مشاهده همه" link is how you leave a drilled-into category).
+  function setActiveShopPane(stage, targetKey) {
+    const target = stage.querySelector('[data-mobile-shop-view="' + targetKey + '"]');
+    if (!target) {
+      return;
+    }
+    const current = Array.prototype.find.call(
+      stage.querySelectorAll('[data-mobile-shop-view]'),
+      function(pane) { return pane !== target && !pane.hidden; }
+    );
+
+    if (!current && stage.getAttribute('data-mobile-shop-stage') === targetKey) {
+      return;
+    }
+
+    target.hidden = false;
+    target.classList.add('is-entering', 'is-from-right');
+    // Force a reflow so the class above applies before we transition away from it.
+    void target.offsetWidth; // eslint-disable-line no-void
+
+    window.requestAnimationFrame(function() {
+      target.classList.remove('is-entering', 'is-from-right');
+      if (current) {
+        current.classList.add('is-leaving', 'is-to-left');
+      }
+    });
+
+    if (current) {
+      window.setTimeout(function() {
+        current.hidden = true;
+        current.classList.remove('is-leaving', 'is-to-left');
+      }, SHOP_ANIM_MS);
+    }
+
+    stage.setAttribute('data-mobile-shop-stage', targetKey);
+    updateShopHeader(stage.closest('.wm-mobile-sheet'), targetKey);
+  }
+
   function resetShopStage() {
     const stages = root.querySelectorAll('[data-mobile-shop-stage]');
     stages.forEach(function(stage) {
       const panes = stage.querySelectorAll('[data-mobile-shop-view]');
       panes.forEach(function(pane) {
         pane.hidden = true;
+        pane.classList.remove('is-entering', 'is-leaving', 'is-from-right', 'is-to-left');
       });
       const rootPane = stage.querySelector('[data-mobile-shop-view="root"]');
       if (rootPane) {
         rootPane.hidden = false;
-        stage.setAttribute('data-mobile-shop-stage', 'root');
       }
+      stage.setAttribute('data-mobile-shop-stage', 'root');
       const openButtons = stage.querySelectorAll('[data-mobile-shop-open]');
       openButtons.forEach(function(btn) {
         btn.setAttribute('aria-expanded', 'false');
       });
+      updateShopHeader(stage.closest('.wm-mobile-sheet'), 'root');
     });
   }
 
@@ -91,17 +181,7 @@
   }
 
   function openShopView(stage, viewKey, triggerButton) {
-    const target = stage.querySelector('[data-mobile-shop-view="' + viewKey + '"]');
-    if (!target) {
-      return;
-    }
-
-    const panes = stage.querySelectorAll('[data-mobile-shop-view]');
-    panes.forEach(function(pane) {
-      pane.hidden = true;
-    });
-    target.hidden = false;
-    stage.setAttribute('data-mobile-shop-stage', viewKey);
+    setActiveShopPane(stage, viewKey);
 
     if (triggerButton) {
       triggerButton.setAttribute('aria-expanded', 'true');
@@ -116,49 +196,6 @@
       }
       btn.setAttribute('aria-expanded', 'false');
     });
-
-    if (typeof target.scrollIntoView === 'function') {
-      const sheet = stage.closest('.wm-mobile-sheet');
-      const body = sheet ? sheet.querySelector('.wm-mobile-sheet__body') : null;
-      if (body) {
-        body.scrollTop = 0;
-      }
-    }
-  }
-
-  function backShopView(stage) {
-    const current = stage.getAttribute('data-mobile-shop-stage') || 'root';
-    if (current === 'root') {
-      return;
-    }
-    const currentPane = stage.querySelector('[data-mobile-shop-view="' + current + '"]');
-    const parentKey = currentPane ? currentPane.getAttribute('data-mobile-shop-parent') : '';
-    const targetKey = parentKey || 'root';
-
-    const target = stage.querySelector('[data-mobile-shop-view="' + targetKey + '"]');
-    if (!target) {
-      return;
-    }
-    const panes = stage.querySelectorAll('[data-mobile-shop-view]');
-    panes.forEach(function(pane) {
-      pane.hidden = true;
-    });
-    target.hidden = false;
-    stage.setAttribute('data-mobile-shop-stage', targetKey);
-
-    const openButtons = stage.querySelectorAll('[data-mobile-shop-open]');
-    openButtons.forEach(function(btn) {
-      btn.setAttribute('aria-expanded', 'false');
-    });
-    // Restore `aria-expanded="true"` for the trigger that opened this view
-    // chain leading up to currentKey.
-    const openKey = targetKey === 'root' ? null : targetKey;
-    if (openKey) {
-      const rootTrigger = stage.querySelector('[data-mobile-shop-open="' + openKey + '"]');
-      if (rootTrigger) {
-        rootTrigger.setAttribute('aria-expanded', 'true');
-      }
-    }
 
     const sheet = stage.closest('.wm-mobile-sheet');
     const body = sheet ? sheet.querySelector('.wm-mobile-sheet__body') : null;
@@ -199,8 +236,24 @@
     }
   });
 
-  // Delegated handlers for the drill-down sub-views.
+  // Delegated handlers for the drill-down sub-views and back button navigation.
   document.addEventListener('click', function(event) {
+    const backBtn = event.target.closest('[data-mobile-shop-back]');
+    if (backBtn) {
+      event.preventDefault();
+      const sheet = backBtn.closest('.wm-mobile-sheet');
+      const stage = sheet ? sheet.querySelector('[data-mobile-shop-stage]') : null;
+      if (!stage) {
+        return;
+      }
+      const activeKey = stage.getAttribute('data-mobile-shop-stage');
+      const activePane = stage.querySelector('[data-mobile-shop-view="' + activeKey + '"]');
+      const parentKey = activePane ? activePane.getAttribute('data-mobile-shop-parent') : 'root';
+
+      openShopView(stage, parentKey || 'root', null);
+      return;
+    }
+
     const openBtn = event.target.closest('[data-mobile-shop-open]');
     if (openBtn) {
       const stage = findShopStage(openBtn);
@@ -210,17 +263,6 @@
       event.preventDefault();
       const viewKey = openBtn.getAttribute('data-mobile-shop-open');
       openShopView(stage, viewKey, openBtn);
-      return;
-    }
-
-    const backBtn = event.target.closest('[data-mobile-shop-back]');
-    if (backBtn) {
-      const stage = findShopStage(backBtn);
-      if (!stage) {
-        return;
-      }
-      event.preventDefault();
-      backShopView(stage);
     }
   });
 })();

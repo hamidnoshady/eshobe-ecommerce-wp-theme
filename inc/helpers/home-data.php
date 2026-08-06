@@ -314,11 +314,15 @@ function wm_build_filter_box_url( $item ) {
     }
 
     $term = ! empty( $item['filter_term'] ) ? $item['filter_term'] : ( ! empty( $item['filter_gender_term'] ) ? $item['filter_gender_term'] : '' );
-    if ( $term && in_array( $mode, array( 'taxonomy_term', 'taxonomy_and_price' ), true ) ) {
-        $term_link = get_term_link( $term );
-        $base_url  = is_wp_error( $term_link ) ? '' : $term_link;
-    } else {
-        $base_url = '';
+    $base_url = '';
+    if ( in_array( $mode, array( 'taxonomy_term', 'taxonomy_and_price' ), true ) ) {
+        if ( $term ) {
+            $term_link = get_term_link( $term );
+            $base_url  = is_wp_error( $term_link ) ? '' : $term_link;
+        } elseif ( ! empty( $item['filter_taxonomy'] ) && function_exists( 'wm_taxonomy_landing_get_base_url' ) ) {
+            // No specific term picked — link to the "all products in this taxonomy" landing page.
+            $base_url = wm_taxonomy_landing_get_base_url( $item['filter_taxonomy'] );
+        }
     }
 
     if ( ! $base_url ) {

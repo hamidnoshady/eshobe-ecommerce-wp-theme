@@ -63,23 +63,46 @@ add_filter( 'block_categories_all', 'wm_register_blocks_category' );
 
 /**
  * Taxonomies offered in the product-carousel / price-filter-card block controls.
+ * Discovers every public product taxonomy (categories, tags, brand, other
+ * custom taxonomies) plus WooCommerce attribute taxonomies, instead of a
+ * hardcoded slug list, so newly added taxonomies show up automatically.
  *
- * @return array<string, string> taxonomy slug => human label.
+ * @return array<string, array{label: string, hierarchical: bool}>
  */
 function wm_blocks_get_supported_taxonomies() {
-    $labels     = array();
-    $candidates = array( 'product_cat', 'product_tag', 'product_brand', 'pa_brand', 'brand' );
+    $taxonomies = array();
+    $excluded   = array( 'product_type', 'product_visibility', 'product_shipping_class', 'pos_product_visibility' );
 
-    foreach ( $candidates as $taxonomy ) {
-        if ( ! taxonomy_exists( $taxonomy ) ) {
+    foreach ( get_object_taxonomies( 'product', 'objects' ) as $slug => $object ) {
+        if ( empty( $object->public ) || in_array( $slug, $excluded, true ) ) {
             continue;
         }
 
-        $object            = get_taxonomy( $taxonomy );
-        $labels[ $taxonomy ] = ( $object && ! empty( $object->labels->singular_name ) ) ? $object->labels->singular_name : $taxonomy;
+        $taxonomies[ $slug ] = array(
+            'label'        => ! empty( $object->labels->singular_name ) ? $object->labels->singular_name : $slug,
+            'hierarchical' => ! empty( $object->hierarchical ),
+        );
     }
 
-    return $labels;
+    if ( function_exists( 'wc_get_attribute_taxonomies' ) && function_exists( 'wc_attribute_taxonomy_name' ) ) {
+        foreach ( wc_get_attribute_taxonomies() as $attribute ) {
+            if ( empty( $attribute->attribute_name ) ) {
+                continue;
+            }
+
+            $slug = wc_attribute_taxonomy_name( $attribute->attribute_name );
+            if ( isset( $taxonomies[ $slug ] ) ) {
+                continue;
+            }
+
+            $taxonomies[ $slug ] = array(
+                'label'        => $attribute->attribute_label,
+                'hierarchical' => false, // WooCommerce attribute taxonomies never support term parent/child.
+            );
+        }
+    }
+
+    return $taxonomies;
 }
 
 /**

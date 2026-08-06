@@ -1058,7 +1058,7 @@
   z-index: 1;
   color: inherit;
   font-weight: inherit;
-  direction: rtl;
+  direction: ltr !important;
 }
 
 .wm-related-card__actions {
