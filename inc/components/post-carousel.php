@@ -38,7 +38,15 @@ function wm_render_post_carousel( $posts, $args = array() ) {
         <div class="wm-home-section__header">
             <div>
                 <?php if ( $args['title'] ) : ?>
-                    <h2 class="wm-home-section__title"><?php echo esc_html( $args['title'] ); ?></h2>
+                    <div class="wm-home-section__title-wrap">
+                        <h2 class="wm-home-section__title"><?php echo esc_html( $args['title'] ); ?></h2>
+                        <?php if ( ! empty( $args['view_all'] ) ) : ?>
+                            <a href="<?php echo esc_url( $args['view_all'] ); ?>" class="wm-home-button wm-home-button--outline wm-home-button--sm">
+                                <?php esc_html_e( 'مشاهده همه', 'eshobe-ecommerce' ); ?>
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
                 <?php if ( $args['subtitle'] ) : ?>
                     <p class="wm-home-section__subtitle"><?php echo esc_html( $args['subtitle'] ); ?></p>
@@ -46,13 +54,6 @@ function wm_render_post_carousel( $posts, $args = array() ) {
             </div>
             
             <div class="wm-home-section__actions" style="display: flex; gap: 12px; align-items: center;">
-                <?php if ( ! empty( $args['view_all'] ) ) : ?>
-                    <a href="<?php echo esc_url( $args['view_all'] ); ?>" class="wm-home-section__link">
-                        <?php esc_html_e( 'مشاهده همه', 'eshobe-ecommerce' ); ?>
-                        <span aria-hidden="true">&larr;</span>
-                    </a>
-                <?php endif; ?>
-
                 <div class="wm-product-carousel__controls">
                     <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="prev" aria-label="<?php esc_attr_e( 'قبلی', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">‹</span></button>
                     <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="next" aria-label="<?php esc_attr_e( 'بعدی', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">›</span></button>

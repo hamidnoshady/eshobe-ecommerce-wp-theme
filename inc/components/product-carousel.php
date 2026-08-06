@@ -17,6 +17,7 @@ function wm_render_product_carousel( $products, $args = array() ) {
             'title'    => '',
             'subtitle' => '',
             'class'    => '',
+            'view_all' => '',
         )
     );
 
@@ -28,7 +29,15 @@ function wm_render_product_carousel( $products, $args = array() ) {
         <div class="wm-home-section__header">
             <div>
                 <?php if ( $args['title'] ) : ?>
-                    <h2 class="wm-home-section__title"><?php echo esc_html( $args['title'] ); ?></h2>
+                    <div class="wm-home-section__title-wrap">
+                        <h2 class="wm-home-section__title"><?php echo esc_html( $args['title'] ); ?></h2>
+                        <?php if ( ! empty( $args['view_all'] ) ) : ?>
+                            <a href="<?php echo esc_url( $args['view_all'] ); ?>" class="wm-home-button wm-home-button--outline wm-home-button--sm">
+                                <?php esc_html_e( 'مشاهده همه', 'eshobe-ecommerce' ); ?>
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
                 <?php if ( $args['subtitle'] ) : ?>
                     <p class="wm-home-section__subtitle"><?php echo esc_html( $args['subtitle'] ); ?></p>
