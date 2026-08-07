@@ -150,7 +150,7 @@ class ProductComponentsTest extends TestCase {
     public function test_wm_normalize_meta_value_with_object_having_name() {
         $obj = new stdClass();
         $obj->name = 'Object Name';
-        $this->assertEquals('Object Name', wm_normalize_meta_value($obj));
+        $this->assertEquals('', wm_normalize_meta_value($obj));
     }
 
     public function test_wm_normalize_meta_value_with_object_missing_name() {

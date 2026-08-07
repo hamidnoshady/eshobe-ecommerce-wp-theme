@@ -10,13 +10,7 @@ function wm_get_current_product() {
         return null;
     }
 
-    global $product;
-    if ( $product instanceof WC_Product ) {
-        return $product;
-    }
-
-    $product_id = get_the_ID();
-    return $product_id ? wc_get_product( $product_id ) : null;
+    return wc_get_product();
 }
 
 function wm_get_terms_for_product( $product_id, $taxonomy ) {
