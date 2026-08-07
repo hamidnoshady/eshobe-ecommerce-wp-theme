@@ -1,0 +1,11 @@
+--- inc/product-components.php
++++ inc/product-components.php
+@@ -107,6 +107,9 @@ function wm_normalize_meta_value( $value ) {
+     }
+
+     if ( is_object( $value ) ) {
++        if ( isset( $value->name ) ) {
++            return trim( wp_strip_all_tags( (string) $value->name ) );
++        }
+         return '';
+     }
