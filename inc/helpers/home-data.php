@@ -340,6 +340,16 @@ function wm_build_filter_box_url( $item ) {
      */
     $query = apply_filters( 'wm_filter_box_query_args', $query, $item );
 
+    // Map to YITH filter URL format if custom filters are disabled.
+    if ( ! empty( $query ) && function_exists( 'wm_product_archive_bool_option' ) && ! wm_product_archive_bool_option( 'wm_archive_custom_filters_enabled', true ) ) {
+        $yith_query = array( 'yith_wcan' => '1' );
+        foreach ( $query as $key => $val ) {
+            $yith_query[ $key ] = $val;
+        }
+
+        $query = $yith_query;
+    }
+
     return esc_url_raw( add_query_arg( $query, $base_url ) );
 }
 
