@@ -267,11 +267,27 @@ function wm_ajax_otp_verify_code() {
 	$transient_key = 'wm_otp_code_' . md5( $phone );
 	$expected_code = get_transient( $transient_key );
 
-	if ( ! $expected_code || ! hash_equals( (string) $expected_code, $code ) ) {
+	if ( ! $expected_code ) {
 		wp_send_json_error( array( 'message' => 'کد وارد شده نادرست یا منقضی شده است.' ) );
 	}
 
+	if ( ! hash_equals( (string) $expected_code, $code ) ) {
+		$attempts_key = 'wm_otp_attempts_' . md5( $phone );
+		$attempts     = (int) get_transient( $attempts_key );
+		$attempts++;
+
+		if ( $attempts >= 5 ) {
+			delete_transient( $transient_key );
+			delete_transient( $attempts_key );
+			wp_send_json_error( array( 'message' => 'تعداد تلاش‌های ناموفق بیش از حد مجاز است. لطفاً کد جدیدی دریافت کنید.' ) );
+		} else {
+			set_transient( $attempts_key, $attempts, 2 * MINUTE_IN_SECONDS );
+			wp_send_json_error( array( 'message' => 'کد وارد شده نادرست است.' ) );
+		}
+	}
+
 	delete_transient( $transient_key );
+	delete_transient( 'wm_otp_attempts_' . md5( $phone ) );
 	delete_transient( 'wm_otp_throttle_' . md5( $phone ) );
 
 	$user = wm_otp_get_user_by_phone( $phone );
