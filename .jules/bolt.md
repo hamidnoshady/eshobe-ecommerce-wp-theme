@@ -1,0 +1,3 @@
+## 2026-06-25 - WordPress Option Lookup Memoization Pattern
+**Learning:** WordPress configuration array builder functions (like `wm_product_archive_filter_config`) that parse multiple taxonomy structures, hit standard WordPress option getters, and map/filter arrays multiple times are a prime target for redundant processing when rendering complex UI like shop sidebars and product listings. They are repeatedly invoked across multiple hooks or internal functions.
+**Action:** Use a static variable pattern (`static $cache = null; if ( null !== $cache ) return $cache;`) inside configuration builder functions that are called frequently during a single request lifecycle but whose underlying state doesn't mutate.
