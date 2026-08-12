@@ -1,0 +1,3 @@
+## 2024-08-12 - O(n²) Array Filtering in Recursive Tree Rendering
+**Learning:** In PHP, using `array_filter` inside a recursive tree rendering function to find a node's children creates an O(N²) time complexity bottleneck, especially when the total number of terms is large. The overhead of repeatedly scanning the entire array for every node at every depth significantly impacts frontend performance for deep or large taxonomies.
+**Action:** When recursively rendering trees from a flat list, always pre-compute a parent-to-children map (e.g., `$hierarchy[ $parent_id ][] = $term`) once in a static variable. Similarly, use `array_flip` to convert active selection lists into hash maps (`isset($map[$key])`) to eliminate nested O(N) `in_array` lookups.
