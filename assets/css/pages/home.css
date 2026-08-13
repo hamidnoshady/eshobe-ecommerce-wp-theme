@@ -110,6 +110,43 @@
   object-fit: cover;
 }
 
+.wm-home-hero__slide.wm-home-hero__slide--video {
+  min-height: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.wm-home-hero__slide--video.is-active,
+.wm-home-hero__slide--video.is-entering,
+.wm-home-hero__slide--video.is-leaving {
+  display: block;
+}
+
+.wm-home-hero__slide--video.is-leaving {
+  position: absolute;
+  inset: 0;
+}
+
+.wm-home-hero__slide--video .wm-home-hero__video-link {
+  display: block;
+  width: 100%;
+}
+
+.wm-home-hero__slide--video .wm-home-hero__video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  object-fit: cover;
+  background: #111827;
+}
+
+.wm-home-hero__slide--video.is-leaving .wm-home-hero__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .wm-home-hero__content {
   display: flex;
   flex-direction: column;

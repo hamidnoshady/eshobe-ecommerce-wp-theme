@@ -81,6 +81,40 @@ function wm_home_get_image_html( $image, $size = 'large', $attrs = array() ) {
     return '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $alt ) . '" loading="' . esc_attr( $loading ) . '" decoding="async">';
 }
 
+function wm_home_get_video_url( $video ) {
+    if ( empty( $video ) ) {
+        return '';
+    }
+
+    if ( is_array( $video ) ) {
+        return ! empty( $video['url'] ) ? $video['url'] : '';
+    }
+
+    if ( is_numeric( $video ) ) {
+        return wp_get_attachment_url( absint( $video ) );
+    }
+
+    return is_string( $video ) ? $video : '';
+}
+
+function wm_home_get_video_type( $video ) {
+    if ( is_array( $video ) && ! empty( $video['mime_type'] ) ) {
+        return $video['mime_type'];
+    }
+
+    $url = wm_home_get_video_url( $video );
+    $ext = strtolower( pathinfo( (string) wp_parse_url( $url, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
+
+    $types = array(
+        'mp4'  => 'video/mp4',
+        'webm' => 'video/webm',
+        'ogv'  => 'video/ogg',
+        'ogg'  => 'video/ogg',
+    );
+
+    return isset( $types[ $ext ] ) ? $types[ $ext ] : '';
+}
+
 function wm_home_default_sections() {
     return array(
         'hero_slider'          => array( 'label' => 'Hero Slider', 'template' => 'hero-slider' ),
