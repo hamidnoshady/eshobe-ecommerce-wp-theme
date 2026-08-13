@@ -104,6 +104,11 @@ function wm_product_archive_register_sidebar() {
 add_action( 'widgets_init', 'wm_product_archive_register_sidebar' );
 
 function wm_product_archive_filter_config() {
+    static $cache = null;
+    if ( null !== $cache ) {
+        return $cache;
+    }
+
     $taxonomies = array();
     $selected   = (array) wm_product_archive_get_option( 'wm_archive_filter_taxonomies', array() );
     $selected   = array_values( array_filter( array_map( 'sanitize_key', $selected ) ) );
@@ -190,7 +195,7 @@ function wm_product_archive_filter_config() {
         );
     }
 
-    return array(
+    $cache = array(
         'enabled'        => wm_product_archive_bool_option( 'wm_archive_custom_filters_enabled', true ),
         'ajax_enabled'   => wm_product_archive_bool_option( 'wm_archive_filter_ajax_enabled', true ),
         'show_price'     => wm_product_archive_bool_option( 'wm_archive_filter_price_enabled', true ),
@@ -205,6 +210,8 @@ function wm_product_archive_filter_config() {
         'hierarchy_depth' => wm_product_archive_int_option( 'wm_archive_filter_hierarchy_depth', 4, 1, 8 ),
         'taxonomies'    => apply_filters( 'wm_product_archive_filter_taxonomies', $taxonomies ),
     );
+
+    return $cache;
 }
 
 function wm_product_archive_get_filter_values( $key ) {
