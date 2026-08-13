@@ -107,10 +107,7 @@ function wm_normalize_meta_value( $value ) {
     }
 
     if ( is_object( $value ) ) {
-        if ( isset( $value->name ) ) {
-            return trim( wp_strip_all_tags( (string) $value->name ) );
-        }
-        return '';
+        return isset( $value->name ) ? trim( function_exists('wp_strip_all_tags') ? wp_strip_all_tags( (string) $value->name ) : strip_tags( (string) $value->name ) ) : '';
     }
 
     return trim( wp_strip_all_tags( (string) $value ) );
@@ -496,7 +493,7 @@ function wm_render_mobile_product_bottom_bar() {
     ob_start();
     ?>
     <section class="wm-mobile-bottom-bar <?php echo esc_attr( $state_class ); ?>" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'eshobe-ecommerce' ); ?>">
-        <button class="wm-mobile-bottom-bar__handle" type="button" aria-expanded="<?php echo $starts_expanded ? 'true' : 'false'; ?>" aria-controls="wm-mobile-bottom-bar-content">
+        <button class="wm-mobile-bottom-bar__handle" type="button" aria-expanded="<?php echo $starts_expanded ? 'true' : 'false'; ?>" aria-controls="wm-mobile-bottom-bar-content" aria-label="<?php esc_attr_e( 'Toggle mobile purchase bar', 'eshobe-ecommerce' ); ?>">
             <span class="wm-mobile-bottom-bar__chevron" aria-hidden="true"></span>
         </button>
 

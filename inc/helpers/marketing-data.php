@@ -6,14 +6,7 @@
  */
 
 function wm_search_get_option( $key, $default = '' ) {
-	if ( function_exists( 'get_field' ) ) {
-		$value = get_field( $key, 'option' );
-		if ( null !== $value && '' !== $value && false !== $value ) {
-			return $value;
-		}
-	}
-
-	return $default;
+	return wm_get_option( $key, $default );
 }
 
 /**

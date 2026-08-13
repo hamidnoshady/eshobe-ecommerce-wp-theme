@@ -17,6 +17,7 @@ function wm_render_product_carousel( $products, $args = array() ) {
             'title'    => '',
             'subtitle' => '',
             'class'    => '',
+            'view_all' => '',
         )
     );
 
@@ -28,7 +29,15 @@ function wm_render_product_carousel( $products, $args = array() ) {
         <div class="wm-home-section__header">
             <div>
                 <?php if ( $args['title'] ) : ?>
-                    <h2 class="wm-home-section__title"><?php echo esc_html( $args['title'] ); ?></h2>
+                    <div class="wm-home-section__title-wrap">
+                        <h2 class="wm-home-section__title"><?php echo esc_html( $args['title'] ); ?></h2>
+                        <?php if ( ! empty( $args['view_all'] ) ) : ?>
+                            <a href="<?php echo esc_url( $args['view_all'] ); ?>" class="wm-home-button wm-home-button--outline wm-home-button--sm">
+                                <?php esc_html_e( 'مشاهده همه', 'eshobe-ecommerce' ); ?>
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
                 <?php if ( $args['subtitle'] ) : ?>
                     <p class="wm-home-section__subtitle"><?php echo esc_html( $args['subtitle'] ); ?></p>
@@ -49,5 +58,54 @@ function wm_render_product_carousel( $products, $args = array() ) {
     </section>
     <?php
     return ob_get_clean();
+}
+
+/**
+ * Fetches in-stock, published products for a taxonomy-based carousel block.
+ *
+ * @param string $taxonomy Taxonomy slug (e.g. product_cat, product_tag, product_brand).
+ * @param string $terms    Comma-separated term slugs or numeric term IDs. Empty = no term restriction.
+ * @param int    $count    Max number of products to return.
+ * @param string $orderby  WC_Product_Query orderby value.
+ * @param string $order    ASC|DESC.
+ * @return WC_Product[]
+ */
+function wm_get_taxonomy_carousel_products( $taxonomy, $terms, $count, $orderby = 'date', $order = 'DESC' ) {
+    if ( ! class_exists( 'WC_Product_Query' ) || ! taxonomy_exists( $taxonomy ) ) {
+        return array();
+    }
+
+    $count       = max( 1, absint( $count ) );
+    $term_values = array_values( array_filter( array_map( 'trim', explode( ',', (string) $terms ) ) ) );
+
+    $args = array(
+        'limit'        => $count * 2,
+        'status'       => 'publish',
+        'stock_status' => 'instock',
+        'return'       => 'objects',
+        'orderby'      => in_array( $orderby, array( 'date', 'title', 'price', 'popularity', 'rand', 'menu_order' ), true ) ? $orderby : 'date',
+        'order'        => 'ASC' === strtoupper( $order ) ? 'ASC' : 'DESC',
+    );
+
+    if ( ! empty( $term_values ) ) {
+        $args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+            array(
+                'taxonomy' => $taxonomy,
+                'field'    => is_numeric( $term_values[0] ) ? 'term_id' : 'slug',
+                'terms'    => is_numeric( $term_values[0] ) ? array_map( 'absint', $term_values ) : $term_values,
+            ),
+        );
+    }
+
+    $products = array_values(
+        array_filter(
+            wc_get_products( $args ),
+            function( $product ) {
+                return $product && $product->get_image_id();
+            }
+        )
+    );
+
+    return array_slice( $products, 0, $count );
 }
 

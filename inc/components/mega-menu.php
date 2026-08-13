@@ -10,31 +10,27 @@ function wm_header_mega_get_image_html( $image, $alt = '' ) {
         return '';
     }
 
+    $image_id = 0;
+
     if ( is_array( $image ) && ! empty( $image['ID'] ) ) {
-        return wp_get_attachment_image(
-            absint( $image['ID'] ),
-            'thumbnail',
-            false,
-            array(
-                'alt'     => $alt,
-                'loading' => 'lazy',
-            )
-        );
+        $image_id = absint( $image['ID'] );
+    } elseif ( is_numeric( $image ) ) {
+        $image_id = absint( $image );
     }
 
-    if ( is_numeric( $image ) ) {
-        return wp_get_attachment_image(
-            absint( $image ),
-            'thumbnail',
-            false,
-            array(
-                'alt'     => $alt,
-                'loading' => 'lazy',
-            )
-        );
+    if ( empty( $image_id ) ) {
+        return '';
     }
 
-    return '';
+    return wp_get_attachment_image(
+        $image_id,
+        'thumbnail',
+        false,
+        array(
+            'alt'     => $alt,
+            'loading' => 'lazy',
+        )
+    );
 }
 
 function wm_get_header_mega_menus() {
@@ -143,16 +139,24 @@ function wm_build_header_mega_menus() {
 }
 
 function wm_get_nav_item_mega_menu_post_id( $item ) {
-    if ( ! function_exists( 'get_field' ) ) {
+    if ( ! function_exists( 'get_field' ) || empty( $item->ID ) ) {
         return 0;
+    }
+
+    static $cache = array();
+
+    if ( isset( $cache[ $item->ID ] ) ) {
+        return $cache[ $item->ID ];
     }
 
     $mega_post_id = get_field( 'wm_mega_menu_post', $item->ID );
     if ( empty( $mega_post_id ) || 'publish' !== get_post_status( $mega_post_id ) ) {
+        $cache[ $item->ID ] = 0;
         return 0;
     }
 
-    return (int) $mega_post_id;
+    $cache[ $item->ID ] = (int) $mega_post_id;
+    return $cache[ $item->ID ];
 }
 
 function wm_mega_menu_nav_link_attributes( $atts, $item, $args, $depth ) {

@@ -24,7 +24,8 @@ $cssFiles = @(
     'assets/css/components/product-archive.css',
     'assets/css/components/cart.css',
     'assets/css/components/checkout.css',
-    'assets/css/pages/home.css'
+    'assets/css/pages/home.css',
+    'assets/css/pages/blog.css'
 )
 
 $jsFiles = @(

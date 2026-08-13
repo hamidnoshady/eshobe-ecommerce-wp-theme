@@ -6,14 +6,7 @@
  */
 
 function wm_mobile_nav_get_option( $key, $default = '' ) {
-    if ( function_exists( 'get_field' ) ) {
-        $value = get_field( $key, 'option' );
-        if ( null !== $value && '' !== $value ) {
-            return $value;
-        }
-    }
-
-    return $default;
+	return wm_get_option( $key, $default );
 }
 
 function wm_mobile_nav_is_enabled() {
@@ -117,50 +110,111 @@ function wm_mobile_nav_primary_links() {
 }
 
 /**
+ * Retrieve subcategories for a given product_cat term.
+ *
+ * @param int $term_id Term ID of the product_cat.
+ * @return array List of tree node items.
+ */
+function wm_mobile_nav_get_category_children( $term_id ) {
+    if ( ! taxonomy_exists( 'product_cat' ) ) {
+        return array();
+    }
+
+    $children = array();
+
+    $term_children = get_terms( array(
+        'taxonomy'   => 'product_cat',
+        'parent'     => $term_id,
+        'hide_empty' => false,
+    ) );
+
+    if ( ! is_wp_error( $term_children ) && ! empty( $term_children ) ) {
+        foreach ( $term_children as $term ) {
+            $children[] = array(
+                'id'       => 'cat_' . $term->term_id,
+                'label'    => $term->name,
+                'url'      => get_term_link( $term ),
+                'children' => array(),
+            );
+        }
+    }
+
+    return $children;
+}
+
+/**
  * Returns a hierarchical tree of the primary WordPress menu (top-level items
  * with their nested children). The shop sheet renders each non-leaf node as a
  * button that opens a drill-down sub-view in the same modal.
  *
- * @return array<int, array{id:int,label:string,url:string,children:array}>
+ * @return array<int, array{id:int|string,label:string,url:string,children:array}>
  */
 function wm_mobile_nav_primary_tree() {
     $items_raw = array();
 
-    if ( has_nav_menu( 'primary' ) || has_nav_menu( 'menu-1' ) ) {
+    if ( has_nav_menu( 'mobile' ) || has_nav_menu( 'primary' ) || has_nav_menu( 'menu-1' ) ) {
         $locations = get_nav_menu_locations();
-        $menu_id   = ! empty( $locations['primary'] ) ? $locations['primary'] : ( ! empty( $locations['menu-1'] ) ? $locations['menu-1'] : 0 );
+        $menu_id   = ! empty( $locations['mobile'] ) ? $locations['mobile'] : ( ! empty( $locations['primary'] ) ? $locations['primary'] : ( ! empty( $locations['menu-1'] ) ? $locations['menu-1'] : 0 ) );
         $items_raw = $menu_id ? wp_get_nav_menu_items( $menu_id ) : array();
     }
 
     if ( empty( $items_raw ) ) {
-        $fallback = array(
-            array( 'label' => __( 'خانه', 'eshobe-ecommerce' ), 'url' => home_url( '/' ) ),
-            array( 'label' => __( 'فروشگاه', 'eshobe-ecommerce' ), 'url' => wm_mobile_nav_shop_url() ),
-            array( 'label' => __( 'برندها', 'eshobe-ecommerce' ), 'url' => home_url( '/product-brand/' ) ),
-            array( 'label' => __( 'پرفروش‌ها', 'eshobe-ecommerce' ), 'url' => add_query_arg( 'orderby', 'popularity', wm_mobile_nav_shop_url() ) ),
-            array( 'label' => __( 'پیشنهادها', 'eshobe-ecommerce' ), 'url' => add_query_arg( 'on_sale', '1', wm_mobile_nav_shop_url() ) ),
-            array( 'label' => __( 'حساب کاربری', 'eshobe-ecommerce' ), 'url' => wm_mobile_nav_account_url() ),
-        );
-
         $tree = array();
-        foreach ( $fallback as $link ) {
-            $tree[] = array(
-                'id'       => 0,
-                'label'    => $link['label'],
-                'url'      => $link['url'],
-                'children' => array(),
-            );
+
+        if ( taxonomy_exists( 'product_cat' ) ) {
+            $top_terms = get_terms( array(
+                'taxonomy'   => 'product_cat',
+                'parent'     => 0,
+                'hide_empty' => false,
+            ) );
+
+            if ( ! is_wp_error( $top_terms ) && ! empty( $top_terms ) ) {
+                foreach ( $top_terms as $term ) {
+                    if ( 'uncategorized' === $term->slug ) {
+                        continue;
+                    }
+                    $tree[] = array(
+                        'id'       => 'cat_' . $term->term_id,
+                        'label'    => $term->name,
+                        'url'      => get_term_link( $term ),
+                        'children' => wm_mobile_nav_get_category_children( $term->term_id ),
+                    );
+                }
+            }
         }
+
+        if ( empty( $tree ) ) {
+            $fallback = array(
+                array( 'label' => __( 'خانه', 'eshobe-ecommerce' ), 'url' => home_url( '/' ) ),
+                array( 'label' => __( 'فروشگاه', 'eshobe-ecommerce' ), 'url' => wm_mobile_nav_shop_url() ),
+                array( 'label' => __( 'برندها', 'eshobe-ecommerce' ), 'url' => home_url( '/product-brand/' ) ),
+                array( 'label' => __( 'پرفروش‌ها', 'eshobe-ecommerce' ), 'url' => add_query_arg( 'orderby', 'popularity', wm_mobile_nav_shop_url() ) ),
+                array( 'label' => __( 'پیشنهادها', 'eshobe-ecommerce' ), 'url' => add_query_arg( 'on_sale', '1', wm_mobile_nav_shop_url() ) ),
+                array( 'label' => __( 'حساب کاربری', 'eshobe-ecommerce' ), 'url' => wm_mobile_nav_account_url() ),
+            );
+
+            foreach ( $fallback as $link ) {
+                $tree[] = array(
+                    'id'       => 0,
+                    'label'    => $link['label'],
+                    'url'      => $link['url'],
+                    'children' => array(),
+                );
+            }
+        }
+
         return array_slice( $tree, 0, 8 );
     }
 
     $by_id = array();
     foreach ( (array) $items_raw as $item ) {
         $by_id[ $item->ID ] = array(
-            'id'       => (int) $item->ID,
-            'label'    => (string) $item->title,
-            'url'      => (string) $item->url,
-            'children' => array(),
+            'id'        => (int) $item->ID,
+            'label'     => (string) $item->title,
+            'url'       => (string) $item->url,
+            'object'    => isset( $item->object ) ? (string) $item->object : '',
+            'object_id' => isset( $item->object_id ) ? (int) $item->object_id : 0,
+            'children'  => array(),
         );
     }
 
@@ -245,33 +299,25 @@ function wm_render_mobile_sheet_header( $key, $title, $view_all_url = '' ) {
     <?php
 }
 
-function wm_render_mobile_shop_sheet_back_icon() {
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
-}
-
 function wm_render_mobile_shop_sheet_arrow_icon() {
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
 }
 
 /**
- * Recursively render a list of menu items as a list of <a> and <button>
- * chips. Items that have children render as buttons with the left-arrow
- * indicator, plus this same function is invoked again to render their
- * drill-down sub-view panel beside them.
+ * Render the <nav> of <a>/<button> chips for one drill-down level. Items
+ * with children render as buttons with a left-arrow indicator that open
+ * their own pane (rendered separately by wm_render_mobile_shop_sheet_panes()).
  *
- * @param array  $items       Tree nodes from wm_mobile_nav_primary_tree().
- * @param string $parent_view data-mobile-shop-view of the panel that contains this list ("root" for the root view).
- * @param string $parent_key  Dot-separated path used to nest sub-view keys.
+ * @param array $items Tree nodes for this level.
  */
-function wm_render_mobile_shop_sheet_list( $items, $parent_view = 'root', $parent_key = 'root' ) {
+function wm_render_mobile_shop_sheet_nav( $items ) {
     ?>
     <nav class="wm-mobile-sheet__links" aria-label="<?php echo esc_attr__( 'منوی فروشگاه', 'eshobe-ecommerce' ); ?>">
         <?php foreach ( $items as $item ) :
-            $has_children  = ! empty( $item['children'] );
-            $view_key      = ( 'root' === $parent_key ) ? (string) $item['id'] : $parent_key . '__' . $item['id'];
+            $has_children = ! empty( $item['children'] );
         ?>
             <?php if ( $has_children ) : ?>
-                <button type="button" class="wm-mobile-shop-sheet__parent" data-mobile-shop-open="<?php echo esc_attr( $view_key ); ?>" aria-controls="wm-mobile-shop-sheet-view-<?php echo esc_attr( $view_key ); ?>" aria-expanded="false">
+                <button type="button" class="wm-mobile-shop-sheet__parent" data-mobile-shop-open="<?php echo esc_attr( $item['id'] ); ?>" aria-controls="wm-mobile-shop-sheet-view-<?php echo esc_attr( $item['id'] ); ?>" aria-expanded="false">
                     <span class="wm-mobile-shop-sheet__label"><?php echo esc_html( $item['label'] ); ?></span>
                     <span class="wm-mobile-shop-sheet__arrow" aria-hidden="true"><?php echo wm_render_mobile_shop_sheet_arrow_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                 </button>
@@ -281,22 +327,61 @@ function wm_render_mobile_shop_sheet_list( $items, $parent_view = 'root', $paren
         <?php endforeach; ?>
     </nav>
     <?php
-    foreach ( $items as $item ) {
-        if ( empty( $item['children'] ) ) {
-            continue;
-        }
-        $view_key = ( 'root' === $parent_key ) ? (string) $item['id'] : $parent_key . '__' . $item['id'];
-        ?>
-        <section class="wm-mobile-shop-sheet__subview" id="wm-mobile-shop-sheet-view-<?php echo esc_attr( $view_key ); ?>" data-mobile-shop-view="<?php echo esc_attr( $view_key ); ?>" data-mobile-shop-parent="<?php echo esc_attr( $parent_view ); ?>" hidden>
-            <div class="wm-mobile-shop-sheet__subheader">
-                <button type="button" class="wm-mobile-shop-sheet__back" data-mobile-shop-back aria-label="<?php echo esc_attr__( 'بازگشت به منوی قبلی', 'eshobe-ecommerce' ); ?>">
-                    <span class="wm-mobile-shop-sheet__back-icon" aria-hidden="true"><?php echo wm_render_mobile_shop_sheet_back_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                </button>
-                <strong class="wm-mobile-shop-sheet__subtitle"><?php echo esc_html( $item['label'] ); ?></strong>
+}
+
+/**
+ * Render every drill-down pane (the root list plus one sub-view per parent
+ * item, at every depth) as flat siblings directly under the stage container.
+ *
+ * Panes used to be rendered nested inside their parent pane's markup, which
+ * meant hiding the root pane (display:none) also hid every sub-view nested
+ * inside it, even after JS cleared that sub-view's own `hidden` attribute —
+ * so drilling in showed an empty modal. Rendering them as a flat list (a
+ * queue instead of recursive nesting) keeps each pane independently
+ * show/hide-able.
+ *
+ * @param array $tree Root tree from wm_mobile_nav_primary_tree().
+ */
+function wm_render_mobile_shop_sheet_panes( $tree ) {
+    $queue = array(
+        array(
+            'items'      => $tree,
+            'view_key'   => 'root',
+            'parent_key' => '',
+            'label'      => __( 'فروشگاه', 'eshobe-ecommerce' ),
+            'url'        => wm_mobile_nav_shop_url(),
+        ),
+    );
+
+    while ( $queue ) {
+        $pane = array_shift( $queue );
+
+        if ( 'root' === $pane['view_key'] ) {
+            ?>
+            <div class="wm-mobile-shop-sheet__pane" data-mobile-shop-view="root" data-mobile-shop-parent="" data-mobile-shop-label="<?php echo esc_attr( $pane['label'] ); ?>" data-mobile-shop-url="<?php echo esc_url( $pane['url'] ); ?>">
+                <?php wm_render_mobile_shop_sheet_nav( $pane['items'] ); ?>
             </div>
-            <?php wm_render_mobile_shop_sheet_list( $item['children'], $view_key, $view_key ); ?>
-        </section>
-        <?php
+            <?php
+        } else {
+            ?>
+            <section class="wm-mobile-shop-sheet__subview" id="wm-mobile-shop-sheet-view-<?php echo esc_attr( $pane['view_key'] ); ?>" data-mobile-shop-view="<?php echo esc_attr( $pane['view_key'] ); ?>" data-mobile-shop-parent="<?php echo esc_attr( $pane['parent_key'] ); ?>" data-mobile-shop-label="<?php echo esc_attr( $pane['label'] ); ?>" data-mobile-shop-url="<?php echo esc_url( $pane['url'] ); ?>" hidden>
+                <?php wm_render_mobile_shop_sheet_nav( $pane['items'] ); ?>
+            </section>
+            <?php
+        }
+
+        foreach ( $pane['items'] as $item ) {
+            if ( empty( $item['children'] ) ) {
+                continue;
+            }
+            $queue[] = array(
+                'items'      => $item['children'],
+                'view_key'   => (string) $item['id'],
+                'parent_key' => $pane['view_key'],
+                'label'      => $item['label'],
+                'url'        => $item['url'],
+            );
+        }
     }
 }
 
@@ -305,11 +390,17 @@ function wm_render_mobile_shop_sheet() {
     ?>
     <section class="wm-mobile-sheet wm-mobile-sheet--shop" id="wm-mobile-sheet-shop" data-mobile-sheet="shop" aria-hidden="true">
         <div class="wm-mobile-sheet__panel">
-            <?php wm_render_mobile_sheet_header( 'shop', __( 'فروشگاه', 'eshobe-ecommerce' ), wm_mobile_nav_shop_url() ); ?>
-            <div class="wm-mobile-sheet__body wm-mobile-sheet__body--shop" data-mobile-shop-stage="root">
-                <div class="wm-mobile-shop-sheet__pane" data-mobile-shop-view="root" data-mobile-shop-parent="">
-                    <?php wm_render_mobile_shop_sheet_list( $tree, 'root', 'root' ); ?>
+            <div class="wm-mobile-sheet__header" data-mobile-shop-header>
+                <div class="wm-mobile-sheet__title-wrap">
+                    <button type="button" class="wm-mobile-sheet__back" data-mobile-shop-back aria-label="<?php echo esc_attr__( 'بازگشت به دسته‌بندی‌ها', 'eshobe-ecommerce' ); ?>" hidden>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+                    </button>
+                    <strong class="wm-mobile-sheet__title" data-mobile-shop-title><?php echo esc_html__( 'فروشگاه', 'eshobe-ecommerce' ); ?></strong>
                 </div>
+                <a class="wm-mobile-sheet__view-all" href="<?php echo esc_url( wm_mobile_nav_shop_url() ); ?>" data-mobile-shop-view-all><?php echo esc_html__( 'مشاهده همه', 'eshobe-ecommerce' ); ?></a>
+            </div>
+            <div class="wm-mobile-sheet__body wm-mobile-sheet__body--shop" data-mobile-shop-stage="root">
+                <?php wm_render_mobile_shop_sheet_panes( $tree ); ?>
             </div>
         </div>
     </section>

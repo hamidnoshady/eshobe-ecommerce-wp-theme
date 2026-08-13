@@ -36,14 +36,7 @@ function wm_technical_admin_assets() {
 add_action( 'admin_enqueue_scripts', 'wm_technical_admin_assets' );
 
 function wm_technical_get_option( $key, $default = '' ) {
-	if ( function_exists( 'get_field' ) ) {
-		$value = get_field( $key, 'option' );
-		if ( null !== $value && '' !== $value && false !== $value ) {
-			return $value;
-		}
-	}
-
-	return $default;
+	return wm_get_option( $key, $default );
 }
 
 /**

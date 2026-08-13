@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/product-carousel",
+    "title": "کاروسل محصولات",
+    "category": "eshobe-ecommerce",
+    "icon": "slides",
+    "description": "کاروسل محصولات بر اساس دسته‌بندی، برچسب یا برند دلخواه؛ یا فهرست پرفروش‌ها/پیشنهادی فعلی سایت. برای هر دسته یا سبک، یک کاروسل جدا اضافه کنید.",
+    "keywords": [ "carousel", "کاروسل", "محصولات", "دسته", "برند" ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "subtitle": { "type": "string", "default": "" },
+        "source": { "type": "string", "default": "taxonomy" },
+        "taxonomy": { "type": "string", "default": "product_cat" },
+        "terms": { "type": "string", "default": "" },
+        "count": { "type": "number", "default": 10 },
+        "orderby": { "type": "string", "default": "date" },
+        "order": { "type": "string", "default": "DESC" }
+    },
+    "supports": {
+        "html": false,
+        "multiple": true
+    },
+    "editorScript": "eshobe-ecommerce-blocks-editor",
+    "render": "file:./render.php"
+}
