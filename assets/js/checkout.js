@@ -57,7 +57,7 @@
     couponBlock.innerHTML =
       '<button type="button" class="wm-coupon-toggle-btn" aria-expanded="false">کد تخفیف دارید؟</button>' +
       '<div class="wm-coupon-input-row" style="display:none;">' +
-      '<input type="text" id="wm_coupon_code" placeholder="کد تخفیف را وارد کنید" dir="rtl" />' +
+      '<input type="text" id="wm_coupon_code" aria-label="کد تخفیف" placeholder="کد تخفیف را وارد کنید" dir="rtl" />' +
       '<button type="button" id="wm_apply_coupon">اعمال</button>' +
       '</div>' +
       '<div class="wm-coupon-success" id="wm_coupon_success" style="display:none;"></div>';

@@ -533,6 +533,12 @@ function wm_site_settings_design_fields() {
         array( 'key' => 'field_wm_decor_archive_intensity', 'label' => 'شدت در صفحات آرشیو / فروشگاه', 'name' => 'wm_decor_archive_intensity', 'type' => 'select', 'choices' => array( 'inherit' => 'پیروی از تنظیم کلی', 'off' => 'خاموش', 'low' => 'کم', 'medium' => 'متوسط', 'high' => 'زیاد' ), 'default_value' => 'inherit' ),
         array( 'key' => 'field_wm_decor_page_intensity', 'label' => 'شدت در صفحات معمولی', 'name' => 'wm_decor_page_intensity', 'type' => 'select', 'choices' => array( 'inherit' => 'پیروی از تنظیم کلی', 'off' => 'خاموش', 'low' => 'کم', 'medium' => 'متوسط', 'high' => 'زیاد' ), 'default_value' => 'inherit' ),
         wm_site_settings_accordion( 'field_wm_design_decorative_motifs_end', '', 1 ),
+
+        wm_site_settings_tab( 'field_wm_design_tab_hero_progress', 'نوار پیشرفت اسلایدر' ),
+        wm_site_settings_accordion( 'field_wm_design_hero_progress_accordion', 'نوار پیشرفت پخش خودکار' ),
+        array( 'key' => 'field_wm_hero_progress_color', 'label' => 'رنگ نوار پیشرفت', 'name' => 'wm_hero_progress_color', 'type' => 'color_picker', 'default_value' => '#C89B3C', 'instructions' => 'رنگ نوار پیشرفت پخش خودکار اسلایدر Hero. پیش‌فرض: رنگ Accent سایت.' ),
+        array( 'key' => 'field_wm_hero_progress_direction', 'label' => 'جهت پر شدن نوار', 'name' => 'wm_hero_progress_direction', 'type' => 'select', 'choices' => array( 'right' => 'راست به چپ', 'left' => 'چپ به راست' ), 'default_value' => 'right', 'instructions' => 'جهت رشد نوار پیشرفت؛ پیش‌فرض راست به چپ متناسب با چیدمان RTL.' ),
+        wm_site_settings_accordion( 'field_wm_design_hero_progress_end', '', 1 ),
     );
 }
 
@@ -806,7 +812,28 @@ function wm_site_settings_home_fields() {
                 array( 'key' => 'field_slide_product', 'label' => 'محصول اختیاری', 'name' => 'slide_product', 'type' => 'post_object', 'post_type' => array( 'product' ), 'return_format' => 'object', 'allow_null' => 1 ),
             ),
         ),
+        array(
+            'key'          => 'field_home_hero_image_slides',
+            'label'        => 'اسلایدهای تمام‌تصویر',
+            'name'         => 'home_hero_image_slides',
+            'type'         => 'repeater',
+            'layout'       => 'block',
+            'button_label' => 'افزودن اسلاید تمام‌تصویر',
+            'instructions' => 'این نوع اسلاید فقط تصویر (بدون متن یا دکمه) با یک لینک است و ارتفاع اسلایدر با ارتفاع تصویر تنظیم می‌شود.',
+            'sub_fields'   => array(
+                array( 'key' => 'field_image_slide_enabled', 'label' => 'فعال', 'name' => 'image_slide_enabled', 'type' => 'true_false', 'default_value' => 1, 'ui' => 1 ),
+                array( 'key' => 'field_image_slide_image_desktop', 'label' => 'تصویر دسکتاپ', 'name' => 'image_slide_image_desktop', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'medium' ),
+                array( 'key' => 'field_image_slide_image_mobile', 'label' => 'تصویر موبایل', 'name' => 'image_slide_image_mobile', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'medium' ),
+                array( 'key' => 'field_image_slide_url', 'label' => 'لینک اسلاید', 'name' => 'image_slide_url', 'type' => 'url', 'instructions' => 'کل تصویر به این لینک متصل می‌شود.' ),
+            ),
+        ),
         wm_site_settings_accordion( 'field_wm_home_hero_end', '', 1 ),
+
+        wm_site_settings_accordion( 'field_wm_home_hero_autoplay_accordion', 'پخش خودکار' ),
+        array( 'key' => 'field_home_hero_autoplay', 'label' => 'پخش خودکار اسلایدها', 'name' => 'home_hero_autoplay', 'type' => 'true_false', 'default_value' => 0, 'ui' => 1, 'instructions' => 'اسلایدها به‌صورت خودکار و با فاصله زمانی مشخص جابه‌جا می‌شوند.' ),
+        array( 'key' => 'field_home_hero_autoplay_interval', 'label' => 'فاصله زمانی (میلی‌ثانیه)', 'name' => 'home_hero_autoplay_interval', 'type' => 'number', 'default_value' => 5000, 'min' => 1500, 'max' => 30000, 'step' => 500, 'instructions' => 'هر اسلاید چند میلی‌ثانیه نمایش داده شود (5000 = ۵ ثانیه).', 'conditional_logic' => array( array( array( 'field' => 'field_home_hero_autoplay', 'operator' => '==', 'value' => '1' ) ) ) ),
+        array( 'key' => 'field_home_hero_autoplay_pause_hover', 'label' => 'توقف هنگام hover', 'name' => 'home_hero_autoplay_pause_hover', 'type' => 'true_false', 'default_value' => 1, 'ui' => 1, 'instructions' => 'با قرار دادن نشانگر روی اسلایدر، پخش خودکار متوقف شود.', 'conditional_logic' => array( array( array( 'field' => 'field_home_hero_autoplay', 'operator' => '==', 'value' => '1' ) ) ) ),
+        wm_site_settings_accordion( 'field_wm_home_hero_autoplay_end', '', 1 ),
 
         wm_site_settings_tab( 'field_wm_home_tab_brands', 'برندها' ),
         array(
