@@ -1,3 +1,8 @@
+## 2024-05-24 - [OTP Brute-Force Vulnerability]
+**Vulnerability:** The OTP verification endpoint (`wm_ajax_otp_verify_code`) lacked rate limiting for failed attempts. An attacker could rapidly guess all 90,000 possible 5-digit codes within the 2-minute validity window.
+**Learning:** While the endpoint properly limited the *sending* of OTPs via SMS, it failed to limit the *verification* attempts of a generated code. Security checks must exist at both generation and verification stages.
+**Prevention:** Implement a transient-based counter to track failed verification attempts, explicitly deleting the OTP transient when the failure limit (e.g., 5 attempts) is reached.
+
 ## 2025-02-20 - Missing Rate Limiting on Password Login
 **Vulnerability:** The AJAX endpoint `wm_ajax_otp_password_login` (used for password-based login in the OTP modal) did not have any rate limiting. While the OTP generation endpoint correctly throttled requests by IP and phone number, the password login endpoint allowed unbounded password guessing attempts for any known phone number.
 **Learning:** Even when a system is primarily OTP-based, any fallback password authentication endpoints must have the same or stricter rate limiting and brute force protections applied to them. Relying only on the OTP issue flow being rate-limited creates a weak link for accounts that have set a password.
