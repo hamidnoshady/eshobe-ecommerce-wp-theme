@@ -70,9 +70,9 @@ class ProductComponentsTest extends TestCase {
         $this->assertEquals([], $result);
     }
 
-
     public function test_wm_get_guarantee_with_get_field_first_key() {
         Functions\stubs([
+            'get_post_meta' => function() { return ['گارانتی' => ['']]; },
             'get_field' => function($key, $product_id) {
                 if ($key === 'گارانتی' && $product_id === 123) {
                     return '12 months guarantee';
@@ -90,6 +90,7 @@ class ProductComponentsTest extends TestCase {
 
     public function test_wm_get_guarantee_with_get_field_later_key() {
         Functions\stubs([
+            'get_post_meta' => function() { return ['product_warranty' => ['']]; },
             'get_field' => function($key, $product_id) {
                 if ($key === 'product_warranty' && $product_id === 123) {
                     return '2 years guarantee';
@@ -164,5 +165,219 @@ class ProductComponentsTest extends TestCase {
 
         $result = wm_get_guarantee(123);
         $this->assertEquals('', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_empty_label() {
+        $result = wm_get_mobile_stock_label(null, ['label' => '']);
+        $this->assertEquals('', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_no_product() {
+        $result = wm_get_mobile_stock_label(null, ['label' => 'In stock', 'status' => 'in_stock']);
+        $this->assertEquals('In stock', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_not_in_stock() {
+        $product = Mockery::mock('WC_Product');
+        $result = wm_get_mobile_stock_label($product, ['label' => 'Out of stock', 'status' => 'out_of_stock']);
+        $this->assertEquals('Out of stock', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_not_managing_stock() {
+        $product = Mockery::mock('WC_Product');
+        $product->shouldReceive('managing_stock')->once()->andReturn(false);
+        $result = wm_get_mobile_stock_label($product, ['label' => 'In stock', 'status' => 'in_stock']);
+        $this->assertEquals('In stock', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_managing_stock_null_qty() {
+        $product = Mockery::mock('WC_Product');
+        $product->shouldReceive('managing_stock')->once()->andReturn(true);
+        $product->shouldReceive('get_stock_quantity')->once()->andReturn(null);
+        $result = wm_get_mobile_stock_label($product, ['label' => 'In stock', 'status' => 'in_stock']);
+        $this->assertEquals('In stock', $result);
+    }
+
+    public function test_wm_get_mobile_stock_label_managing_stock_with_qty() {
+        $product = Mockery::mock('WC_Product');
+        $product->shouldReceive('managing_stock')->once()->andReturn(true);
+        $product->shouldReceive('get_stock_quantity')->once()->andReturn(5);
+
+        Functions\expect('wc_format_stock_quantity_for_display')
+            ->once()
+            ->with(5, $product)
+            ->andReturn('5 in stock');
+
+        $result = wm_get_mobile_stock_label($product, ['label' => 'In stock', 'status' => 'in_stock']);
+        $this->assertEquals('In stock · 5 in stock', $result);
+    }
+
+    public function test_wm_normalize_meta_value_with_simple_string() {
+        Functions\expect('wp_strip_all_tags')->andReturnFirstArg();
+        $this->assertEquals('test string', wm_normalize_meta_value(' test string '));
+    }
+
+    public function test_wm_normalize_meta_value_with_html_tags() {
+        Functions\expect('wp_strip_all_tags')
+            ->once()
+            ->with('<p>test</p>')
+            ->andReturn('test');
+
+        $this->assertEquals('test', wm_normalize_meta_value('<p>test</p>'));
+    }
+
+    public function test_wm_normalize_meta_value_with_array() {
+        Functions\expect('wp_strip_all_tags')->andReturnFirstArg();
+        $value = ['value1', 'value2'];
+        $this->assertEquals('value1، value2', wm_normalize_meta_value($value));
+    }
+
+    public function test_wm_normalize_meta_value_with_nested_array() {
+        Functions\expect('wp_strip_all_tags')->andReturnFirstArg();
+        $value = ['value1', ['nested1', 'nested2']];
+        $this->assertEquals('value1، nested1، nested2', wm_normalize_meta_value($value));
+    }
+
+    public function test_wm_normalize_meta_value_with_array_containing_empty_values() {
+        Functions\expect('wp_strip_all_tags')->andReturnFirstArg();
+        $value = ['value1', '', null, 'value2'];
+        $this->assertEquals('value1، value2', wm_normalize_meta_value($value));
+    }
+
+    public function test_wm_normalize_meta_value_with_object_having_name() {
+        Functions\expect('wp_strip_all_tags')->andReturnFirstArg();
+        $obj = new stdClass();
+        $obj->name = 'Object Name';
+        $this->assertEquals('Object Name', wm_normalize_meta_value($obj));
+    }
+
+    public function test_wm_normalize_meta_value_with_object_missing_name() {
+        Functions\expect('wp_strip_all_tags')->zeroOrMoreTimes()->andReturnFirstArg();
+        $obj = new stdClass();
+        $obj->title = 'Object Title';
+        $this->assertEquals('', wm_normalize_meta_value($obj));
+    }
+
+    public function test_wm_normalize_meta_value_with_integer() {
+        Functions\expect('wp_strip_all_tags')->andReturnFirstArg();
+        $this->assertEquals('123', wm_normalize_meta_value(123));
+    }
+
+    public function test_wm_normalize_meta_value_with_boolean() {
+        Functions\expect('wp_strip_all_tags')->andReturnFirstArg();
+        // string casting of true is '1'
+        $this->assertEquals('1', wm_normalize_meta_value(true));
+        $this->assertEquals('', wm_normalize_meta_value(false));
+    }
+
+    public function test_wm_get_product_specs_empty() {
+        Functions\expect('wm_get_terms_for_product')
+            ->times(20) // There are 20 taxonomies
+            ->andReturn([]);
+
+        Functions\expect('wm_get_guarantee')
+            ->once()
+            ->with(123)
+            ->andReturn('');
+
+        $result = wm_get_product_specs(123);
+        $this->assertEquals([], $result);
+    }
+
+    public function test_wm_get_product_specs_with_terms_only() {
+        Functions\expect('wm_get_terms_for_product')
+            ->andReturnUsing(function($product_id, $taxonomy) {
+                if ($taxonomy === 'gender') {
+                    $term = new stdClass();
+                    $term->name = 'مردانه';
+                    return [$term];
+                }
+                return [];
+            });
+
+        Functions\expect('wm_render_linked_terms')
+            ->once()
+            ->andReturn('<a href="...">مردانه</a>');
+
+        Functions\expect('wm_get_guarantee')
+            ->once()
+            ->with(123)
+            ->andReturn('');
+
+        $result = wm_get_product_specs(123);
+
+        $expected = [
+            [
+                'label' => 'جنسیت',
+                'value' => '<a href="...">مردانه</a>'
+            ]
+        ];
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_wm_get_product_specs_with_guarantee_only() {
+        Functions\expect('wm_get_terms_for_product')
+            ->times(20)
+            ->andReturn([]);
+
+        Functions\expect('wm_get_guarantee')
+            ->once()
+            ->with(123)
+            ->andReturn('گارانتی ۱۸ ماهه');
+
+        Functions\expect('esc_html')
+            ->once()
+            ->with('گارانتی ۱۸ ماهه')
+            ->andReturn('گارانتی ۱۸ ماهه');
+
+        $result = wm_get_product_specs(123);
+
+        $expected = [
+            [
+                'label' => 'گارانتی',
+                'value' => 'گارانتی ۱۸ ماهه'
+            ]
+        ];
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_wm_get_product_specs_with_terms_and_guarantee() {
+        Functions\expect('wm_get_terms_for_product')
+            ->andReturnUsing(function($product_id, $taxonomy) {
+                if ($taxonomy === 'style') {
+                    $term = new stdClass();
+                    $term->name = 'کلاسیک';
+                    return [$term];
+                }
+                return [];
+            });
+
+        Functions\expect('wm_render_linked_terms')
+            ->once()
+            ->andReturn('<a href="...">کلاسیک</a>');
+
+        Functions\expect('wm_get_guarantee')
+            ->once()
+            ->with(123)
+            ->andReturn('گارانتی ۱ ساله');
+
+        Functions\expect('esc_html')
+            ->once()
+            ->with('گارانتی ۱ ساله')
+            ->andReturn('گارانتی ۱ ساله');
+
+        $result = wm_get_product_specs(123);
+
+        $expected = [
+            [
+                'label' => 'استایل',
+                'value' => '<a href="...">کلاسیک</a>'
+            ],
+            [
+                'label' => 'گارانتی',
+                'value' => 'گارانتی ۱ ساله'
+            ]
+        ];
+        $this->assertEquals($expected, $result);
     }
 }

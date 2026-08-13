@@ -31,6 +31,29 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 	<?php if ( empty( $available_variations ) && false !== $available_variations ) : ?>
 		<p class="stock out-of-stock"><?php echo esc_html( apply_filters( 'woocommerce_out_of_stock_message', __( 'This product is currently out of stock and unavailable.', 'woocommerce' ) ) ); ?></p>
 	<?php else : ?>
+		<?php
+			// Pre-fetch all swatch terms to avoid N+1 queries.
+			$swatch_taxonomies = array();
+			foreach ( $attributes as $attribute_name => $options ) {
+				if ( taxonomy_exists( $attribute_name ) && 'none' !== wm_get_attribute_swatch_type( $attribute_name ) ) {
+					$swatch_taxonomies[] = $attribute_name;
+				}
+			}
+
+			$all_swatch_terms = array();
+			if ( ! empty( $swatch_taxonomies ) ) {
+				// Use wp_get_object_terms to fetch terms for multiple taxonomies at once,
+				// because wc_get_product_terms() expects a string taxonomy name.
+				$fetched_terms = wp_get_object_terms( $product->get_id(), $swatch_taxonomies, array( 'fields' => 'all' ) );
+				if ( ! is_wp_error( $fetched_terms ) && is_array( $fetched_terms ) ) {
+					foreach ( $fetched_terms as $term ) {
+						if ( isset( $term->taxonomy ) ) {
+							$all_swatch_terms[ $term->taxonomy ][] = $term;
+						}
+					}
+				}
+			}
+		?>
 		<table class="variations" cellspacing="0" role="presentation">
 			<tbody>
 				<?php foreach ( $attributes as $attribute_name => $options ) :
@@ -38,10 +61,18 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 					$swatch_type    = taxonomy_exists( $attribute_name ) ? wm_get_attribute_swatch_type( $attribute_name ) : 'none';
 					$terms_by_slug  = array();
 
-					if ( 'none' !== $swatch_type && function_exists( 'wc_get_product_terms' ) ) {
-						foreach ( wc_get_product_terms( $product->get_id(), $attribute_name, array( 'fields' => 'all' ) ) as $term ) {
-							if ( in_array( $term->slug, $options, true ) ) {
-								$terms_by_slug[ $term->slug ] = $term;
+					if ( 'none' !== $swatch_type ) {
+						if ( isset( $all_swatch_terms[ $attribute_name ] ) ) {
+							foreach ( $all_swatch_terms[ $attribute_name ] as $term ) {
+								if ( in_array( $term->slug, $options, true ) ) {
+									$terms_by_slug[ $term->slug ] = $term;
+								}
+							}
+						} elseif ( function_exists( 'wc_get_product_terms' ) ) {
+							foreach ( wc_get_product_terms( $product->get_id(), $attribute_name, array( 'fields' => 'all' ) ) as $term ) {
+								if ( in_array( $term->slug, $options, true ) ) {
+									$terms_by_slug[ $term->slug ] = $term;
+								}
 							}
 						}
 					}

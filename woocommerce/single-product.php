@@ -36,6 +36,7 @@ while ( have_posts() ) :
         <div class="wm-container">
             <?php echo wm_render_product_tabs(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
             <?php echo wm_render_related_products(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+            <?php if ( function_exists( 'wm_render_block_region' ) ) { wm_render_block_region( 'single_product' ); } ?>
         </div>
         <?php echo wm_render_mobile_product_bottom_bar(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
     </main>

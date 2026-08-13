@@ -20,6 +20,7 @@ echo wm_render_product_carousel( // phpcs:ignore WordPress.Security.EscapeOutput
         'title'    => wm_home_get_option( 'home_recommended_title', 'پیشنهاد ما' ),
         'subtitle' => wm_home_get_option( 'home_recommended_subtitle', 'محصولاتی که برای شروع انتخاب، ارزش دیدن دارند.' ),
         'class'    => 'wm-home-section wm-home-products wm-home-products--recommended',
+        'view_all' => function_exists( 'wc_get_page_id' ) ? get_permalink( wc_get_page_id( 'shop' ) ) : '',
     )
 );
 

@@ -6,15 +6,26 @@
  */
 
 function wm_home_get_option( $key, $default = '' ) {
-    if ( function_exists( 'get_field' ) ) {
-        $value = get_field( $key, 'option' );
-        if ( null !== $value && false !== $value && '' !== $value ) {
-            return $value;
-        }
+	return wm_get_option( $key, $default );
+}
+
+/**
+ * Gets a home option and filters its items using a callback.
+ *
+ * @param string   $key      The option key.
+ * @param callable $callback The callback function to use for filtering.
+ * @return array The filtered items.
+ */
+function wm_home_get_valid_items( $key, $callback ) {
+    $items = wm_home_get_option( $key, array() );
+
+    if ( ! is_array( $items ) || empty( $items ) ) {
+        return array();
     }
 
-    return $default;
+    return array_values( array_filter( $items, $callback ) );
 }
+
 
 function wm_home_enabled( $key, $default = true ) {
     $value = wm_home_get_option( $key, null );
@@ -136,19 +147,44 @@ function wm_normalize_product_ids( $products ) {
 }
 
 function wm_home_get_manual_products( $field_name, $count ) {
-    if ( ! function_exists( 'wc_get_product' ) ) {
+    if ( ! function_exists( 'wc_get_products' ) ) {
         return array();
     }
 
+    $product_ids = wm_normalize_product_ids( wm_home_get_option( $field_name, array() ) );
+
+    if ( empty( $product_ids ) ) {
+        return array();
+    }
+
+    $args = array(
+        'include' => $product_ids,
+        'limit'   => -1,
+        'status'  => 'publish',
+        'return'  => 'objects',
+    );
+
+    $fetched_products = wc_get_products( $args );
+
+    // Index by ID to preserve the original manual sorting order
+    $products_by_id = array();
+    foreach ( $fetched_products as $p ) {
+        if ( is_object( $p ) && method_exists( $p, 'get_id' ) ) {
+            $products_by_id[ $p->get_id() ] = $p;
+        }
+    }
+
     $products = array();
-    foreach ( wm_normalize_product_ids( wm_home_get_option( $field_name, array() ) ) as $product_id ) {
-        if ( count( $products ) >= $count || 'publish' !== get_post_status( $product_id ) ) {
-            continue;
+    foreach ( $product_ids as $product_id ) {
+        if ( count( $products ) >= $count ) {
+            break;
         }
 
-        $product = wc_get_product( $product_id );
-        if ( $product && $product->get_image_id() ) {
-            $products[ $product_id ] = $product;
+        if ( isset( $products_by_id[ $product_id ] ) ) {
+            $product = $products_by_id[ $product_id ];
+            if ( method_exists( $product, 'get_image_id' ) && $product->get_image_id() ) {
+                $products[ $product_id ] = $product;
+            }
         }
     }
 
@@ -278,11 +314,15 @@ function wm_build_filter_box_url( $item ) {
     }
 
     $term = ! empty( $item['filter_term'] ) ? $item['filter_term'] : ( ! empty( $item['filter_gender_term'] ) ? $item['filter_gender_term'] : '' );
-    if ( $term && in_array( $mode, array( 'taxonomy_term', 'taxonomy_and_price' ), true ) ) {
-        $term_link = get_term_link( $term );
-        $base_url  = is_wp_error( $term_link ) ? '' : $term_link;
-    } else {
-        $base_url = '';
+    $base_url = '';
+    if ( in_array( $mode, array( 'taxonomy_term', 'taxonomy_and_price' ), true ) ) {
+        if ( $term ) {
+            $term_link = get_term_link( $term );
+            $base_url  = is_wp_error( $term_link ) ? '' : $term_link;
+        } elseif ( ! empty( $item['filter_taxonomy'] ) && function_exists( 'wm_taxonomy_landing_get_base_url' ) ) {
+            // No specific term picked — link to the "all products in this taxonomy" landing page.
+            $base_url = wm_taxonomy_landing_get_base_url( $item['filter_taxonomy'] );
+        }
     }
 
     if ( ! $base_url ) {
@@ -307,7 +347,14 @@ function wm_build_filter_box_url( $item ) {
         $query['filter_gender'] = sanitize_title( is_object( $term ) ? $term->slug : $term );
     }
 
-    // TODO: Map these query keys to the exact YITH filter URL format if YITH changes from WooCommerce-compatible query strings.
+    /**
+     * Filters the query arguments used to build the filter box URL.
+     *
+     * @param array $query The parsed query arguments.
+     * @param array $item  The filter item data.
+     */
+    $query = apply_filters( 'wm_filter_box_query_args', $query, $item );
+
     return esc_url_raw( add_query_arg( $query, $base_url ) );
 }
 
@@ -415,6 +462,32 @@ function wm_home_get_filter_sections() {
     );
 }
 
+function wm_render_filter_card( $item ) {
+    $style       = ! empty( $item['filter_style'] ) ? sanitize_html_class( $item['filter_style'] ) : 'dark_card';
+    $button_text = ! empty( $item['filter_button_text'] ) ? $item['filter_button_text'] : __( 'مشاهده', 'eshobe-ecommerce' );
+    $style_attr  = ! empty( $item['filter_color_value'] ) ? ' style="--wm-filter-accent:' . esc_attr( sanitize_hex_color( $item['filter_color_value'] ) ) . '"' : '';
+
+    ob_start();
+    ?>
+    <a class="wm-home-filter-card wm-home-filter-card--<?php echo esc_attr( $style ); ?>" href="<?php echo esc_url( wm_build_filter_box_url( $item ) ); ?>"<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+        <span class="wm-home-filter-card__media">
+            <?php echo wm_home_get_image_html( ! empty( $item['filter_image'] ) ? $item['filter_image'] : '', 'medium', array( 'alt' => $item['filter_title'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+        </span>
+        <span class="wm-home-filter-card__body">
+            <?php if ( ! empty( $item['filter_badge_text'] ) ) : ?>
+                <span class="wm-home-filter-card__badge"><?php echo esc_html( $item['filter_badge_text'] ); ?></span>
+            <?php endif; ?>
+            <strong><?php echo esc_html( $item['filter_title'] ); ?></strong>
+            <?php if ( ! empty( $item['filter_subtitle'] ) ) : ?>
+                <small><?php echo esc_html( $item['filter_subtitle'] ); ?></small>
+            <?php endif; ?>
+            <em><?php echo esc_html( $button_text ); ?></em>
+        </span>
+    </a>
+    <?php
+    return ob_get_clean();
+}
+
 function wm_render_home_filter_section( $section, $extra_class = '' ) {
     $layout = ! empty( $section['layout'] ) ? sanitize_html_class( $section['layout'] ) : 'cards_3';
     $items  = ! empty( $section['items'] ) ? (array) $section['items'] : array();
@@ -437,26 +510,7 @@ function wm_render_home_filter_section( $section, $extra_class = '' ) {
         </div>
         <div class="wm-home-filters__grid">
             <?php foreach ( $items as $item ) : ?>
-                <?php
-                $style       = ! empty( $item['filter_style'] ) ? sanitize_html_class( $item['filter_style'] ) : 'dark_card';
-                $button_text = ! empty( $item['filter_button_text'] ) ? $item['filter_button_text'] : __( 'مشاهده', 'eshobe-ecommerce' );
-                $style_attr  = ! empty( $item['filter_color_value'] ) ? ' style="--wm-filter-accent:' . esc_attr( sanitize_hex_color( $item['filter_color_value'] ) ) . '"' : '';
-                ?>
-                <a class="wm-home-filter-card wm-home-filter-card--<?php echo esc_attr( $style ); ?>" href="<?php echo esc_url( wm_build_filter_box_url( $item ) ); ?>"<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-                    <span class="wm-home-filter-card__media">
-                        <?php echo wm_home_get_image_html( ! empty( $item['filter_image'] ) ? $item['filter_image'] : '', 'medium', array( 'alt' => $item['filter_title'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                    </span>
-                    <span class="wm-home-filter-card__body">
-                        <?php if ( ! empty( $item['filter_badge_text'] ) ) : ?>
-                            <span class="wm-home-filter-card__badge"><?php echo esc_html( $item['filter_badge_text'] ); ?></span>
-                        <?php endif; ?>
-                        <strong><?php echo esc_html( $item['filter_title'] ); ?></strong>
-                        <?php if ( ! empty( $item['filter_subtitle'] ) ) : ?>
-                            <small><?php echo esc_html( $item['filter_subtitle'] ); ?></small>
-                        <?php endif; ?>
-                        <em><?php echo esc_html( $button_text ); ?></em>
-                    </span>
-                </a>
+                <?php echo wm_render_filter_card( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
             <?php endforeach; ?>
         </div>
     </section>

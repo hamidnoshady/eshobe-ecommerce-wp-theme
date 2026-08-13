@@ -5,14 +5,24 @@
  * @package WM_Theme
  */
 
+
+/**
+ * Retrieves the theme font family, checking for design tokens first.
+ *
+ * @return string
+ */
+function eshobe_ecommerce_get_font_family() {
+    return function_exists( 'wm_get_design_token' ) ? wm_get_design_token( 'wm_font_mode', 'vazirmatn' ) : get_theme_mod( 'eshobe_ecommerce_font_family', 'vazirmatn' );
+}
+
 function eshobe_ecommerce_body_classes( $classes ) {
     if ( ! is_singular() ) {
         $classes[] = 'hfeed';
     }
-    if ( is_woocommerce() || is_product() || is_shop() || is_product_taxonomy() ) {
+    if ( ( function_exists( 'is_woocommerce' ) && is_woocommerce() ) || is_product() || is_shop() || is_product_taxonomy() ) {
         $classes[] = 'eshobe-ecommerce-woocommerce';
     }
-    $font = function_exists( 'wm_get_design_token' ) ? wm_get_design_token( 'wm_font_mode', 'vazirmatn' ) : get_theme_mod( 'eshobe_ecommerce_font_family', 'vazirmatn' );
+    $font = eshobe_ecommerce_get_font_family();
     $classes[] = 'eshobe-ecommerce-font-' . sanitize_html_class( $font );
 
     if ( is_product() ) {
@@ -29,7 +39,7 @@ function eshobe_ecommerce_get_design_customizer_css() {
     $content_width = absint( get_theme_mod( 'eshobe_ecommerce_content_width', 1320 ) );
     $section_gap   = absint( get_theme_mod( 'eshobe_ecommerce_product_section_gap', 20 ) );
     $density       = get_theme_mod( 'eshobe_ecommerce_product_card_density', 'comfortable' );
-    $font          = get_theme_mod( 'eshobe_ecommerce_font_family', 'vazirmatn' );
+    $font          = eshobe_ecommerce_get_font_family();
 
     $content_width = min( max( $content_width, 1040 ), 1440 );
     $section_gap   = min( max( $section_gap, 12 ), 36 );

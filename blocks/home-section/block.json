@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/home-section",
+    "title": "بخش آماده صفحه اصلی",
+    "category": "eshobe-ecommerce",
+    "icon": "layout",
+    "description": "یکی از بخش‌های آماده تم (اسلایدر هدر، برندها، پرفروش‌ها، اعتمادسازی و ...) را نمایش می‌دهد. محتوای هر بخش هم‌چنان از «تنظیمات قالب ← صفحه اصلی» مدیریت می‌شود؛ این بلوک فقط جای نمایش و ترتیب آن را در صفحه مشخص می‌کند.",
+    "keywords": [ "hero", "brand", "trust", "بخش", "صفحه اصلی" ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "section": {
+            "type": "string",
+            "default": "hero_slider"
+        }
+    },
+    "supports": {
+        "html": false,
+        "multiple": true,
+        "reusable": false
+    },
+    "editorScript": "eshobe-ecommerce-blocks-editor",
+    "render": "file:./render.php"
+}

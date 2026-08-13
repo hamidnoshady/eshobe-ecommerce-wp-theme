@@ -10,31 +10,27 @@ function wm_header_mega_get_image_html( $image, $alt = '' ) {
         return '';
     }
 
+    $image_id = 0;
+
     if ( is_array( $image ) && ! empty( $image['ID'] ) ) {
-        return wp_get_attachment_image(
-            absint( $image['ID'] ),
-            'thumbnail',
-            false,
-            array(
-                'alt'     => $alt,
-                'loading' => 'lazy',
-            )
-        );
+        $image_id = absint( $image['ID'] );
+    } elseif ( is_numeric( $image ) ) {
+        $image_id = absint( $image );
     }
 
-    if ( is_numeric( $image ) ) {
-        return wp_get_attachment_image(
-            absint( $image ),
-            'thumbnail',
-            false,
-            array(
-                'alt'     => $alt,
-                'loading' => 'lazy',
-            )
-        );
+    if ( empty( $image_id ) ) {
+        return '';
     }
 
-    return '';
+    return wp_get_attachment_image(
+        $image_id,
+        'thumbnail',
+        false,
+        array(
+            'alt'     => $alt,
+            'loading' => 'lazy',
+        )
+    );
 }
 
 function wm_get_header_mega_menus() {
@@ -82,9 +78,13 @@ function wm_build_header_mega_menus() {
 
     foreach ( $posts as $post ) {
         $key = (string) $post->ID;
+        $fields = get_fields( $post->ID );
+        if ( ! is_array( $fields ) ) {
+            $fields = array();
+        }
 
         $columns = array();
-        foreach ( (array) get_field( 'mega_columns', $post->ID ) as $column ) {
+        foreach ( (array) ( $fields['mega_columns'] ?? array() ) as $column ) {
             if ( empty( $column['column_enabled'] ) ) {
                 continue;
             }
@@ -110,14 +110,14 @@ function wm_build_header_mega_menus() {
         $menu = array(
             'mega_trigger_key'          => $key,
             'mega_title'                => $post->post_title,
-            'mega_subtitle'             => get_field( 'mega_subtitle', $post->ID ),
+            'mega_subtitle'             => $fields['mega_subtitle'] ?? '',
             'mega_columns'              => $columns,
-            'mega_feature_card_enabled' => get_field( 'mega_feature_card_enabled', $post->ID ),
-            'mega_feature_title'        => get_field( 'mega_feature_title', $post->ID ),
-            'mega_feature_text'         => get_field( 'mega_feature_text', $post->ID ),
-            'mega_feature_image'        => get_field( 'mega_feature_image', $post->ID ),
-            'mega_feature_url'          => get_field( 'mega_feature_url', $post->ID ),
-            'mega_feature_button_text'  => get_field( 'mega_feature_button_text', $post->ID ),
+            'mega_feature_card_enabled' => $fields['mega_feature_card_enabled'] ?? '',
+            'mega_feature_title'        => $fields['mega_feature_title'] ?? '',
+            'mega_feature_text'         => $fields['mega_feature_text'] ?? '',
+            'mega_feature_image'        => $fields['mega_feature_image'] ?? '',
+            'mega_feature_url'          => $fields['mega_feature_url'] ?? '',
+            'mega_feature_button_text'  => $fields['mega_feature_button_text'] ?? '',
         );
 
         $has_feature = ! empty( $menu['mega_feature_card_enabled'] ) && ( ! empty( $menu['mega_feature_title'] ) || ! empty( $menu['mega_feature_text'] ) || ! empty( $menu['mega_feature_image'] ) );
@@ -139,16 +139,24 @@ function wm_build_header_mega_menus() {
 }
 
 function wm_get_nav_item_mega_menu_post_id( $item ) {
-    if ( ! function_exists( 'get_field' ) ) {
+    if ( ! function_exists( 'get_field' ) || empty( $item->ID ) ) {
         return 0;
+    }
+
+    static $cache = array();
+
+    if ( isset( $cache[ $item->ID ] ) ) {
+        return $cache[ $item->ID ];
     }
 
     $mega_post_id = get_field( 'wm_mega_menu_post', $item->ID );
     if ( empty( $mega_post_id ) || 'publish' !== get_post_status( $mega_post_id ) ) {
+        $cache[ $item->ID ] = 0;
         return 0;
     }
 
-    return (int) $mega_post_id;
+    $cache[ $item->ID ] = (int) $mega_post_id;
+    return $cache[ $item->ID ];
 }
 
 function wm_mega_menu_nav_link_attributes( $atts, $item, $args, $depth ) {

@@ -1002,7 +1002,8 @@
 .wm-cart-item__subtotal strong,
 .wm-cart-item__subtotal .amount {
   display: inline-flex;
-  flex-direction: row-reverse;
+  flex-direction: row !important;
+  direction: ltr !important;
   align-items: baseline;
   justify-content: center;
   gap: 4px;
@@ -1532,7 +1533,8 @@
 .wm-cart-item__subtotal strong,
 .wm-cart-item__subtotal .amount {
   display: inline-flex !important;
-  flex-direction: row-reverse;
+  flex-direction: row !important;
+  direction: ltr !important;
   align-items: baseline;
   justify-content: center;
   gap: 4px;

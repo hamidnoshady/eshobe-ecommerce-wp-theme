@@ -5,14 +5,11 @@
  * @package WM_Theme
  */
 
-$brands = wm_home_get_option( 'home_brand_items', array() );
-$brands = array_values(
-    array_filter(
-        (array) $brands,
-        function( $item ) {
-            return ! empty( $item['brand_enabled'] ) && ! empty( $item['brand_term'] );
-        }
-    )
+$brands = wm_home_get_valid_items(
+    'home_brand_items',
+    function( $item ) {
+        return ! empty( $item['brand_enabled'] ) && ! empty( $item['brand_term'] );
+    }
 );
 
 if ( empty( $brands ) && taxonomy_exists( 'product_brand' ) ) {
@@ -42,6 +39,23 @@ if ( empty( $brands ) ) {
         </div>
     </div>
     <div class="wm-home-brands__grid">
+        <?php
+        $brand_term_ids = array();
+        foreach ( $brands as $item ) {
+            if ( is_numeric( $item['brand_term'] ) ) {
+                $brand_term_ids[] = absint( $item['brand_term'] );
+            }
+        }
+        if ( ! empty( $brand_term_ids ) ) {
+            get_terms(
+                array(
+                    'taxonomy'   => 'product_brand',
+                    'include'    => $brand_term_ids,
+                    'hide_empty' => false,
+                )
+            );
+        }
+        ?>
         <?php foreach ( $brands as $item ) : ?>
             <?php
             $term = $item['brand_term'];

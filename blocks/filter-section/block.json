@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/filter-section",
+    "title": "بخش کارت‌های فیلتر (قیمت/دسته)",
+    "category": "eshobe-ecommerce",
+    "icon": "grid-view",
+    "description": "یک ردیف از کارت‌های فیلتر (مثلاً «تا ۵ میلیون»، «کلاسیک»، «هدیه») که هرکدام می‌توانند به یک محدوده قیمت، یک دسته/برند یا یک آدرس دلخواه لینک شوند. داخل این بلوک، بلوک «کارت فیلتر» اضافه کنید.",
+    "keywords": [ "filter", "price", "فیلتر", "قیمت" ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "subtitle": { "type": "string", "default": "" }
+    },
+    "supports": {
+        "html": false,
+        "multiple": true
+    },
+    "editorScript": "eshobe-ecommerce-blocks-editor",
+    "render": "file:./render.php"
+}

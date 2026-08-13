@@ -29,6 +29,8 @@ get_header( 'shop' );
                 <?php endif; ?>
             </section>
         </div>
+
+        <?php if ( function_exists( 'wm_render_block_region' ) ) { wm_render_block_region( 'shop_archive' ); } ?>
     </div>
     <div class="wm-product-archive__backdrop" data-archive-filter-close hidden></div>
 </main>

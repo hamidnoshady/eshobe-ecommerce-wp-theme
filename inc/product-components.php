@@ -65,35 +65,36 @@ function wm_get_product_category_terms( $product_id ) {
 function wm_get_guarantee( $product_id ) {
     $meta_keys = array( 'گارانتی', 'guarantee', 'warranty', 'product_guarantee', 'product_warranty', '_guarantee', '_warranty' );
 
-    if ( function_exists( 'get_field' ) ) {
-        foreach ( $meta_keys as $key ) {
-            $value = get_field( $key, $product_id );
+    $all_meta = get_post_meta( $product_id );
+    if ( empty( $all_meta ) || ! is_array( $all_meta ) ) {
+        return '';
+    }
+
+    $has_acf = function_exists( 'get_field' );
+
+    foreach ( $meta_keys as $key ) {
+        if ( ! empty( $all_meta[ $key ] ) ) {
+            if ( $has_acf ) {
+                $value = get_field( $key, $product_id );
+                if ( ! empty( $value ) ) {
+                    return wm_normalize_meta_value( $value );
+                }
+            }
+            $value = is_array( $all_meta[ $key ] ) ? $all_meta[ $key ][0] : $all_meta[ $key ];
             if ( ! empty( $value ) ) {
-                return wm_normalize_meta_value( $value );
+                return wm_normalize_meta_value( maybe_unserialize( $value ) );
             }
         }
     }
 
-    $all_meta = get_post_meta( $product_id );
-    if ( ! empty( $all_meta ) && is_array( $all_meta ) ) {
-        foreach ( $meta_keys as $key ) {
-            if ( ! empty( $all_meta[ $key ] ) ) {
-                $value = is_array( $all_meta[ $key ] ) ? $all_meta[ $key ][0] : $all_meta[ $key ];
-                if ( ! empty( $value ) ) {
-                    return wm_normalize_meta_value( maybe_unserialize( $value ) );
-                }
-            }
+    foreach ( $all_meta as $key => $values ) {
+        if ( false === strpos( $key, 'گارانتی' ) && false === stripos( $key, 'guarantee' ) && false === stripos( $key, 'warranty' ) ) {
+            continue;
         }
 
-        foreach ( $all_meta as $key => $values ) {
-            if ( false === strpos( $key, 'گارانتی' ) && false === stripos( $key, 'guarantee' ) && false === stripos( $key, 'warranty' ) ) {
-                continue;
-            }
-
-            $value = is_array( $values ) ? reset( $values ) : $values;
-            if ( ! empty( $value ) ) {
-                return wm_normalize_meta_value( maybe_unserialize( $value ) );
-            }
+        $value = is_array( $values ) ? reset( $values ) : $values;
+        if ( ! empty( $value ) ) {
+            return wm_normalize_meta_value( maybe_unserialize( $value ) );
         }
     }
 
@@ -106,7 +107,7 @@ function wm_normalize_meta_value( $value ) {
     }
 
     if ( is_object( $value ) ) {
-        return '';
+        return isset( $value->name ) ? trim( function_exists('wp_strip_all_tags') ? wp_strip_all_tags( (string) $value->name ) : strip_tags( (string) $value->name ) ) : '';
     }
 
     return trim( wp_strip_all_tags( (string) $value ) );
@@ -183,6 +184,11 @@ function wm_render_product_gallery() {
     $image_count = count( wm_get_product_gallery_ids( $product ) );
     $image_ids   = wm_get_product_gallery_ids( $product );
     $main_id     = ! empty( $image_ids ) ? $image_ids[0] : 0;
+
+    if ( ! empty( $image_ids ) && function_exists( 'update_meta_cache' ) ) {
+        update_meta_cache( 'post', $image_ids );
+    }
+
     $class       = 'wm-product-gallery ' . ( $image_count > 1 ? 'wm-product-gallery--has-thumbs' : 'wm-product-gallery--single' );
     $main_full   = $main_id ? wp_get_attachment_image_url( $main_id, 'full' ) : '';
     $main_large  = $main_id ? wp_get_attachment_image_url( $main_id, 'large' ) : '';
@@ -487,7 +493,7 @@ function wm_render_mobile_product_bottom_bar() {
     ob_start();
     ?>
     <section class="wm-mobile-bottom-bar <?php echo esc_attr( $state_class ); ?>" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'eshobe-ecommerce' ); ?>">
-        <button class="wm-mobile-bottom-bar__handle" type="button" aria-expanded="<?php echo $starts_expanded ? 'true' : 'false'; ?>" aria-controls="wm-mobile-bottom-bar-content">
+        <button class="wm-mobile-bottom-bar__handle" type="button" aria-expanded="<?php echo $starts_expanded ? 'true' : 'false'; ?>" aria-controls="wm-mobile-bottom-bar-content" aria-label="<?php esc_attr_e( 'Toggle mobile purchase bar', 'eshobe-ecommerce' ); ?>">
             <span class="wm-mobile-bottom-bar__chevron" aria-hidden="true"></span>
         </button>
 
@@ -636,6 +642,17 @@ function wm_render_related_products() {
         return '';
     }
 
+    $related_products = wc_get_products( array(
+        'include' => $related_ids,
+        'limit'   => -1,
+        'return'  => 'objects',
+    ) );
+
+    $products_by_id = array();
+    foreach ( $related_products as $prod ) {
+        $products_by_id[ $prod->get_id() ] = $prod;
+    }
+
     ob_start();
     ?>
     <section class="wm-related-products" aria-label="<?php esc_attr_e( 'Related products', 'eshobe-ecommerce' ); ?>">
@@ -655,10 +672,10 @@ function wm_render_related_products() {
             <div class="wm-related-products__track" tabindex="0">
                 <?php foreach ( $related_ids as $related_id ) : ?>
                     <?php
-                    $related_product = wc_get_product( $related_id );
-                    if ( ! $related_product ) {
+                    if ( ! isset( $products_by_id[ $related_id ] ) ) {
                         continue;
                     }
+                    $related_product = $products_by_id[ $related_id ];
 
                     $image_id      = $related_product->get_image_id();
                     $gallery_ids   = $related_product->get_gallery_image_ids();
