@@ -383,11 +383,41 @@ function wm_ajax_otp_password_login() {
 		wp_send_json_error( array( 'message' => 'شماره موبایل و رمز عبور را وارد کنید.' ) );
 	}
 
+	$security = wm_technical_get_otp_security_settings();
+
+	// Per-IP hourly limit for password login
+	$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+	$ip_key = '';
+	if ( $ip ) {
+		$ip_key      = 'wm_pw_login_ip_' . md5( $ip );
+		$ip_attempts = (int) get_transient( $ip_key );
+		if ( $ip_attempts >= $security['max_per_ip'] ) {
+			wp_send_json_error( array( 'message' => 'تعداد درخواست‌های ورود از این آدرس بیش از حد مجاز است. لطفاً بعداً تلاش کنید.' ) );
+		}
+	}
+
+	// Per-phone hourly limit for password login
+	$phone_hourly_key = 'wm_pw_login_hourly_' . md5( $phone );
+	$phone_attempts   = (int) get_transient( $phone_hourly_key );
+	if ( $phone_attempts >= $security['max_per_phone'] ) {
+		wp_send_json_error( array( 'message' => 'تعداد درخواست‌های ورود برای این شماره بیش از حد مجاز است. لطفاً یک ساعت دیگر تلاش کنید.' ) );
+	}
+
 	$user = wm_otp_get_user_by_phone( $phone );
 
 	if ( ! $user || ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+		if ( $ip ) {
+			set_transient( $ip_key, $ip_attempts + 1, HOUR_IN_SECONDS );
+		}
+		set_transient( $phone_hourly_key, $phone_attempts + 1, HOUR_IN_SECONDS );
 		wp_send_json_error( array( 'message' => 'شماره موبایل یا رمز عبور اشتباه است.' ) );
 	}
+
+	// Reset limits on successful login
+	if ( $ip ) {
+		delete_transient( $ip_key );
+	}
+	delete_transient( $phone_hourly_key );
 
 	wp_set_current_user( $user->ID );
 	wp_set_auth_cookie( $user->ID, true );
