@@ -19,6 +19,13 @@ $image_slides = wm_home_get_valid_items(
     }
 );
 
+$video_slides = wm_home_get_valid_items(
+    'home_hero_video_slides',
+    function( $slide ) {
+        return ! empty( $slide['video_slide_enabled'] ) && ( ! empty( $slide['video_slide_video_desktop'] ) || ! empty( $slide['video_slide_video_mobile'] ) );
+    }
+);
+
 $slides = array();
 
 foreach ( $content_slides as $slide ) {
@@ -28,6 +35,11 @@ foreach ( $content_slides as $slide ) {
 
 foreach ( $image_slides as $slide ) {
     $slide['type'] = 'image';
+    $slides[]      = $slide;
+}
+
+foreach ( $video_slides as $slide ) {
+    $slide['type'] = 'video';
     $slides[]      = $slide;
 }
 
@@ -75,6 +87,28 @@ $autoplay_pause    = $autoplay_enabled ? (bool) wm_home_get_option( 'home_hero_a
                         </picture>
                     <?php endif; ?>
                     <?php if ( $image_url ) : ?>
+                        </a>
+                    <?php endif; ?>
+                </article>
+            <?php elseif ( 'video' === ( $slide['type'] ?? 'content' ) ) : ?>
+                <?php
+                $video_url     = ! empty( $slide['video_slide_url'] ) ? $slide['video_slide_url'] : '';
+                $desktop_video = ! empty( $slide['video_slide_video_desktop'] ) ? $slide['video_slide_video_desktop'] : '';
+                $mobile_video  = ! empty( $slide['video_slide_video_mobile'] ) ? $slide['video_slide_video_mobile'] : $desktop_video;
+                ?>
+                <article class="wm-home-hero__slide wm-home-hero__slide--video <?php echo 0 === $index ? 'is-active' : ''; ?>" data-home-hero-slide>
+                    <?php if ( $video_url ) : ?>
+                        <a class="wm-home-hero__video-link" href="<?php echo esc_url( $video_url ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+                    <?php endif; ?>
+                    <?php if ( $desktop_video || $mobile_video ) : ?>
+                        <video class="wm-home-hero__video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1">
+                            <?php if ( $mobile_video && wm_home_get_video_url( $mobile_video ) !== wm_home_get_video_url( $desktop_video ) ) : ?>
+                                <source media="(max-width: 767px)" src="<?php echo esc_url( wm_home_get_video_url( $mobile_video ) ); ?>"<?php echo wm_home_get_video_type( $mobile_video ) ? ' type="' . esc_attr( wm_home_get_video_type( $mobile_video ) ) . '"' : ''; ?>>
+                            <?php endif; ?>
+                            <source src="<?php echo esc_url( wm_home_get_video_url( $desktop_video ) ); ?>"<?php echo wm_home_get_video_type( $desktop_video ) ? ' type="' . esc_attr( wm_home_get_video_type( $desktop_video ) ) . '"' : ''; ?>>
+                        </video>
+                    <?php endif; ?>
+                    <?php if ( $video_url ) : ?>
                         </a>
                     <?php endif; ?>
                 </article>

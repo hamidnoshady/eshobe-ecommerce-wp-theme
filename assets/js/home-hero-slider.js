@@ -29,6 +29,35 @@
     var timer = null;
     var autoplayTimer = null;
     var autoplayPaused = false;
+    var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function syncVideos() {
+      slides.forEach(function(slide) {
+        var video = slide.querySelector('video');
+        if (!video) {
+          return;
+        }
+
+        if (slide.classList.contains('is-active')) {
+          if (reducedMotion) {
+            video.pause();
+            return;
+          }
+
+          var playPromise = video.play();
+          if (playPromise && playPromise.catch) {
+            playPromise.catch(function() {});
+          }
+        } else {
+          video.pause();
+          if (video.readyState > 0 && !isNaN(video.duration)) {
+            video.currentTime = 0;
+          }
+        }
+      });
+    }
+
+    syncVideos();
 
     if (slides.length <= 1) {
       return;
@@ -116,6 +145,8 @@
       });
 
       index = nextIndex;
+
+      syncVideos();
 
       timer = window.setTimeout(function() {
         slides.forEach(function(slide) {
