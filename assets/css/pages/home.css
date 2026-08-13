@@ -73,6 +73,43 @@
   animation: wm-home-hero-slide-out 300ms ease both;
 }
 
+.wm-home-hero__slide.wm-home-hero__slide--image {
+  min-height: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.wm-home-hero__slide--image.is-active,
+.wm-home-hero__slide--image.is-entering,
+.wm-home-hero__slide--image.is-leaving {
+  display: block;
+}
+
+.wm-home-hero__slide--image.is-leaving {
+  position: absolute;
+  inset: 0;
+}
+
+.wm-home-hero__slide--image .wm-home-hero__image-link,
+.wm-home-hero__slide--image picture {
+  display: block;
+}
+
+.wm-home-hero__slide--image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  object-fit: cover;
+  transform: none;
+}
+
+.wm-home-hero__slide--image.is-leaving img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .wm-home-hero__content {
   display: flex;
   flex-direction: column;
@@ -291,6 +328,32 @@
   width: 24px;
   border-radius: var(--wm-radius-pill);
   background: var(--wm-color-accent);
+}
+
+.wm-home-hero__progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  z-index: 3;
+  pointer-events: none;
+  background: rgba(17, 24, 39, 0.08);
+}
+
+.wm-home-hero__progress-bar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--wm-hero-progress-color, var(--wm-color-accent));
+  transform: scaleX(0);
+  transform-origin: var(--wm-hero-progress-origin, right);
+  transition: none;
+}
+
+.wm-home-hero__progress-bar.is-running {
+  transform: scaleX(1);
+  transition: transform linear;
 }
 
 .wm-home-section,
