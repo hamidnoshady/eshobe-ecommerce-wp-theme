@@ -17,6 +17,8 @@ function wm_design_token_defaults() {
         'wm_color_border'               => '#E5E0D8',
         'wm_color_muted'                => '#6B7280',
         'wm_color_cta'                  => '#111827',
+        'wm_hero_progress_color'        => '#C89B3C',
+        'wm_hero_progress_direction'    => 'right',
         'wm_font_mode'                  => 'vazirmatn',
         'wm_font_custom_family_name'    => 'CustomFont',
         'wm_font_size_base'             => '15px',
@@ -246,6 +248,8 @@ function wm_build_design_tokens_css() {
     $css .= '--wm-color-border:' . wm_design_token_hex( 'wm_color_border' ) . ';';
     $css .= '--wm-color-muted:' . wm_design_token_hex( 'wm_color_muted' ) . ';';
     $css .= '--wm-color-cta:' . wm_design_token_hex( 'wm_color_cta' ) . ';';
+    $css .= '--wm-hero-progress-color:' . wm_design_token_hex( 'wm_hero_progress_color' ) . ';';
+    $css .= '--wm-hero-progress-origin:' . wm_design_token_choice( 'wm_hero_progress_direction', array( 'right', 'left' ), 'right' ) . ';';
     $css .= '--wm-font-primary:' . wm_get_font_stack() . ';';
     $css .= '--wm-font-size-base:' . wm_design_token_size( 'wm_font_size_base' ) . ';';
     $css .= '--wm-font-size-h1:' . wm_design_token_size( 'wm_font_size_h1' ) . ';';

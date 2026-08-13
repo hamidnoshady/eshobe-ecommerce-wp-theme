@@ -1,3 +1,7 @@
 ## 2026-06-25 - WordPress Option Lookup Memoization Pattern
 **Learning:** WordPress configuration array builder functions (like `wm_product_archive_filter_config`) that parse multiple taxonomy structures, hit standard WordPress option getters, and map/filter arrays multiple times are a prime target for redundant processing when rendering complex UI like shop sidebars and product listings. They are repeatedly invoked across multiple hooks or internal functions.
 **Action:** Use a static variable pattern (`static $cache = null; if ( null !== $cache ) return $cache;`) inside configuration builder functions that are called frequently during a single request lifecycle but whose underlying state doesn't mutate.
+
+## 2024-08-12 - O(n²) Array Filtering in Recursive Tree Rendering
+**Learning:** In PHP, using `array_filter` inside a recursive tree rendering function to find a node's children creates an O(N²) time complexity bottleneck, especially when the total number of terms is large. The overhead of repeatedly scanning the entire array for every node at every depth significantly impacts frontend performance for deep or large taxonomies.
+**Action:** When recursively rendering trees from a flat list, always pre-compute a parent-to-children map (e.g., `$hierarchy[ $parent_id ][] = $term`) once in a static variable. Similarly, use `array_flip` to convert active selection lists into hash maps (`isset($map[$key])`) to eliminate nested O(N) `in_array` lookups.
