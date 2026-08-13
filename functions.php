@@ -244,3 +244,14 @@ require get_template_directory() . '/inc/blocks/block-regions-admin.php';
 require get_template_directory() . '/inc/compat/cache.php';
 require get_template_directory() . '/inc/theme-updater.php';
 require get_template_directory() . '/inc/seo.php';
+
+/**
+ * Add security headers to the site
+ */
+function wm_add_security_headers() {
+	if ( ! is_admin() && ! headers_sent() ) {
+		header( 'X-Frame-Options: SAMEORIGIN' );
+		header( 'X-Content-Type-Options: nosniff' );
+	}
+}
+add_action( 'send_headers', 'wm_add_security_headers' );
