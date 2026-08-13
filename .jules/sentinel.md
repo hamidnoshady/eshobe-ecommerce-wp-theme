@@ -1,3 +1,9 @@
+## 2024-05-18 - X-Frame-Options and MIME sniffing prevention headers
+
+**Vulnerability:** Missing `X-Frame-Options` and `X-Content-Type-Options` HTTP response headers.
+**Learning:** These basic security headers were missing from the custom theme configuration, leaving the site potentially exposed to Clickjacking and MIME-type sniffing. WordPress automatically applies `X-Frame-Options: SAMEORIGIN` in the backend (`is_admin()` and login pages), but it doesn't automatically protect the frontend.
+**Prevention:** Always hook into `send_headers` with `! headers_sent()` check to manually output frontend security headers in WordPress themes unless configured at the reverse proxy/web server level.
+
 ## 2024-05-24 - [OTP Brute-Force Vulnerability]
 **Vulnerability:** The OTP verification endpoint (`wm_ajax_otp_verify_code`) lacked rate limiting for failed attempts. An attacker could rapidly guess all 90,000 possible 5-digit codes within the 2-minute validity window.
 **Learning:** While the endpoint properly limited the *sending* of OTPs via SMS, it failed to limit the *verification* attempts of a generated code. Security checks must exist at both generation and verification stages.
