@@ -5,14 +5,11 @@
  * @package WM_Theme
  */
 
-$brands = wm_home_get_option( 'home_brand_items', array() );
-$brands = array_values(
-    array_filter(
-        (array) $brands,
-        function( $item ) {
-            return ! empty( $item['brand_enabled'] ) && ! empty( $item['brand_term'] );
-        }
-    )
+$brands = wm_home_get_valid_items(
+    'home_brand_items',
+    function( $item ) {
+        return ! empty( $item['brand_enabled'] ) && ! empty( $item['brand_term'] );
+    }
 );
 
 if ( empty( $brands ) && taxonomy_exists( 'product_brand' ) ) {

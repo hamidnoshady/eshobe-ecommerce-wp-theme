@@ -1,0 +1,61 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/post-carousel",
+    "title": "کاروسل مقالات",
+    "category": "eshobe-ecommerce",
+    "icon": "slides",
+    "description": "نمایش مقالات وبلاگ به صورت کاروسل با امکان انتخاب تعداد و دسته‌بندی.",
+    "keywords": [
+        "carousel",
+        "کاروسل",
+        "وبلاگ",
+        "مقالات",
+        "blog"
+    ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "title": {
+            "type": "string",
+            "default": ""
+        },
+        "subtitle": {
+            "type": "string",
+            "default": ""
+        },
+        "category": {
+            "type": "string",
+            "default": ""
+        },
+        "count": {
+            "type": "number",
+            "default": 10
+        },
+        "orderby": {
+            "type": "string",
+            "default": "date"
+        },
+        "order": {
+            "type": "string",
+            "default": "DESC"
+        },
+        "columnsDesktop": {
+            "type": "number",
+            "default": 4
+        },
+        "columnsTablet": {
+            "type": "number",
+            "default": 3
+        },
+        "columnsMobile": {
+            "type": "number",
+            "default": 1
+        }
+    },
+    "supports": {
+        "html": false,
+        "multiple": true
+    },
+    "render": "file:./render.php",
+    "editorScript": "eshobe-ecommerce-blocks-editor"
+}

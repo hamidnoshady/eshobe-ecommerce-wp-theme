@@ -6,7 +6,24 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.5.7' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.7.9' );
+}
+
+/**
+ * Resolve the relative path for a theme asset, preferring the minified build unless WP_DEBUG is enabled.
+ *
+ * @param string $relative_path Asset path relative to the theme root.
+ * @return string
+ */
+function wm_get_resolved_asset_path( $relative_path ) {
+    if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+        $min_relative_path = preg_replace( '/\.(css|js)$/', '.min.$1', $relative_path );
+        if ( file_exists( get_theme_file_path( $min_relative_path ) ) ) {
+            return $min_relative_path;
+        }
+    }
+
+    return $relative_path;
 }
 
 /**
@@ -16,14 +33,7 @@ if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
  * @return string
  */
 function wm_asset_uri( $relative_path ) {
-    if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
-        $min_relative_path = preg_replace( '/\.(css|js)$/', '.min.$1', $relative_path );
-        if ( file_exists( get_theme_file_path( $min_relative_path ) ) ) {
-            return get_theme_file_uri( $min_relative_path );
-        }
-    }
-
-    return get_theme_file_uri( $relative_path );
+    return get_theme_file_uri( wm_get_resolved_asset_path( $relative_path ) );
 }
 
 /**
@@ -34,15 +44,8 @@ function wm_asset_uri( $relative_path ) {
  * @return string|int
  */
 function wm_asset_version( $relative_path ) {
-    $resolved_path = get_theme_file_path( $relative_path );
-
-    if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
-        $min_relative_path = preg_replace( '/\.(css|js)$/', '.min.$1', $relative_path );
-        $min_path          = get_theme_file_path( $min_relative_path );
-        if ( file_exists( $min_path ) ) {
-            $resolved_path = $min_path;
-        }
-    }
+    $resolved_relative_path = wm_get_resolved_asset_path( $relative_path );
+    $resolved_path = get_theme_file_path( $resolved_relative_path );
 
     return file_exists( $resolved_path ) ? filemtime( $resolved_path ) : ESHOBE_ECOMMERCE_VERSION;
 }
@@ -76,6 +79,7 @@ if ( ! function_exists( 'eshobe_ecommerce_setup' ) ) :
         register_nav_menus( array(
             'menu-1' => esc_html__( 'Primary', 'eshobe-ecommerce' ),
             'primary' => esc_html__( 'Primary Menu', 'eshobe-ecommerce' ),
+            'mobile' => esc_html__( 'Mobile Menu', 'eshobe-ecommerce' ),
             'footer' => esc_html__( 'Footer Menu', 'eshobe-ecommerce' ),
         ) );
     }
@@ -138,6 +142,10 @@ function eshobe_ecommerce_scripts() {
         wp_enqueue_style( 'eshobe-ecommerce-promo-banner', wm_asset_uri( 'assets/css/components/promo-banner.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/promo-banner.css' ) );
     }
 
+    if ( is_home() || is_singular( 'post' ) || is_page() ) {
+        wp_enqueue_style( 'eshobe-ecommerce-blog', wm_asset_uri( 'assets/css/pages/blog.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/pages/blog.css' ) );
+    }
+
     if ( is_front_page() ) {
         wp_enqueue_style( 'eshobe-ecommerce-home', wm_asset_uri( 'assets/css/pages/home.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/pages/home.css' ) );
         wp_enqueue_script( 'eshobe-ecommerce-home-hero-slider', wm_asset_uri( 'assets/js/home-hero-slider.js' ), array(), wm_asset_version( 'assets/js/home-hero-slider.js' ), true );
@@ -148,6 +156,7 @@ function eshobe_ecommerce_scripts() {
         wp_enqueue_style( 'eshobe-ecommerce-brand-archive', wm_asset_uri( 'assets/css/pages/brand-archive.css' ), array( 'eshobe-ecommerce-style', 'eshobe-ecommerce-decorative-motifs' ), wm_asset_version( 'assets/css/pages/brand-archive.css' ) );
         wp_enqueue_script( 'eshobe-ecommerce-brand-archive', wm_asset_uri( 'assets/js/brand-archive.js' ), array(), wm_asset_version( 'assets/js/brand-archive.js' ), true );
     }
+
 
     if ( function_exists( 'is_product' ) && is_product() ) {
         wp_enqueue_script( 'eshobe-ecommerce-product-gallery', wm_asset_uri( 'assets/js/product-gallery.js' ), array(), wm_asset_version( 'assets/js/product-gallery.js' ), true );
@@ -200,6 +209,7 @@ add_action( 'wp_enqueue_scripts', 'eshobe_ecommerce_scripts' );
 
 require get_template_directory() . '/inc/template-functions.php';
 require get_template_directory() . '/inc/template-tags.php';
+require get_template_directory() . '/inc/helpers/options.php';
 require get_template_directory() . '/inc/helpers/home-data.php';
 require get_template_directory() . '/inc/helpers/marketing-data.php';
 require get_template_directory() . '/inc/helpers/technical-data.php';
@@ -211,9 +221,12 @@ require get_template_directory() . '/inc/components/mega-menu.php';
 require get_template_directory() . '/inc/components/site-header.php';
 require get_template_directory() . '/inc/components/mini-cart.php';
 require get_template_directory() . '/inc/components/product-card.php';
+require get_template_directory() . '/inc/components/post-card.php';
 require get_template_directory() . '/inc/components/product-carousel.php';
+require get_template_directory() . '/inc/components/post-carousel.php';
 require get_template_directory() . '/inc/components/product-archive.php';
 require get_template_directory() . '/inc/components/brand-archive.php';
+require get_template_directory() . '/inc/components/taxonomy-landing.php';
 require get_template_directory() . '/inc/components/site-footer.php';
 require get_template_directory() . '/inc/components/mobile-nav.php';
 require get_template_directory() . '/inc/product-components.php';
@@ -225,6 +238,9 @@ require get_template_directory() . '/inc/customizer/design-settings.php';
 require get_template_directory() . '/inc/patterns/register-patterns.php';
 require get_template_directory() . '/inc/acf/design-tokens.php';
 require get_template_directory() . '/inc/acf/home-fields.php';
+require get_template_directory() . '/inc/blocks/register-blocks.php';
+require get_template_directory() . '/inc/blocks/block-regions.php';
+require get_template_directory() . '/inc/blocks/block-regions-admin.php';
 require get_template_directory() . '/inc/compat/cache.php';
 require get_template_directory() . '/inc/theme-updater.php';
 require get_template_directory() . '/inc/seo.php';

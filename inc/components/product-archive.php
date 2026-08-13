@@ -40,14 +40,7 @@ function wm_product_archive_get_option( $name, $default = null ) {
     $defaults = wm_product_archive_defaults();
     $default  = null === $default && array_key_exists( $name, $defaults ) ? $defaults[ $name ] : $default;
 
-    if ( function_exists( 'get_field' ) ) {
-        $value = get_field( $name, 'option' );
-        if ( null !== $value && '' !== $value ) {
-            return $value;
-        }
-    }
-
-    return $default;
+    return wm_get_option( $name, $default );
 }
 
 function wm_product_archive_int_option( $name, $default, $min, $max ) {
@@ -349,12 +342,34 @@ function wm_product_archive_render_tax_filter( $filter ) {
 }
 
 function wm_product_archive_term_has_selected_descendant( $terms, $term_id, $selected ) {
-    foreach ( $terms as $term ) {
-        if ( (int) $term->parent !== (int) $term_id ) {
-            continue;
-        }
+    static $hierarchy = array();
+    static $last_terms = null;
+    static $selected_map = array();
+    static $last_selected = null;
 
-        if ( in_array( $term->slug, $selected, true ) || wm_product_archive_term_has_selected_descendant( $terms, (int) $term->term_id, $selected ) ) {
+    if ( $last_terms !== $terms ) {
+        $hierarchy = array();
+        foreach ( $terms as $term ) {
+            $term_parent = (int) $term->parent;
+            if ( ! isset( $hierarchy[ $term_parent ] ) ) {
+                $hierarchy[ $term_parent ] = array();
+            }
+            $hierarchy[ $term_parent ][] = $term;
+        }
+        $last_terms = $terms;
+    }
+
+    if ( $last_selected !== $selected ) {
+        $selected_map  = array_flip( $selected );
+        $last_selected = $selected;
+    }
+
+    if ( empty( $hierarchy[ $term_id ] ) ) {
+        return false;
+    }
+
+    foreach ( $hierarchy[ $term_id ] as $term ) {
+        if ( isset( $selected_map[ $term->slug ] ) || wm_product_archive_term_has_selected_descendant( $terms, (int) $term->term_id, $selected ) ) {
             return true;
         }
     }
@@ -367,12 +382,33 @@ function wm_product_archive_render_term_tree( $terms, $key, $selected, $parent =
         return;
     }
 
-    $children = array_filter(
-        $terms,
-        function( $term ) use ( $parent ) {
-            return null === $parent || (int) $term->parent === (int) $parent;
+    static $hierarchy = array();
+    static $last_terms = null;
+    static $selected_map = array();
+    static $last_selected = null;
+
+    if ( $last_terms !== $terms ) {
+        $hierarchy = array();
+        foreach ( $terms as $term ) {
+            $term_parent = (int) $term->parent;
+            if ( ! isset( $hierarchy[ $term_parent ] ) ) {
+                $hierarchy[ $term_parent ] = array();
+            }
+            $hierarchy[ $term_parent ][] = $term;
         }
-    );
+        $last_terms = $terms;
+    }
+
+    if ( $last_selected !== $selected ) {
+        $selected_map  = array_flip( $selected );
+        $last_selected = $selected;
+    }
+
+    if ( null === $parent ) {
+        $children = $terms;
+    } else {
+        $children = isset( $hierarchy[ (int) $parent ] ) ? $hierarchy[ (int) $parent ] : array();
+    }
 
     if ( empty( $children ) ) {
         return;
@@ -381,14 +417,8 @@ function wm_product_archive_render_term_tree( $terms, $key, $selected, $parent =
     <ul class="wm-custom-filter__options<?php echo 0 < $depth ? ' wm-custom-filter__options--child' : ''; ?>">
         <?php foreach ( $children as $term ) : ?>
             <?php
-            $checked       = in_array( $term->slug, $selected, true );
-            $term_children = array_filter(
-                $terms,
-                function( $child ) use ( $term ) {
-                    return (int) $child->parent === (int) $term->term_id;
-                }
-            );
-            $has_children  = ! empty( $term_children );
+            $checked       = isset( $selected_map[ $term->slug ] );
+            $has_children  = ! empty( $hierarchy[ (int) $term->term_id ] );
             $tree_open     = $checked || ( $has_children && wm_product_archive_term_has_selected_descendant( $terms, (int) $term->term_id, $selected ) );
             $unavailable   = ! empty( $term->wm_unavailable );
             ?>

@@ -8,6 +8,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * The fallback index bucket for brands with no English (Latin) characters.
+ */
+define( 'WM_BRAND_ARCHIVE_FALLBACK_INDEX', '#' );
+
+/**
  * Whether the current request is rendering the brand directory template.
  */
 function wm_brand_archive_is_context() {
@@ -29,14 +34,14 @@ function wm_brand_archive_index_letter( $name ) {
         return strtoupper( $matches[0] );
     }
 
-    return '#';
+    return WM_BRAND_ARCHIVE_FALLBACK_INDEX;
 }
 
 /**
  * Build the ordered list of index buckets: A-Z, then "#".
  */
 function wm_brand_archive_letter_order() {
-    return array_merge( range( 'A', 'Z' ), array( '#' ) );
+    return array_merge( range( 'A', 'Z' ), array( WM_BRAND_ARCHIVE_FALLBACK_INDEX ) );
 }
 
 /**
@@ -61,6 +66,7 @@ function wm_brand_archive_get_groups() {
             'hide_empty' => true,
             'orderby'    => 'name',
             'order'      => 'ASC',
+            'update_term_meta_cache' => true,
         )
     );
 
@@ -68,6 +74,7 @@ function wm_brand_archive_get_groups() {
         return array( 'groups' => $groups, 'total' => $total );
     }
 
+    $thumbnail_ids = array();
     foreach ( $terms as $term ) {
         // Top-level terms are alphabet/category buckets, not real brands.
         // Only their children are actual brands shown as cards.
@@ -75,9 +82,19 @@ function wm_brand_archive_get_groups() {
             continue;
         }
 
+        $thumbnail_id = get_term_meta( $term->term_id, 'thumbnail_id', true );
+        if ( $thumbnail_id ) {
+            $thumbnail_ids[] = absint( $thumbnail_id );
+        }
+
         $letter             = wm_brand_archive_index_letter( $term->name );
         $groups[ $letter ][] = $term;
         $total++;
+    }
+
+    // Pre-fetch attachment post objects to prevent N+1 queries during card rendering.
+    if ( ! empty( $thumbnail_ids ) && function_exists( '_prime_post_caches' ) ) {
+        _prime_post_caches( array_unique( $thumbnail_ids ), false, true );
     }
 
     $order   = wm_brand_archive_letter_order();
