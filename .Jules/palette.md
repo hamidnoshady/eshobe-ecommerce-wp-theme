@@ -5,3 +5,6 @@
 ## 2024-08-09 - Icon-Only Button Accessibility in Product Components
 **Learning:** Icon-only buttons used for expanding/collapsing UI panels (like the mobile purchase bottom bar handle) often lack accessible names, making them difficult for screen reader users to understand their purpose. Specifically, the `wm-mobile-bottom-bar__handle` relied purely on an SVG chevron hidden via `aria-hidden="true"` and `aria-expanded` attributes without an overarching `aria-label`.
 **Action:** Always verify that interactive elements containing only presentational elements (like `aria-hidden` icons) have an explicit `aria-label` or `aria-labelledby` attribute. When implementing custom expandable panels, the toggle button needs a clear, localized name (e.g., `aria-label="<?php esc_attr_e( 'نمایش نوار خرید', 'eshobe-ecommerce' ); ?>"`).
+## 2024-08-15 - [Translated Product Gallery Lightbox Aria-Label]
+**Learning:** Found a hardcoded English `aria-label="Close"` in the dynamically injected HTML string for the product gallery lightbox, which breaks accessibility for Persian screen readers on a fully RTL theme.
+**Action:** Replaced hardcoded English text with Persian equivalent ("بستن") in injected JS templates. Need to ensure future dynamically injected components use localized strings or localize them via `wp_localize_script()`.
