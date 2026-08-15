@@ -473,11 +473,16 @@
   padding: 14px;
   border: 1px solid rgba(229, 224, 216, 0.95);
   border-radius: 20px;
-  background: linear-gradient(180deg, #fff, rgba(249, 248, 245, 0.72));
+  background: linear-gradient(180deg, var(--wm-filter-cover, #fff), color-mix(in srgb, var(--wm-filter-cover, #fff) 72%, transparent));
   color: var(--wm-color-primary);
   text-decoration: none;
   box-shadow: var(--wm-home-shadow-sm);
   transition: transform var(--wm-home-motion), border-color var(--wm-home-motion), box-shadow var(--wm-home-motion), background var(--wm-home-motion);
+}
+
+.wm-home-brand-card--no-cover,
+.wm-home-style-card--no-cover {
+  background: transparent;
 }
 
 .wm-home-brand-card:hover,
@@ -633,7 +638,7 @@
 .wm-home-filter-card__media {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #111827, #26364d);
+  background: linear-gradient(135deg, var(--wm-filter-cover, #111827), #26364d);
 }
 
 .wm-home-filter-card__media img {
@@ -649,8 +654,12 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(17, 24, 39, 0.08), rgba(17, 24, 39, 0.76)),
-    linear-gradient(135deg, color-mix(in srgb, var(--wm-filter-accent) 24%, transparent), transparent 46%);
+    linear-gradient(180deg, color-mix(in srgb, var(--wm-filter-cover, #111827) 8%, transparent), color-mix(in srgb, var(--wm-filter-cover, #111827) 76%, transparent)),
+    linear-gradient(135deg, color-mix(in srgb, var(--wm-filter-cover, var(--wm-filter-accent)) 24%, transparent), transparent 46%);
+}
+
+.wm-home-filter-card--no-cover::after {
+  display: none;
 }
 
 .wm-home-filter-card::before {
@@ -717,7 +726,7 @@
   align-items: stretch;
   min-height: 188px;
   border-color: rgba(229, 224, 216, 0.96);
-  background: linear-gradient(180deg, #fff, rgba(249, 248, 245, 0.86));
+  background: linear-gradient(180deg, var(--wm-filter-cover, #fff), color-mix(in srgb, var(--wm-filter-cover, #fff) 86%, transparent));
   color: var(--wm-color-primary);
 }
 
@@ -725,7 +734,7 @@
 .wm-home-filter-card--minimal_card .wm-home-filter-card__media {
   inset: auto 0 0;
   height: 46%;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--wm-filter-accent) 14%, #fff), #fff);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--wm-filter-cover, var(--wm-filter-accent)) 14%, #fff), #fff);
 }
 
 .wm-home-filter-card--minimal_card .wm-home-filter-card__media {
@@ -734,7 +743,7 @@
 
 .wm-home-filter-card--light_card::after,
 .wm-home-filter-card--minimal_card::after {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--wm-filter-accent) 12%, transparent), transparent 58%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--wm-filter-cover, var(--wm-filter-accent)) 12%, transparent), transparent 58%);
 }
 
 .wm-home-filter-card--light_card::before,
@@ -772,7 +781,7 @@
 }
 
 .wm-home-filter-card--image_card::after {
-  background: linear-gradient(180deg, rgba(17, 24, 39, 0.02), rgba(17, 24, 39, 0.58));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--wm-filter-cover, #111827) 2%, transparent), color-mix(in srgb, var(--wm-filter-cover, #111827) 58%, transparent));
 }
 
 .wm-home-filters--compact_grid .wm-home-filter-card {

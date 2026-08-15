@@ -409,9 +409,11 @@ function wm_home_normalize_filter_item( $item ) {
             'filter_enabled'     => true,
             'filter_title'       => '',
             'filter_subtitle'    => '',
-            'filter_image'       => '',
-            'filter_style'       => 'dark_card',
-            'filter_badge_text'  => '',
+            'filter_image'          => '',
+            'filter_style'          => 'dark_card',
+            'filter_cover_enabled'  => true,
+            'filter_cover_color'    => '',
+            'filter_badge_text'     => '',
             'filter_button_text' => __( 'مشاهده', 'eshobe-ecommerce' ),
             'filter_link_mode'   => ! empty( $item['filter_url'] ) ? 'manual_url' : 'taxonomy_and_price',
         )
@@ -509,11 +511,25 @@ function wm_home_get_filter_sections() {
 function wm_render_filter_card( $item ) {
     $style       = ! empty( $item['filter_style'] ) ? sanitize_html_class( $item['filter_style'] ) : 'dark_card';
     $button_text = ! empty( $item['filter_button_text'] ) ? $item['filter_button_text'] : __( 'مشاهده', 'eshobe-ecommerce' );
-    $style_attr  = ! empty( $item['filter_color_value'] ) ? ' style="--wm-filter-accent:' . esc_attr( sanitize_hex_color( $item['filter_color_value'] ) ) . '"' : '';
+
+    // Optional per-card cover control: --wm-filter-cover recolors the overlay
+    // layer over the card image; --no-cover removes it entirely.
+    $card_style = array();
+    foreach ( array( '--wm-filter-accent' => 'filter_color_value', '--wm-filter-cover' => 'filter_cover_color' ) as $css_var => $field ) {
+        if ( empty( $item[ $field ] ) ) {
+            continue;
+        }
+        $color = sanitize_hex_color( $item[ $field ] );
+        if ( $color ) {
+            $card_style[] = $css_var . ':' . $color;
+        }
+    }
+    $style_attr  = $card_style ? ' style="' . esc_attr( implode( ';', $card_style ) ) . '"' : '';
+    $cover_class = empty( $item['filter_cover_enabled'] ) ? ' wm-home-filter-card--no-cover' : '';
 
     ob_start();
     ?>
-    <a class="wm-home-filter-card wm-home-filter-card--<?php echo esc_attr( $style ); ?>" href="<?php echo esc_url( wm_build_filter_box_url( $item ) ); ?>"<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+    <a class="wm-home-filter-card wm-home-filter-card--<?php echo esc_attr( $style ); ?><?php echo esc_attr( $cover_class ); ?>" href="<?php echo esc_url( wm_build_filter_box_url( $item ) ); ?>"<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
         <span class="wm-home-filter-card__media">
             <?php echo wm_home_get_image_html( ! empty( $item['filter_image'] ) ? $item['filter_image'] : '', 'medium', array( 'alt' => $item['filter_title'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         </span>
@@ -565,6 +581,18 @@ function wm_render_home_filter_sections() {
     foreach ( wm_home_get_filter_sections() as $section ) {
         wm_render_home_filter_section( $section );
     }
+}
+
+/**
+ * Builds the inline style for the optional card cover color.
+ *
+ * @param array  $item   Card item data (ACF repeater row).
+ * @param string $prefix Field prefix, e.g. 'brand_' or 'style_'.
+ * @return string Style attribute string (may be empty).
+ */
+function wm_home_card_cover_style_attr( $item, $prefix ) {
+    $color = ! empty( $item[ $prefix . 'cover_color' ] ) ? sanitize_hex_color( $item[ $prefix . 'cover_color' ] ) : '';
+    return $color ? ' style="--wm-filter-cover:' . $color . '"' : '';
 }
 
 function wm_render_home_quick_filters_section( $items, $args = array() ) {
