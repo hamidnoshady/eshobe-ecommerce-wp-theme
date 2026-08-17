@@ -248,7 +248,7 @@ class ProductComponentsTest extends TestCase {
         Functions\expect('wp_strip_all_tags')->andReturnFirstArg();
         $obj = new stdClass();
         $obj->name = 'Object Name';
-        $this->assertEquals('', wm_normalize_meta_value($obj));
+        $this->assertEquals('Object Name', wm_normalize_meta_value($obj));
     }
 
     public function test_wm_normalize_meta_value_with_object_missing_name() {

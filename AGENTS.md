@@ -32,7 +32,7 @@ Local WP manages the WordPress site itself (PHP, MySQL, web server). VS Code is 
 
 ### `inc/` module map
 
-- `template-functions.php`, `template-tags.php` — general template helpers (Underscores defaults).
+- `template-functions.php` — general template helpers (Underscores defaults: body classes, customizer-driven design CSS).
 - `helpers/home-data.php` — `wm_home_*` helpers for reading ACF "option" fields (front page content blocks), image URL/HTML resolution, and feature toggles.
 - `acf/design-tokens.php` — central design token system. `wm_design_token_defaults()` defines all theme design variables (colors, fonts, spacing, decorative motifs); `wm_get_design_token()` reads from ACF options with fallback to defaults; tokens are emitted as inline CSS (see `wm_get_design_tokens_css()` referenced in `functions.php`).
 - `acf/home-fields.php` — registers ACF field groups for the front page/options.
@@ -48,7 +48,7 @@ Local WP manages the WordPress site itself (PHP, MySQL, web server). VS Code is 
 
 ### Templates
 
-- `front-page.php` assembles the home page from `template-parts/home/*.php` (hero slider, bestsellers, brand categories, quick filters, popular styles, recommended products, trust section, filter boxes) — each gated by `wm_home_enabled()`.
+- `front-page.php` assembles the home page from `template-parts/home/*.php` (hero slider, bestsellers, brand categories, popular styles, recommended products, trust section, filter boxes) — each gated by `wm_home_enabled()`.
 - `woocommerce/` overrides core WooCommerce templates: `single-product.php` (uses the product shortcodes/components directly), `archive-product.php`, cart and checkout templates.
 - `taxonomy-product_cat.php` / `taxonomy-product_brand.php` — product taxonomy archives.
 

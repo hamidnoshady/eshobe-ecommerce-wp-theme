@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.0' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.2' );
 }
 
 /**
@@ -115,7 +115,7 @@ function eshobe_ecommerce_scripts() {
     wp_enqueue_style( 'eshobe-ecommerce-notifications', wm_asset_uri( 'assets/css/components/notifications.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/notifications.css' ) );
     wp_add_inline_style( 'eshobe-ecommerce-style', eshobe_ecommerce_get_design_customizer_css() );
     wp_add_inline_style( 'eshobe-ecommerce-style', wm_get_design_tokens_css() );
-    wp_enqueue_style( 'eshobe-ecommerce-product-components', wm_asset_uri( 'assets/css/product-components.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/product-components.css' ) );
+    wp_enqueue_style( 'eshobe-ecommerce-product-components', wm_asset_uri( 'assets/css/components/product-components.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/product-components.css' ) );
 
     wp_enqueue_script( 'eshobe-ecommerce-navigation', wm_asset_uri( 'assets/js/navigation.js' ), array(), wm_asset_version( 'assets/js/navigation.js' ), true );
     wp_enqueue_script( 'eshobe-ecommerce-header', wm_asset_uri( 'assets/js/header.js' ), array(), wm_asset_version( 'assets/js/header.js' ), true );
@@ -208,7 +208,6 @@ function eshobe_ecommerce_scripts() {
 add_action( 'wp_enqueue_scripts', 'eshobe_ecommerce_scripts' );
 
 require get_template_directory() . '/inc/template-functions.php';
-require get_template_directory() . '/inc/template-tags.php';
 require get_template_directory() . '/inc/helpers/options.php';
 require get_template_directory() . '/inc/helpers/home-data.php';
 require get_template_directory() . '/inc/helpers/marketing-data.php';

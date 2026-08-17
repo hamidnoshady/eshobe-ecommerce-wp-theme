@@ -15,7 +15,7 @@ $cssFiles = @(
     'assets/css/fonts.css',
     'assets/css/tokens.css',
     'assets/css/theme.css',
-    'assets/css/product-components.css',
+    'assets/css/components/product-components.css',
     'assets/css/components/header.css',
     'assets/css/components/footer.css',
     'assets/css/components/decorative-motifs.css',
@@ -40,7 +40,8 @@ $jsFiles = @(
     'assets/js/related-products.js',
     'assets/js/product-mobile.js',
     'assets/js/product-archive.js',
-    'assets/js/checkout.js'
+    'assets/js/checkout.js',
+    'assets/js/mini-cart.js'
 )
 
 foreach ($file in $cssFiles) {

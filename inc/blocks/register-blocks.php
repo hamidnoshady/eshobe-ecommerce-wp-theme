@@ -114,7 +114,7 @@ function wm_enqueue_block_editor_preview_styles() {
     wp_enqueue_style( 'eshobe-ecommerce-tokens', wm_asset_uri( 'assets/css/tokens.css' ), array( 'eshobe-ecommerce-fonts' ), wm_asset_version( 'assets/css/tokens.css' ) );
     wp_enqueue_style( 'eshobe-ecommerce-style', wm_asset_uri( 'assets/css/theme.css' ), array( 'eshobe-ecommerce-tokens' ), wm_asset_version( 'assets/css/theme.css' ) );
     wp_enqueue_style( 'eshobe-ecommerce-decorative-motifs', wm_asset_uri( 'assets/css/components/decorative-motifs.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/decorative-motifs.css' ) );
-    wp_enqueue_style( 'eshobe-ecommerce-product-components', wm_asset_uri( 'assets/css/product-components.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/product-components.css' ) );
+    wp_enqueue_style( 'eshobe-ecommerce-product-components', wm_asset_uri( 'assets/css/components/product-components.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/product-components.css' ) );
     wp_enqueue_style( 'eshobe-ecommerce-home', wm_asset_uri( 'assets/css/pages/home.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/pages/home.css' ) );
     wp_enqueue_style( 'eshobe-ecommerce-blog', wm_asset_uri( 'assets/css/pages/blog.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/pages/blog.css' ) );
 
