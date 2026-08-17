@@ -1055,21 +1055,21 @@ function wm_product_archive_render_price_filter() {
         <h3 class="wm-archive-filter-widget__title"><?php echo esc_html__( 'محدوده قیمت', 'eshobe-ecommerce' ); ?></h3>
         <div class="wm-custom-filter__price-range" data-price-filter data-price-step="<?php echo esc_attr( (string) $step ); ?>">
             <div class="wm-custom-filter__price-track" aria-hidden="true"></div>
-            <input type="range" min="<?php echo esc_attr( (string) $min_bound ); ?>" max="<?php echo esc_attr( (string) $max_bound ); ?>" step="<?php echo esc_attr( (string) $step ); ?>" value="<?php echo esc_attr( (string) $min_value ); ?>" data-price-min-range>
-            <input type="range" min="<?php echo esc_attr( (string) $min_bound ); ?>" max="<?php echo esc_attr( (string) $max_bound ); ?>" step="<?php echo esc_attr( (string) $step ); ?>" value="<?php echo esc_attr( (string) $max_value ); ?>" data-price-max-range>
+            <input type="range" min="<?php echo esc_attr( (string) $min_bound ); ?>" max="<?php echo esc_attr( (string) $max_bound ); ?>" step="<?php echo esc_attr( (string) $step ); ?>" value="<?php echo esc_attr( (string) $min_value ); ?>" aria-label="<?php echo esc_attr__( 'حداقل قیمت', 'eshobe-ecommerce' ); ?>" data-price-min-range>
+            <input type="range" min="<?php echo esc_attr( (string) $min_bound ); ?>" max="<?php echo esc_attr( (string) $max_bound ); ?>" step="<?php echo esc_attr( (string) $step ); ?>" value="<?php echo esc_attr( (string) $max_value ); ?>" aria-label="<?php echo esc_attr__( 'حداکثر قیمت', 'eshobe-ecommerce' ); ?>" data-price-max-range>
         </div>
         <div class="wm-custom-filter__price-fields">
             <label>
                 <span><?php echo esc_html__( 'از', 'eshobe-ecommerce' ); ?></span>
                 <span class="wm-custom-filter__price-control">
-                    <input type="text" inputmode="numeric" name="min_price" value="<?php echo esc_attr( '' !== $min_price ? number_format( $min_value ) : '' ); ?>" placeholder="<?php echo esc_attr( number_format( $min_bound ) ); ?>" data-price-min-input>
+                    <input type="text" inputmode="numeric" name="min_price" value="<?php echo esc_attr( '' !== $min_price ? number_format( $min_value ) : '' ); ?>" placeholder="<?php echo esc_attr( number_format( $min_bound ) ); ?>" aria-label="<?php echo esc_attr__( 'حداقل قیمت', 'eshobe-ecommerce' ); ?>" data-price-min-input>
                     <small><?php echo esc_html__( 'تومان', 'eshobe-ecommerce' ); ?></small>
                 </span>
             </label>
             <label>
                 <span><?php echo esc_html__( 'تا', 'eshobe-ecommerce' ); ?></span>
                 <span class="wm-custom-filter__price-control">
-                    <input type="text" inputmode="numeric" name="max_price" value="<?php echo esc_attr( '' !== $max_price ? number_format( $max_value ) : '' ); ?>" placeholder="<?php echo esc_attr( number_format( $max_bound ) ); ?>" data-price-max-input>
+                    <input type="text" inputmode="numeric" name="max_price" value="<?php echo esc_attr( '' !== $max_price ? number_format( $max_value ) : '' ); ?>" placeholder="<?php echo esc_attr( number_format( $max_bound ) ); ?>" aria-label="<?php echo esc_attr__( 'حداکثر قیمت', 'eshobe-ecommerce' ); ?>" data-price-max-input>
                     <small><?php echo esc_html__( 'تومان', 'eshobe-ecommerce' ); ?></small>
                 </span>
             </label>

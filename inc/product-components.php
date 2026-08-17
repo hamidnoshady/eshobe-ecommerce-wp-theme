@@ -175,8 +175,8 @@ function wm_render_product_gallery() {
         return '';
     }
 
-    $image_count = count( wm_get_product_gallery_ids( $product ) );
     $image_ids   = wm_get_product_gallery_ids( $product );
+    $image_count = count( $image_ids );
     $main_id     = ! empty( $image_ids ) ? $image_ids[0] : 0;
 
     if ( ! empty( $image_ids ) && function_exists( 'update_meta_cache' ) ) {

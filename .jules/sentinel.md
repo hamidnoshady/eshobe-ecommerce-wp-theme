@@ -18,3 +18,8 @@
 **Vulnerability:** The AJAX endpoint `wm_ajax_otp_set_password` lacked rate limiting. Similar to the password login endpoint, this fallback endpoint allowed an unbounded number of attempts to set a password either via brute-forcing the passwordToken or continuously sending password setting requests when logged in.
 **Learning:** Any endpoint that sets or changes credentials must be rate limited to prevent abuse, brute force, and credential stuffing.
 **Prevention:** Apply consistent rate limiting logic across all authentication and credential-setting endpoints, utilizing transients to track attempts per IP and per user ID or token.
+
+## 2024-05-24 - Authorization Bypass in Block Regions Setup
+**Vulnerability:** The block regions setup handlers (`wm_blocks_admin_handle_setup_home` and `wm_blocks_admin_handle_setup_region`) only checked for the `edit_posts` capability. This allowed low-privileged users (like Contributors) to create pages and change site-wide options (`show_on_front` and `page_on_front`), effectively changing the site's homepage. The menus were also registered with `edit_posts`.
+**Learning:** Admin action handlers (like `admin_post_*` hooks) that modify site-wide settings or theme structures must enforce a strict capability, typically `edit_theme_options` or `manage_options`, rather than a lower-level post-editing capability like `edit_posts`.
+**Prevention:** Always use `edit_theme_options` for functionality that manages theme appearance, blocks, or layout settings, unless explicitly intended for lower-privileged content creators (in which case, do not allow changing global options).
