@@ -346,11 +346,27 @@ function wm_ajax_otp_set_password() {
 	$pw_token = isset( $_POST['passwordToken'] ) ? sanitize_text_field( wp_unslash( $_POST['passwordToken'] ) ) : '';
 	$user_id  = 0;
 
+	$security = wm_technical_get_otp_security_settings();
+
+	// Per-IP hourly limit for set password
+	$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+	$ip_key = '';
+	if ( $ip ) {
+		$ip_key      = 'wm_set_pw_ip_' . md5( $ip );
+		$ip_attempts = (int) get_transient( $ip_key );
+		if ( $ip_attempts >= $security['max_per_ip'] ) {
+			wp_send_json_error( array( 'message' => 'تعداد درخواست‌های ثبت رمز عبور از این آدرس بیش از حد مجاز است. لطفاً بعداً تلاش کنید.' ) );
+		}
+	}
+
 	if ( $pw_token ) {
 		$user_id = (int) get_transient( 'wm_otp_pw_token_' . $pw_token );
 		delete_transient( 'wm_otp_pw_token_' . $pw_token );
 
 		if ( ! $user_id ) {
+			if ( $ip ) {
+				set_transient( $ip_key, $ip_attempts + 1, HOUR_IN_SECONDS );
+			}
 			wp_send_json_error( array( 'message' => 'توکن نامعتبر یا منقضی شده است. دوباره ثبت‌نام کنید.' ) );
 		}
 	} else {
@@ -364,9 +380,26 @@ function wm_ajax_otp_set_password() {
 
 	$password = isset( $_POST['password'] ) ? (string) wp_unslash( $_POST['password'] ) : '';
 
+	// Per-user hourly limit for set password
+	$user_hourly_key = 'wm_set_pw_hourly_' . md5( (string) $user_id );
+	$user_attempts   = (int) get_transient( $user_hourly_key );
+	if ( $user_attempts >= $security['max_per_phone'] ) {
+		wp_send_json_error( array( 'message' => 'تعداد درخواست‌های ثبت رمز عبور برای این حساب بیش از حد مجاز است. لطفاً یک ساعت دیگر تلاش کنید.' ) );
+	}
+
 	if ( mb_strlen( $password ) < 6 ) {
+		if ( $ip ) {
+			set_transient( $ip_key, $ip_attempts + 1, HOUR_IN_SECONDS );
+		}
+		set_transient( $user_hourly_key, $user_attempts + 1, HOUR_IN_SECONDS );
 		wp_send_json_error( array( 'message' => 'رمز عبور باید حداقل ۶ کاراکتر باشد.' ) );
 	}
+
+	// Reset limits on successful password change
+	if ( $ip ) {
+		delete_transient( $ip_key );
+	}
+	delete_transient( $user_hourly_key );
 
 	wp_set_password( $password, $user_id );
 	delete_user_meta( $user_id, '_wm_otp_needs_password' );
