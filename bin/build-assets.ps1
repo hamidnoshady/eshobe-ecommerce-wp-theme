@@ -54,7 +54,8 @@ $bundleParts = @(
     'assets/css/components/footer.css',
     'assets/css/components/decorative-motifs.css',
     'assets/css/components/mobile-nav.css',
-    'assets/css/components/notifications.css'
+    'assets/css/components/notifications.css',
+    'assets/css/components/product-archive-critical.css'
 )
 
 $bundlePath = Join-Path $root 'assets/css/theme-bundle.css'

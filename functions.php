@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.7' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.10' );
 }
 
 /**
@@ -115,6 +115,15 @@ function eshobe_ecommerce_scripts() {
         wp_enqueue_style( 'eshobe-ecommerce-style', wm_asset_uri( $wm_bundle_css ), array(), wm_asset_version( $wm_bundle_css ) );
         wp_add_inline_style( 'eshobe-ecommerce-style', eshobe_ecommerce_get_design_customizer_css() );
         wp_add_inline_style( 'eshobe-ecommerce-style', wm_get_design_tokens_css() );
+
+        // These stylesheets are baked into the bundle, but conditional
+        // styles (product-archive, brand-archive, variation-swatches) still
+        // declare them as dependencies. Register them as no-op handles so
+        // the dependency resolves — a dangling dependency makes WordPress
+        // silently drop the dependent stylesheet (archive filters, brand
+        // archives and product swatches render unstyled).
+        wp_register_style( 'eshobe-ecommerce-decorative-motifs', false, array(), false );
+        wp_register_style( 'eshobe-ecommerce-product-components', false, array(), false );
     } else {
         wp_enqueue_style( 'eshobe-ecommerce-fonts', wm_asset_uri( 'assets/css/fonts.css' ), array(), wm_asset_version( 'assets/css/fonts.css' ) );
         wp_enqueue_style( 'eshobe-ecommerce-tokens', wm_asset_uri( 'assets/css/tokens.css' ), array( 'eshobe-ecommerce-fonts' ), wm_asset_version( 'assets/css/tokens.css' ) );

@@ -160,6 +160,55 @@
   color: var(--wm-color-accent-dark);
 }
 
+/* Account dropdown menu item (e.g. wishlist). */
+.wm-account-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--wm-radius-sm);
+  background: var(--wm-color-soft);
+  color: var(--wm-color-primary);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.wm-account-dropdown__item:hover {
+  background: #f3efe7;
+  color: var(--wm-color-accent-dark);
+}
+
+.wm-account-dropdown__item-icon .wm-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.wm-account-dropdown__item-text {
+  flex: 1;
+}
+
+.wm-account-dropdown__item-count {
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--wm-color-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.wm-account-dropdown__item-count[hidden] {
+  display: none;
+}
+
 /* Mobile account sheet notifications section. */
 .wm-mobile-account-sheet__notifications {
   margin-bottom: 14px;
