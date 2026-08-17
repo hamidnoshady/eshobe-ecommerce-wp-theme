@@ -58,12 +58,24 @@ $bundleParts = @(
 )
 
 $bundlePath = Join-Path $root 'assets/css/theme-bundle.css'
-$bundleContent = ($bundleParts | ForEach-Object {
-    $part = Join-Path $root $_
-    if (Test-Path $part) { Get-Content -Raw -Path $part } else { Write-Warning "Missing bundle part: $_" }
-}) -join "`n"
 
-Set-Content -Path $bundlePath -Value $bundleContent -Encoding UTF8 -NoNewline
+# Read/write with explicit UTF-8 (no BOM) via .NET so Windows PowerShell 5.1
+# and pwsh 7 produce byte-identical output. Get-Content -Encoding UTF8 on
+# PS 5.1 defaults to ANSI for BOM-less files (mojibake) and Set-Content UTF8
+# writes a BOM, which breaks the CI drift check on Linux runners.
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+
+$parts = foreach ($partName in $bundleParts) {
+    $part = Join-Path $root $partName
+    if (Test-Path $part) {
+        [System.IO.File]::ReadAllText($part, [System.Text.Encoding]::UTF8)
+    } else {
+        Write-Warning "Missing bundle part: $partName"
+    }
+}
+
+$bundleContent = ($parts -join "`n")
+[System.IO.File]::WriteAllText($bundlePath, $bundleContent, $utf8NoBom)
 Write-Host "Built bundle: assets/css/theme-bundle.css"
 Minify-Css $bundlePath ($bundlePath -replace '\.css$', '.min.css')
 

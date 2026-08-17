@@ -1,4 +1,4 @@
-﻿@font-face {
+@font-face {
   font-family: 'Vazirmatn';
   src: url('../fonts/vazirmatn/Vazirmatn-Regular.woff2') format('woff2');
   font-weight: 400;
@@ -431,7 +431,7 @@ button, input, select, textarea { font-family: var(--wm-font-primary); font-size
 }
 
 .wm-product-gallery .woocommerce-product-gallery__trigger::before {
-  content: 'âŒ•';
+  content: '⌕';
   position: static;
   display: block;
   width: auto;
@@ -916,7 +916,7 @@ button, input, select, textarea { font-family: var(--wm-font-primary); font-size
 }
 
 .wm-product-purchase__trust span::before {
-  content: 'â€¢';
+  content: '•';
   color: var(--wm-color-accent);
   margin-left: 8px;
 }
@@ -1908,13 +1908,13 @@ button, input, select, textarea { font-family: var(--wm-font-primary); font-size
   /*
    * form.cart is also the variations_form for variable products, so its
    * direct children include table.variations (swatches) and
-   * .single_variation_wrap â€” not just quantity+button like on simple
+   * .single_variation_wrap — not just quantity+button like on simple
    * products. Flexing .cart itself used to force the swatches table and
    * the price/button block into one horizontal row instead of stacking.
    * Keep .cart a plain block and flex only the actual button-row wrapper
    * (.woocommerce-variation-add-to-cart for variable products); simple
    * products have no such wrapper, but their lone visible child (the
-   * button â€” quantity is hidden below) already renders full-width as a
+   * button — quantity is hidden below) already renders full-width as a
    * block, so they need no flex container at all.
    */
   .wm-mobile-bottom-bar__cta .cart {
@@ -1934,7 +1934,7 @@ button, input, select, textarea { font-family: var(--wm-font-primary); font-size
   /*
    * Plain quantity input is hidden by default (simple products show qty=1
    * implicitly in this bar). Variable products' quantity is re-parented by
-   * JS into .wm-variation-stock-box's +/- stepper â€” that nested copy needs
+   * JS into .wm-variation-stock-box's +/- stepper — that nested copy needs
    * to stay visible, so it's re-shown with higher specificity below.
    */
   .wm-mobile-bottom-bar__cta .quantity {
@@ -1986,7 +1986,7 @@ button, input, select, textarea { font-family: var(--wm-font-primary); font-size
    * table.variations has no width constraint by default, so a row with many
    * swatches (e.g. 16 label options) grows the table cell to fit them all on
    * one line instead of letting .wm-variation-swatches' own overflow-x:auto
-   * kick in â€” the excess swatches end up rendered off-screen and unreachable.
+   * kick in — the excess swatches end up rendered off-screen and unreachable.
    * table-layout: fixed forces the cell (and everything inside it) to the
    * bar's actual width, so the swatch row's horizontal scroll works as intended.
    */
@@ -3538,7 +3538,7 @@ body.wm-lightbox-open {
 
   /* The product purchase bar's own height varies a lot (collapsed vs.
    * expanded variable-product form), so there's no reliable fixed offset
-   * to sit above it â€” hide back-to-top there rather than overlap it. */
+   * to sit above it — hide back-to-top there rather than overlap it. */
   body:has(.wm-mobile-bottom-bar) .wm-back-to-top {
     display: none;
   }
@@ -4439,7 +4439,7 @@ body.wm-decor-current-high {
 
   /*
    * On product pages the purchase bar (.wm-mobile-bottom-bar) sits flush
-   * above this nav â€” together they read as a single panel, see
+   * above this nav — together they read as a single panel, see
    * wm_render_mobile_product_bottom_bar() and product-components.css.
    */
   body:has(.wm-mobile-bottom-bar) {
@@ -4541,7 +4541,7 @@ body.wm-decor-current-high {
   opacity: 1;
 }
 
-/* Hide the original WooCommerce notice flow â€” content is moved into toasts. */
+/* Hide the original WooCommerce notice flow — content is moved into toasts. */
 .woocommerce-notices-wrapper:empty {
   display: none;
 }
