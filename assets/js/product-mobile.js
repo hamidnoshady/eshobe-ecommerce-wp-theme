@@ -19,27 +19,6 @@
     });
   });
 
-  document.querySelectorAll('.wm-mobile-bottom-bar').forEach(function(bar) {
-    var handle = bar.querySelector('.wm-mobile-bottom-bar__handle');
-    var content = bar.querySelector('.wm-mobile-bottom-bar__content');
-
-    if (!handle || !content) {
-      return;
-    }
-
-    var startsExpanded = bar.classList.contains('wm-mobile-bottom-bar--expanded');
-    content.hidden = false;
-    content.setAttribute('aria-hidden', startsExpanded ? 'false' : 'true');
-
-    handle.addEventListener('click', function() {
-      var expanded = bar.classList.contains('wm-mobile-bottom-bar--expanded');
-      bar.classList.toggle('wm-mobile-bottom-bar--expanded', !expanded);
-      bar.classList.toggle('wm-mobile-bottom-bar--collapsed', expanded);
-      handle.setAttribute('aria-expanded', !expanded ? 'true' : 'false');
-      content.setAttribute('aria-hidden', !expanded ? 'false' : 'true');
-    });
-  });
-
   document.querySelectorAll('[data-mobile-description]').forEach(function(description) {
     var toggles = description.querySelectorAll('[data-description-toggle]');
 

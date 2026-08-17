@@ -480,17 +480,11 @@ function wm_render_mobile_product_bottom_bar() {
         return '';
     }
 
-    $stock           = wm_get_product_stock_data( $product );
-    $starts_expanded = $product->is_type( 'variable' );
-    $state_class     = $starts_expanded ? 'wm-mobile-bottom-bar--expanded' : 'wm-mobile-bottom-bar--collapsed';
+    $stock       = wm_get_product_stock_data( $product );
 
     ob_start();
     ?>
-    <section class="wm-mobile-bottom-bar <?php echo esc_attr( $state_class ); ?>" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'eshobe-ecommerce' ); ?>">
-        <button class="wm-mobile-bottom-bar__handle" type="button" aria-expanded="<?php echo $starts_expanded ? 'true' : 'false'; ?>" aria-controls="wm-mobile-bottom-bar-content" aria-label="<?php esc_attr_e( 'Toggle mobile purchase bar', 'eshobe-ecommerce' ); ?>">
-            <span class="wm-mobile-bottom-bar__chevron" aria-hidden="true"></span>
-        </button>
-
+    <section class="wm-mobile-bottom-bar" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'eshobe-ecommerce' ); ?>">
         <div class="wm-mobile-bottom-bar__summary">
             <?php if ( $product->get_price_html() ) : ?>
                 <div class="wm-mobile-bottom-bar__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
@@ -506,9 +500,6 @@ function wm_render_mobile_product_bottom_bar() {
                 <?php woocommerce_template_single_add_to_cart(); ?>
             </div>
         </div>
-
-        <?php /* SKU/guarantee + trust badges now live in .wm-product-purchase (visible on mobile); this div stays only so the handle's expand/collapse JS has a target. */ ?>
-        <div class="wm-mobile-bottom-bar__content" id="wm-mobile-bottom-bar-content" <?php echo $starts_expanded ? '' : 'hidden'; ?>></div>
     </section>
     <?php
     return ob_get_clean();
@@ -736,6 +727,81 @@ function wm_render_related_products() {
     <?php
     return ob_get_clean();
 }
+
+/**
+ * Wishlist page URL (auto-created on activation if missing).
+ *
+ * @return string
+ */
+function wm_wishlist_page_url() {
+	$page_id = (int) get_option( 'wm_wishlist_page_id' );
+	if ( $page_id && 'publish' === get_post_status( $page_id ) ) {
+		return get_permalink( $page_id );
+	}
+
+	$page = get_page_by_path( 'wishlist' );
+	if ( $page ) {
+		update_option( 'wm_wishlist_page_id', $page->ID );
+		return get_permalink( $page->ID );
+	}
+
+	return home_url( '/' );
+}
+
+/**
+ * Create the wishlist page once (idempotent; runs on init but is a no-op
+ * after the option is set).
+ */
+function wm_wishlist_maybe_create_page() {
+	if ( get_option( 'wm_wishlist_page_id' ) ) {
+		return;
+	}
+
+	$page = get_page_by_path( 'wishlist' );
+	if ( $page ) {
+		update_option( 'wm_wishlist_page_id', $page->ID );
+		return;
+	}
+
+	$page_id = wp_insert_post(
+		array(
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_title'   => 'علاقه‌مندی‌ها',
+			'post_name'    => 'wishlist',
+			'post_content' => '[wm_wishlist]',
+		)
+	);
+
+	if ( $page_id && ! is_wp_error( $page_id ) ) {
+		update_option( 'wm_wishlist_page_id', $page_id );
+	}
+}
+add_action( 'init', 'wm_wishlist_maybe_create_page' );
+add_action( 'after_switch_theme', 'wm_wishlist_maybe_create_page' );
+
+/**
+ * Wishlist page shortcode: renders the client-driven grid (localStorage IDs
+ * + the wm_wishlist_products AJAX endpoint).
+ *
+ * @return string
+ */
+function wm_render_wishlist_shortcode() {
+	wp_enqueue_script( 'eshobe-ecommerce-wishlist' );
+
+	ob_start();
+	?>
+	<div class="wm-wishlist-page" data-wm-wishlist-page>
+		<div class="wm-wishlist-page__grid" data-wm-wishlist-grid></div>
+		<div class="wm-wishlist-page__empty" data-wm-wishlist-empty hidden>
+			<p><?php echo esc_html__( 'هنوز محصولی به علاقه‌مندی‌ها اضافه نکرده‌اید.', 'eshobe-ecommerce' ); ?></p>
+			<a class="button" href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' ) ); ?>"><?php echo esc_html__( 'مشاهده فروشگاه', 'eshobe-ecommerce' ); ?></a>
+		</div>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+add_shortcode( 'wm_wishlist', 'wm_render_wishlist_shortcode' );
 
 add_shortcode( 'product_gallery_block', 'wm_render_product_gallery' );
 add_shortcode( 'product_intro_block', 'wm_render_product_intro' );

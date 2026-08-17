@@ -107,6 +107,7 @@ function wm_header_icon_svg( $name ) {
         'search'  => '<svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"></circle><line x1="20" y1="20" x2="16.2" y2="16.2"></line></svg>',
         'account' => '<svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 19.2c1.2-3.2 4.2-5.2 7.5-5.2s6.3 2 7.5 5.2"></path></svg>',
         'cart'    => '<svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 6h2l1.6 10.2a1.8 1.8 0 0 0 1.8 1.5h8.4a1.8 1.8 0 0 0 1.78-1.52L20.5 9H7.1"></path><circle cx="9.5" cy="20" r="1.3"></circle><circle cx="17" cy="20" r="1.3"></circle></svg>',
+        'wishlist' => '<svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20.3 4.9 13.2a4.6 4.6 0 0 1 0-6.5 4.6 4.6 0 0 1 6.5 0l.6.6.6-.6a4.6 4.6 0 0 1 6.5 0 4.6 4.6 0 0 1 0 6.5Z"></path></svg>',
     );
 
     return isset( $icons[ $name ] ) ? $icons[ $name ] : '';
@@ -209,6 +210,8 @@ function wm_render_site_header() {
     $show_search   = (bool) wm_header_get_option( 'wm_header_show_search', true );
     $show_account  = (bool) wm_header_get_option( 'wm_header_show_account', true );
     $show_cart     = (bool) wm_header_get_option( 'wm_header_show_cart', true );
+    $show_wishlist = (bool) wm_header_get_option( 'wm_header_show_wishlist', true );
+    $wishlist_url  = function_exists( 'wm_wishlist_page_url' ) ? wm_wishlist_page_url() : home_url( '/' );
     $sticky_class  = wm_header_get_option( 'wm_header_sticky_enabled', true ) ? ' is-sticky' : '';
     $cart_count    = wm_header_get_cart_count();
 
@@ -266,6 +269,14 @@ function wm_render_site_header() {
                     </div>
                 <?php endif; ?>
 
+                <?php if ( $show_wishlist ) : ?>
+                    <a class="wm-site-header__action wm-site-header__wishlist" href="<?php echo esc_url( $wishlist_url ); ?>" aria-label="<?php echo esc_attr__( 'علاقه‌مندی‌ها', 'eshobe-ecommerce' ); ?>">
+                        <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'wishlist' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                        <span class="wm-site-header__action-text"><?php echo esc_html__( 'علاقه‌مندی‌ها', 'eshobe-ecommerce' ); ?></span>
+                        <span class="wm-site-header__wishlist-count" data-wm-wishlist-count hidden>0</span>
+                    </a>
+                <?php endif; ?>
+
                 <?php if ( $show_cart ) : ?>
                     <a class="wm-site-header__action wm-site-header__cart" href="<?php echo esc_url( wm_header_get_cart_url() ); ?>" aria-label="<?php echo esc_attr__( 'سبد خرید', 'eshobe-ecommerce' ); ?>" data-wm-cart-toggle aria-haspopup="dialog" aria-expanded="false" aria-controls="wm-cart-drawer">
                         <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'cart' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
@@ -298,6 +309,7 @@ function wm_render_site_header() {
                             placeholder="<?php echo esc_attr( wm_search_get_option( 'wm_search_placeholder', 'جستجوی محصول، برند یا دسته...' ) ); ?>"
                             value="<?php echo esc_attr( get_search_query() ); ?>"
                         >
+                        <kbd class="wm-search-modal__hint" aria-hidden="true">/</kbd>
                         <?php if ( function_exists( 'wc_get_product_types' ) ) : ?>
                             <input type="hidden" name="post_type" value="product">
                         <?php endif; ?>
@@ -325,7 +337,15 @@ function wm_render_site_header() {
                             <a href="#" class="wm-search-modal__view-all" data-search-view-all hidden><?php echo esc_html__( 'مشاهده همه نتایج', 'eshobe-ecommerce' ); ?></a>
                         </div>
 
-                        <p class="wm-search-modal__empty" data-search-empty hidden><?php echo esc_html__( 'نتیجه‌ای یافت نشد.', 'eshobe-ecommerce' ); ?></p>
+                        <div class="wm-search-modal__recent" data-search-recent hidden>
+                            <h3 class="wm-search-modal__section-title"><?php echo esc_html__( 'جستجوهای اخیر', 'eshobe-ecommerce' ); ?></h3>
+                            <div class="wm-search-modal__recent-chips" data-search-recent-chips></div>
+                        </div>
+
+                        <p class="wm-search-modal__empty" data-search-empty hidden>
+                            <?php echo esc_html__( 'نتیجه‌ای یافت نشد.', 'eshobe-ecommerce' ); ?>
+                            <a href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' ) ); ?>"><?php echo esc_html__( 'مشاهده همه محصولات', 'eshobe-ecommerce' ); ?></a>
+                        </p>
                     </div>
                 </div>
             </div>

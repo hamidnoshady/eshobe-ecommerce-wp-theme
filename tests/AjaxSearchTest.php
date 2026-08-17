@@ -26,6 +26,11 @@ class AjaxSearchTest extends TestCase {
         Functions\when('check_ajax_referer')->justReturn(true);
         Functions\when('wm_search_get_option')->justReturn(6);
 
+        // Rate-limit + result-cache stubs: never throttle, never cache-hit.
+        Functions\when('wm_get_client_ip')->justReturn('127.0.0.1');
+        Functions\when('get_transient')->justReturn(false);
+        Functions\when('set_transient')->justReturn(true);
+
         if (!function_exists('wc_get_products')) {
             function wc_get_products($args = []) {
                 return [];

@@ -7,7 +7,10 @@
   }
 
   var field = modal.querySelector('.wm-search-modal__field');
+  var form = modal.querySelector('form.wm-search-modal__form, form[role="search"]');
   var suggestions = modal.querySelector('[data-search-suggestions]');
+  var recentWrap = modal.querySelector('[data-search-recent]');
+  var recentChips = modal.querySelector('[data-search-recent-chips]');
   var resultsWrap = modal.querySelector('[data-search-results]');
   var resultsList = modal.querySelector('[data-search-results-list]');
   var viewAll = modal.querySelector('[data-search-view-all]');
@@ -16,37 +19,58 @@
   var debounceTimer = 0;
   var currentRequest = null;
   var closeTimer = 0;
+  var activeIndex = -1;
   var CLOSE_ANIMATION_MS = 240;
+  var RECENT_KEY = 'wmRecentSearches';
+  var RECENT_MAX = 8;
 
-  function openModal() {
-    window.clearTimeout(closeTimer);
-    modal.hidden = false;
-    document.body.classList.add('wm-search-modal-open');
-    toggle.setAttribute('aria-expanded', 'true');
-    window.requestAnimationFrame(function () {
-      modal.classList.add('is-open');
-    });
-    window.setTimeout(function () {
-      field.focus();
-    }, 30);
+  /* ── recent searches (localStorage) ── */
+
+  function readRecent() {
+    try {
+      return JSON.parse(window.localStorage.getItem(RECENT_KEY)) || [];
+    } catch (e) {
+      return [];
+    }
   }
 
-  function closeModal() {
-    if (modal.hidden) {
+  function saveRecent(term) {
+    var list = readRecent().filter(function (t) { return t !== term; });
+    list.unshift(term);
+    list = list.slice(0, RECENT_MAX);
+    try {
+      window.localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+    } catch (e) {}
+  }
+
+  function renderRecent() {
+    if (!recentWrap || !recentChips) {
       return;
     }
-
-    modal.classList.remove('is-open');
-    document.body.classList.remove('wm-search-modal-open');
-    toggle.setAttribute('aria-expanded', 'false');
-
-    window.clearTimeout(closeTimer);
-    closeTimer = window.setTimeout(function () {
-      modal.hidden = true;
-    }, CLOSE_ANIMATION_MS);
+    var list = readRecent();
+    recentChips.innerHTML = '';
+    if (!list.length) {
+      recentWrap.hidden = true;
+      return;
+    }
+    list.forEach(function (term) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'wm-search-modal__recent-chip';
+      chip.textContent = term;
+      chip.addEventListener('click', function () {
+        field.value = term;
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        field.focus();
+      });
+      recentChips.appendChild(chip);
+    });
+    recentWrap.hidden = false;
   }
 
   function showSuggestions() {
+    activeIndex = -1;
+    renderRecent();
     if (suggestions) {
       suggestions.hidden = suggestions.children.length === 0;
     }
@@ -54,7 +78,41 @@
     empty.hidden = true;
   }
 
+  /* ── helpers ── */
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function highlight(text, term) {
+    var escaped = escapeHtml(text);
+    var needle = term.toLowerCase();
+    var idx = escaped.toLowerCase().indexOf(needle);
+    if (idx === -1) {
+      return escaped;
+    }
+    return escaped.slice(0, idx)
+      + '<mark>' + escaped.slice(idx, idx + needle.length) + '</mark>'
+      + escaped.slice(idx + needle.length);
+  }
+
+  function setActive(links, index) {
+    activeIndex = index;
+    links.forEach(function (link, i) {
+      link.classList.toggle('is-active', i === index);
+    });
+    if (links[index] && links[index].scrollIntoView) {
+      links[index].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
   function renderResults(results, term) {
+    activeIndex = -1;
     resultsList.innerHTML = '';
 
     if (!results.length) {
@@ -63,12 +121,18 @@
       if (suggestions) {
         suggestions.hidden = true;
       }
+      if (recentWrap) {
+        recentWrap.hidden = true;
+      }
       return;
     }
 
     empty.hidden = true;
     if (suggestions) {
       suggestions.hidden = true;
+    }
+    if (recentWrap) {
+      recentWrap.hidden = true;
     }
 
     results.forEach(function (item) {
@@ -92,7 +156,7 @@
       info.className = 'wm-search-result__info';
       var title = document.createElement('span');
       title.className = 'wm-search-result__title';
-      title.textContent = item.title;
+      title.innerHTML = highlight(item.title, term);
       info.appendChild(title);
 
       if (item.brand) {
@@ -151,6 +215,45 @@
       });
   }
 
+  /* ── modal open/close ── */
+
+  function openModal() {
+    window.clearTimeout(closeTimer);
+    modal.hidden = false;
+    document.body.classList.add('wm-search-modal-open');
+    toggle.setAttribute('aria-expanded', 'true');
+    if (window.wmFocusTrap) {
+      window.wmFocusTrap.trap(modal, toggle);
+    }
+    window.requestAnimationFrame(function () {
+      modal.classList.add('is-open');
+    });
+    window.setTimeout(function () {
+      field.focus();
+      renderRecent();
+    }, 30);
+  }
+
+  function closeModal() {
+    if (modal.hidden) {
+      return;
+    }
+
+    if (window.wmFocusTrap) {
+      window.wmFocusTrap.release();
+    }
+    modal.classList.remove('is-open');
+    document.body.classList.remove('wm-search-modal-open');
+    toggle.setAttribute('aria-expanded', 'false');
+
+    window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(function () {
+      modal.hidden = true;
+    }, CLOSE_ANIMATION_MS);
+  }
+
+  /* ── input + keyboard navigation ── */
+
   field.addEventListener('input', function () {
     var term = field.value.trim();
 
@@ -166,6 +269,38 @@
     }, 300);
   });
 
+  field.addEventListener('keydown', function (event) {
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'Enter') {
+      return;
+    }
+
+    var links = Array.prototype.slice.call(resultsList.querySelectorAll('a.wm-search-result__link'));
+    if (!links.length) {
+      return;
+    }
+
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      var next = event.key === 'ArrowDown'
+        ? Math.min(activeIndex + 1, links.length - 1)
+        : Math.max(activeIndex - 1, 0);
+      setActive(links, next);
+    } else if (event.key === 'Enter' && activeIndex >= 0) {
+      event.preventDefault();
+      links[activeIndex].click();
+    }
+  });
+
+  // Remember the term when the modal form submits (full search page).
+  if (form) {
+    form.addEventListener('submit', function () {
+      var term = field.value.trim();
+      if (term) {
+        saveRecent(term);
+      }
+    });
+  }
+
   toggle.addEventListener('click', function (event) {
     event.preventDefault();
     openModal();
@@ -175,7 +310,23 @@
     el.addEventListener('click', closeModal);
   });
 
+  // Global shortcuts: Ctrl/Cmd+K or "/" open the modal.
   document.addEventListener('keydown', function (event) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      openModal();
+      return;
+    }
+
+    if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      var target = event.target;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
+      event.preventDefault();
+      openModal();
+    }
+
     if (event.key === 'Escape' && !modal.hidden) {
       closeModal();
     }
