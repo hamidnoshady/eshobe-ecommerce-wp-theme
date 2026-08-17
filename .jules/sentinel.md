@@ -13,3 +13,8 @@
 **Vulnerability:** The AJAX endpoint `wm_ajax_otp_password_login` (used for password-based login in the OTP modal) did not have any rate limiting. While the OTP generation endpoint correctly throttled requests by IP and phone number, the password login endpoint allowed unbounded password guessing attempts for any known phone number.
 **Learning:** Even when a system is primarily OTP-based, any fallback password authentication endpoints must have the same or stricter rate limiting and brute force protections applied to them. Relying only on the OTP issue flow being rate-limited creates a weak link for accounts that have set a password.
 **Prevention:** Apply consistent rate limiting logic across *all* authentication endpoints, utilizing `set_transient` to track attempts per IP and per username/phone number.
+
+## 2025-02-24 - Missing Rate Limiting on Set Password Endpoint
+**Vulnerability:** The AJAX endpoint `wm_ajax_otp_set_password` lacked rate limiting. Similar to the password login endpoint, this fallback endpoint allowed an unbounded number of attempts to set a password either via brute-forcing the passwordToken or continuously sending password setting requests when logged in.
+**Learning:** Any endpoint that sets or changes credentials must be rate limited to prevent abuse, brute force, and credential stuffing.
+**Prevention:** Apply consistent rate limiting logic across all authentication and credential-setting endpoints, utilizing transients to track attempts per IP and per user ID or token.
