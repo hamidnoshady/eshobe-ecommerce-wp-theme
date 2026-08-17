@@ -98,9 +98,12 @@ if ( is_user_logged_in() ) {
 			<p class="wm-otp-modal__desc"><?php echo esc_html__( 'برای دفعات بعدی یک رمز عبور برای حساب خود تعیین کنید.', 'eshobe-ecommerce' ); ?></p>
 			<form data-otp-password-form>
 				<label class="screen-reader-text" for="wm-otp-new-password"><?php echo esc_html__( 'رمز عبور جدید', 'eshobe-ecommerce' ); ?></label>
-				<input type="password" id="wm-otp-new-password" class="wm-otp-modal__input" name="password" autocomplete="new-password" minlength="6" placeholder="<?php echo esc_attr__( 'رمز عبور (حداقل ۶ کاراکتر)', 'eshobe-ecommerce' ); ?>" required>
+				<input type="password" id="wm-otp-new-password" class="wm-otp-modal__input" name="password" autocomplete="new-password" minlength="8" placeholder="<?php echo esc_attr__( 'رمز عبور (حداقل ۸ کاراکتر)', 'eshobe-ecommerce' ); ?>" required>
 				<button type="submit" class="wm-otp-modal__submit"><?php echo esc_html__( 'ثبت و ورود', 'eshobe-ecommerce' ); ?></button>
 			</form>
+			<div class="wm-otp-modal__strength" data-otp-strength hidden>
+				<span></span><span></span><span></span>
+			</div>
 			<p class="wm-otp-modal__error" data-otp-error hidden></p>
 		</div>
 

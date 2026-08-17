@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.2' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.3' );
 }
 
 /**
@@ -245,12 +245,23 @@ require get_template_directory() . '/inc/theme-updater.php';
 require get_template_directory() . '/inc/seo.php';
 
 /**
- * Add security headers to the site
+ * Add security headers to the site.
+ *
+ * CSP roadmap: the theme emits inline design-token styles, inline analytics
+ * snippets and inline SVG icons, so a full Content-Security-Policy needs a
+ * nonce strategy for scripts (with `unsafe-inline` limited to styles) before
+ * it can be enabled without breaking the front end. Plan that separately.
  */
 function wm_add_security_headers() {
 	if ( ! is_admin() && ! headers_sent() ) {
 		header( 'X-Frame-Options: SAMEORIGIN' );
 		header( 'X-Content-Type-Options: nosniff' );
+		header( 'Referrer-Policy: strict-origin-when-cross-origin' );
+		header( 'Permissions-Policy: geolocation=(), camera=(), microphone=(), interest-cohort=()' );
+
+		if ( is_ssl() ) {
+			header( 'Strict-Transport-Security: max-age=31536000; includeSubDomains' );
+		}
 	}
 }
 add_action( 'send_headers', 'wm_add_security_headers' );

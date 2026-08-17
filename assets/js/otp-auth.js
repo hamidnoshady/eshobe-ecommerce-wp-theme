@@ -24,6 +24,7 @@
   var newPasswordInput      = modal.querySelector('#wm-otp-new-password');
 
   var phoneDisplays        = modal.querySelectorAll('[data-otp-phone-display]');
+  var strengthEl           = modal.querySelector('[data-otp-strength]');
   var resendButton         = modal.querySelector('[data-otp-resend]');
   var resendTimer          = modal.querySelector('[data-otp-resend-timer]');
   var backButtons          = modal.querySelectorAll('[data-otp-back]');
@@ -47,6 +48,23 @@
   var passwordToken  = '';
   var resendSeconds  = parseInt(window.wmOtpData.resendSeconds, 10) || 60;
   var CLOSE_ANIMATION_MS = 240;
+
+  /* ── Password strength helpers (mirror of wm_otp_password_is_strong) ── */
+
+  function strengthScore(password) {
+    var p = password || '';
+    var classes = 0;
+    if (/\p{L}/u.test(p)) { classes++; }
+    if (/\p{N}/u.test(p)) { classes++; }
+    if (/[^\p{L}\p{N}]/u.test(p)) { classes++; }
+    return Math.max(0, Math.min(3, classes));
+  }
+
+  function isStrongPassword(password) {
+    var p = password || '';
+    if (p.length < 8) { return false; }
+    return strengthScore(p) >= 2;
+  }
 
   /* ── sessionStorage helpers ── */
 
@@ -441,8 +459,8 @@
       event.preventDefault();
 
       var password = newPasswordInput.value;
-      if (!password || password.length < 6) {
-        showError(passwordStep, 'رمز عبور باید حداقل ۶ کاراکتر باشد.');
+      if (!isStrongPassword(password)) {
+        showError(passwordStep, 'رمز عبور باید حداقل ۸ کاراکتر باشد و ترکیبی از حروف با عدد یا نماد داشته باشد.');
         return;
       }
 
@@ -480,6 +498,18 @@
           btn.disabled = false;
           showError(passwordStep, 'خطا در ارتباط با سرور. دوباره تلاش کنید.');
         });
+    });
+  }
+
+  /* Live strength meter on the new-password step */
+
+  if (newPasswordInput && strengthEl) {
+    newPasswordInput.addEventListener('input', function () {
+      var score = strengthScore(newPasswordInput.value);
+      var empty = newPasswordInput.value.length === 0;
+
+      strengthEl.hidden = empty;
+      strengthEl.setAttribute('data-strength', String(score));
     });
   }
 

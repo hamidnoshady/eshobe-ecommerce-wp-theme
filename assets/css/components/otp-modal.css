@@ -370,3 +370,29 @@ body.wm-otp-modal-open {
 .wm-otp-modal__resume-btn:hover {
   opacity: 0.85;
 }
+
+.wm-otp-modal__strength {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0 0;
+}
+
+.wm-otp-modal__strength span {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--wm-color-border, #e5e0d8);
+  transition: background 160ms ease;
+}
+
+.wm-otp-modal__strength[data-strength="1"] span:first-child {
+  background: #dc2626;
+}
+
+.wm-otp-modal__strength[data-strength="2"] span:nth-child(-n + 2) {
+  background: #d97706;
+}
+
+.wm-otp-modal__strength[data-strength="3"] span {
+  background: #16a34a;
+}

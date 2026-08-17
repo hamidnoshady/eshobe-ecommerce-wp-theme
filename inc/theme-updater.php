@@ -24,6 +24,59 @@ class WM_Theme_Updater {
 
 		add_filter( 'pre_set_site_transient_update_themes', [ $this, 'check_for_update' ] );
 		add_filter( 'themes_api', [ $this, 'theme_popup' ], 10, 3 );
+		add_filter( 'upgrader_pre_download', [ $this, 'verify_download' ], 10, 3 );
+	}
+
+	/**
+	 * Only accept zip packages that come from the known public dist repo.
+	 */
+	private function is_allowed_download_url( $url ): bool {
+		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+
+		if ( 'raw.githubusercontent.com' === $host && 0 === strpos( $path, '/hamidnoshady/eshobe-ecommerce-wp-theme-dist/' ) ) {
+			return true;
+		}
+
+		if ( 'github.com' === $host && 0 === strpos( $path, '/hamidnoshady/eshobe-ecommerce-wp-theme-dist/releases/download/' ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Verify the advertised zip's SHA-256 before WordPress installs it.
+	 *
+	 * Runs for every upgrader download on the site but only acts on the exact
+	 * package this class advertised (the active channel's zip_url), so plugin
+	 * and core updates are never touched. When the manifest carries no sha256
+	 * (older dist builds), the host/path validation above is the remaining
+	 * guard and the package downloads normally.
+	 */
+	public function verify_download( $reply, $package, $upgrader ) {
+		if ( ! empty( $reply ) || is_wp_error( $reply ) ) {
+			return $reply;
+		}
+
+		$release = $this->get_release();
+		if ( empty( $release['sha256'] ) || $package !== $release['zip_url'] ) {
+			return $reply;
+		}
+
+		$tmp = download_url( $package );
+		if ( is_wp_error( $tmp ) ) {
+			return $tmp;
+		}
+
+		$hash = @hash_file( 'sha256', $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( ! $hash || ! hash_equals( strtolower( (string) $release['sha256'] ), strtolower( $hash ) ) ) {
+			@unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			return new WP_Error( 'wm_theme_update_checksum_mismatch', 'فایل به‌روزرسانی قالب سالم نیست و نصب متوقف شد.' );
+		}
+
+		// Hand the already-downloaded, verified file to the upgrader.
+		return $tmp;
 	}
 
 	private function channel(): string {
@@ -96,7 +149,14 @@ class WM_Theme_Updater {
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( empty( $data['version'] ) || empty( $data['download_url'] ) ) return false;
+
+		// Reject malformed versions and any download URL outside the known dist repo.
+		if ( empty( $data['version'] ) || ! preg_match( '/^\d+\.\d+\.\d+$/', (string) $data['version'] ) || empty( $data['download_url'] ) ) {
+			return false;
+		}
+		if ( ! $this->is_allowed_download_url( $data['download_url'] ) ) {
+			return false;
+		}
 
 		$release = [
 			'version'      => $data['version'],
@@ -104,6 +164,7 @@ class WM_Theme_Updater {
 			'published_at' => $data['published_at'] ?? '',
 			'changelog'    => $data['changelog'] ?? '',
 			'zip_url'      => $data['download_url'],
+			'sha256'       => $data['sha256'] ?? '',
 		];
 
 		set_transient( $cache_key, $release, ( 'beta' === $channel ? 1 : 6 ) * HOUR_IN_SECONDS );

@@ -28,7 +28,7 @@ function wm_register_home_acf_options() {
         array( 'page_title' => 'آرشیوها / فروشگاه', 'menu_title' => 'آرشیوها / فروشگاه', 'menu_slug' => 'eshobe-ecommerce-archive-settings' ),
         array( 'page_title' => 'هدر و فوتر', 'menu_title' => 'هدر و فوتر', 'menu_slug' => 'eshobe-ecommerce-header-footer-settings' ),
         array( 'page_title' => 'بازاریابی و فروش', 'menu_title' => 'بازاریابی و فروش', 'menu_slug' => 'eshobe-ecommerce-marketing-settings' ),
-        array( 'page_title' => 'تنظیمات فنی', 'menu_title' => 'تنظیمات فنی', 'menu_slug' => 'eshobe-ecommerce-technical-settings' ),
+        array( 'page_title' => 'تنظیمات فنی', 'menu_title' => 'تنظیمات فنی', 'menu_slug' => 'eshobe-ecommerce-technical-settings', 'capability' => 'manage_options' ),
     );
 
     foreach ( $pages as $page ) {
@@ -38,7 +38,7 @@ function wm_register_home_acf_options() {
                 'menu_title'  => $page['menu_title'],
                 'menu_slug'   => $page['menu_slug'],
                 'parent_slug' => 'eshobe-ecommerce',
-                'capability'  => 'edit_posts',
+                'capability'  => isset( $page['capability'] ) ? $page['capability'] : 'edit_posts',
                 'post_id'     => 'option',
             )
         );
@@ -380,6 +380,16 @@ function wm_site_settings_marketing_fields() {
             'default_value' => 6,
             'min'           => 1,
             'max'           => 20,
+        ),
+        array(
+            'key'           => 'field_wm_search_max_per_ip',
+            'label'         => 'حداکثر درخواست جستجو از هر IP (در دقیقه)',
+            'name'          => 'wm_search_max_per_ip',
+            'type'          => 'number',
+            'default_value' => 30,
+            'min'           => 5,
+            'max'           => 500,
+            'instructions'  => 'محدودیت نرخ درخواست‌های جستجوی زنده برای جلوگیری از بارگذاری بیش از حد پایگاه‌داده.',
         ),
         array(
             'key'          => 'field_wm_search_suggested_products',
