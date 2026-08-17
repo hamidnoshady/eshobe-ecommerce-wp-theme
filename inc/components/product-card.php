@@ -25,6 +25,7 @@ function wm_get_product_card_default_args( $args ) {
             'context'            => '',
             'enable_hover_image' => true,
             'ajax_add_to_cart'   => true,
+            'fetchpriority'      => '',
         )
     );
 }
@@ -45,6 +46,15 @@ function wm_render_product_card( $product, $args = array() ) {
     $permalink    = get_permalink( $product->get_id() );
     $title        = $product->get_name();
     $classes      = trim( 'wm-product-card ' . $args['class'] . ( $args['context'] ? ' wm-product-card--' . sanitize_html_class( $args['context'] ) : '' ) . ( $has_hover ? ' wm-product-card--has-hover-image' : '' ) );
+    $image_attrs  = array(
+        'class'   => 'wm-product-card__image wm-product-card__image-main',
+        'alt'     => $title,
+        'loading' => 'lazy',
+    );
+    if ( ! empty( $args['fetchpriority'] ) ) {
+        $image_attrs['fetchpriority'] = sanitize_key( $args['fetchpriority'] );
+    }
+
     $button_class = implode(
         ' ',
         array_filter(
@@ -65,7 +75,7 @@ function wm_render_product_card( $product, $args = array() ) {
             <?php if ( function_exists( 'wm_marketing_get_sale_badge_html' ) ) { echo wm_marketing_get_sale_badge_html( $product ); } ?>
             <?php
             if ( $image_id ) {
-                echo wp_get_attachment_image( $image_id, 'woocommerce_thumbnail', false, array( 'class' => 'wm-product-card__image wm-product-card__image-main', 'alt' => $title, 'loading' => 'lazy' ) );
+                echo wp_get_attachment_image( $image_id, 'woocommerce_thumbnail', false, $image_attrs );
             } elseif ( function_exists( 'wc_placeholder_img' ) ) {
                 echo wc_placeholder_img( 'woocommerce_thumbnail', array( 'class' => 'wm-product-card__image wm-product-card__image-main' ) );
             }

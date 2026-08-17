@@ -681,11 +681,20 @@ function wm_product_archive_scope_product_ids() {
         return $cached;
     }
 
+    // Single-flight guard: if another request is already building this set,
+    // skip the expensive query for this request (availability filtering is
+    // skipped for one request rather than stampeding the cache).
+    $lock_key = $cache_key . '_lock';
+    if ( get_transient( $lock_key ) ) {
+        return null;
+    }
+    set_transient( $lock_key, 1, 30 );
+
     $query_args = array(
         'post_type'              => 'product',
         'post_status'            => 'publish',
         'fields'                 => 'ids',
-        'posts_per_page'         => -1,
+        'posts_per_page'         => apply_filters( 'wm_archive_scope_max_ids', 10000 ),
         'no_found_rows'          => true,
         'update_post_meta_cache' => false,
         'update_post_term_cache' => false,
@@ -735,6 +744,7 @@ function wm_product_archive_scope_product_ids() {
     $product_ids = get_posts( $query_args );
     $product_ids = array_map( 'intval', $product_ids );
 
+    delete_transient( $lock_key );
     set_transient( $cache_key, $product_ids, 15 * MINUTE_IN_SECONDS );
 
     return $product_ids;
@@ -795,11 +805,18 @@ function wm_product_archive_category_scope_product_ids() {
         return $cached;
     }
 
+    // Single-flight guard (see wm_product_archive_scope_product_ids).
+    $lock_key = $cache_key . '_lock';
+    if ( get_transient( $lock_key ) ) {
+        return null;
+    }
+    set_transient( $lock_key, 1, 30 );
+
     $query_args = array(
         'post_type'              => 'product',
         'post_status'            => 'publish',
         'fields'                 => 'ids',
-        'posts_per_page'         => -1,
+        'posts_per_page'         => apply_filters( 'wm_archive_scope_max_ids', 10000 ),
         'no_found_rows'          => true,
         'update_post_meta_cache' => false,
         'update_post_term_cache' => false,
@@ -849,6 +866,7 @@ function wm_product_archive_category_scope_product_ids() {
     $product_ids = get_posts( $query_args );
     $product_ids = array_map( 'intval', $product_ids );
 
+    delete_transient( $lock_key );
     set_transient( $cache_key, $product_ids, 15 * MINUTE_IN_SECONDS );
 
     return $product_ids;
@@ -1813,6 +1831,9 @@ function wm_product_archive_render_toolbar() {
 }
 
 function wm_product_archive_render_loop() {
+    // Above-the-fold row gets fetchpriority=high; everything below stays lazy.
+    $first_row = wm_product_archive_int_option( 'wm_archive_columns_desktop', 3, 1, 4 );
+    $index     = 0;
     ?>
     <div class="wm-product-archive__grid wm-products-loop">
         <?php while ( have_posts() ) : ?>
@@ -1823,7 +1844,8 @@ function wm_product_archive_render_loop() {
                 $product = wc_get_product( get_the_ID() );
             }
             if ( $product instanceof WC_Product ) {
-                echo wm_render_archive_product_card( $product ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo wm_render_archive_product_card( $product, $index < $first_row ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                $index++;
             }
             ?>
         <?php endwhile; ?>
@@ -1831,15 +1853,18 @@ function wm_product_archive_render_loop() {
     <?php
 }
 
-function wm_render_archive_product_card( WC_Product $product ) {
-    return wm_render_product_card(
-        $product,
-        array(
-            'class'              => 'wm-product-carousel__item',
-            'enable_hover_image' => wm_product_archive_bool_option( 'wm_archive_enable_card_hover_image', true ),
-            'ajax_add_to_cart'   => wm_product_archive_bool_option( 'wm_archive_enable_ajax_add_to_cart', true ),
-        )
+function wm_render_archive_product_card( WC_Product $product, $high_priority = false ) {
+    $args = array(
+        'class'              => 'wm-product-carousel__item',
+        'enable_hover_image' => wm_product_archive_bool_option( 'wm_archive_enable_card_hover_image', true ),
+        'ajax_add_to_cart'   => wm_product_archive_bool_option( 'wm_archive_enable_ajax_add_to_cart', true ),
     );
+
+    if ( $high_priority ) {
+        $args['fetchpriority'] = 'high';
+    }
+
+    return wm_render_product_card( $product, $args );
 }
 
 function wm_product_archive_render_pagination() {

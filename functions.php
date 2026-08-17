@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.3' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.4' );
 }
 
 /**
@@ -105,17 +105,29 @@ function eshobe_ecommerce_widgets_init() {
 add_action( 'widgets_init', 'eshobe_ecommerce_widgets_init' );
 
 function eshobe_ecommerce_scripts() {
-    wp_enqueue_style( 'eshobe-ecommerce-fonts', wm_asset_uri( 'assets/css/fonts.css' ), array(), wm_asset_version( 'assets/css/fonts.css' ) );
-    wp_enqueue_style( 'eshobe-ecommerce-tokens', wm_asset_uri( 'assets/css/tokens.css' ), array( 'eshobe-ecommerce-fonts' ), wm_asset_version( 'assets/css/tokens.css' ) );
-    wp_enqueue_style( 'eshobe-ecommerce-style', wm_asset_uri( 'assets/css/theme.css' ), array( 'eshobe-ecommerce-tokens' ), wm_asset_version( 'assets/css/theme.css' ) );
-    wp_enqueue_style( 'eshobe-ecommerce-header', wm_asset_uri( 'assets/css/components/header.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/header.css' ) );
-    wp_enqueue_style( 'eshobe-ecommerce-footer', wm_asset_uri( 'assets/css/components/footer.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/footer.css' ) );
-    wp_enqueue_style( 'eshobe-ecommerce-decorative-motifs', wm_asset_uri( 'assets/css/components/decorative-motifs.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/decorative-motifs.css' ) );
-    wp_enqueue_style( 'eshobe-ecommerce-mobile-nav', wm_asset_uri( 'assets/css/components/mobile-nav.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/mobile-nav.css' ) );
-    wp_enqueue_style( 'eshobe-ecommerce-notifications', wm_asset_uri( 'assets/css/components/notifications.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/notifications.css' ) );
-    wp_add_inline_style( 'eshobe-ecommerce-style', eshobe_ecommerce_get_design_customizer_css() );
-    wp_add_inline_style( 'eshobe-ecommerce-style', wm_get_design_tokens_css() );
-    wp_enqueue_style( 'eshobe-ecommerce-product-components', wm_asset_uri( 'assets/css/components/product-components.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/product-components.css' ) );
+    // Always-on stylesheets. When the bundle built by bin/build-assets.ps1
+    // exists, the nine sitewide files become one request (registered under
+    // the 'eshobe-ecommerce-style' handle so every conditional stylesheet's
+    // dependency and the inline design-token CSS keep working unchanged);
+    // otherwise fall back to the individual files.
+    $wm_bundle_css = 'assets/css/theme-bundle.css';
+    if ( file_exists( get_theme_file_path( wm_get_resolved_asset_path( $wm_bundle_css ) ) ) ) {
+        wp_enqueue_style( 'eshobe-ecommerce-style', wm_asset_uri( $wm_bundle_css ), array(), wm_asset_version( $wm_bundle_css ) );
+        wp_add_inline_style( 'eshobe-ecommerce-style', eshobe_ecommerce_get_design_customizer_css() );
+        wp_add_inline_style( 'eshobe-ecommerce-style', wm_get_design_tokens_css() );
+    } else {
+        wp_enqueue_style( 'eshobe-ecommerce-fonts', wm_asset_uri( 'assets/css/fonts.css' ), array(), wm_asset_version( 'assets/css/fonts.css' ) );
+        wp_enqueue_style( 'eshobe-ecommerce-tokens', wm_asset_uri( 'assets/css/tokens.css' ), array( 'eshobe-ecommerce-fonts' ), wm_asset_version( 'assets/css/tokens.css' ) );
+        wp_enqueue_style( 'eshobe-ecommerce-style', wm_asset_uri( 'assets/css/theme.css' ), array( 'eshobe-ecommerce-tokens' ), wm_asset_version( 'assets/css/theme.css' ) );
+        wp_enqueue_style( 'eshobe-ecommerce-header', wm_asset_uri( 'assets/css/components/header.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/header.css' ) );
+        wp_enqueue_style( 'eshobe-ecommerce-footer', wm_asset_uri( 'assets/css/components/footer.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/footer.css' ) );
+        wp_enqueue_style( 'eshobe-ecommerce-decorative-motifs', wm_asset_uri( 'assets/css/components/decorative-motifs.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/decorative-motifs.css' ) );
+        wp_enqueue_style( 'eshobe-ecommerce-mobile-nav', wm_asset_uri( 'assets/css/components/mobile-nav.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/mobile-nav.css' ) );
+        wp_enqueue_style( 'eshobe-ecommerce-notifications', wm_asset_uri( 'assets/css/components/notifications.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/notifications.css' ) );
+        wp_add_inline_style( 'eshobe-ecommerce-style', eshobe_ecommerce_get_design_customizer_css() );
+        wp_add_inline_style( 'eshobe-ecommerce-style', wm_get_design_tokens_css() );
+        wp_enqueue_style( 'eshobe-ecommerce-product-components', wm_asset_uri( 'assets/css/components/product-components.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/product-components.css' ) );
+    }
 
     wp_enqueue_script( 'eshobe-ecommerce-navigation', wm_asset_uri( 'assets/js/navigation.js' ), array(), wm_asset_version( 'assets/js/navigation.js' ), true );
     wp_enqueue_script( 'eshobe-ecommerce-header', wm_asset_uri( 'assets/js/header.js' ), array(), wm_asset_version( 'assets/js/header.js' ), true );
@@ -136,7 +148,9 @@ function eshobe_ecommerce_scripts() {
 
     if ( function_exists( 'WC' ) ) {
         wp_enqueue_style( 'eshobe-ecommerce-mini-cart', wm_asset_uri( 'assets/css/components/mini-cart.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/mini-cart.css' ) );
-        wp_enqueue_script( 'eshobe-ecommerce-mini-cart', wm_asset_uri( 'assets/js/mini-cart.js' ), array( 'jquery' ), wm_asset_version( 'assets/js/mini-cart.js' ), true );
+        // Vanilla rewrite (no jQuery) — the drawer listens for the native
+        // `added_to_cart` event WooCommerce dispatches via jQuery's trigger.
+        wp_enqueue_script( 'eshobe-ecommerce-mini-cart', wm_asset_uri( 'assets/js/mini-cart.js' ), array(), wm_asset_version( 'assets/js/mini-cart.js' ), true );
     }
     if ( is_front_page() || ( function_exists( 'wm_product_archive_is_context' ) && wm_product_archive_is_context() ) ) {
         wp_enqueue_style( 'eshobe-ecommerce-promo-banner', wm_asset_uri( 'assets/css/components/promo-banner.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/promo-banner.css' ) );
@@ -243,6 +257,21 @@ require get_template_directory() . '/inc/blocks/block-regions-admin.php';
 require get_template_directory() . '/inc/compat/cache.php';
 require get_template_directory() . '/inc/theme-updater.php';
 require get_template_directory() . '/inc/seo.php';
+
+/**
+ * Preload the first hero slide image on the front page (LCP).
+ */
+function wm_home_hero_preload() {
+	if ( ! is_front_page() || ! function_exists( 'wm_home_first_hero_image_url' ) ) {
+		return;
+	}
+
+	$url = wm_home_first_hero_image_url();
+	if ( $url ) {
+		printf( '<link rel="preload" as="image" href="%s" fetchpriority="high">' . "\n", esc_url( $url ) );
+	}
+}
+add_action( 'wp_head', 'wm_home_hero_preload', 3 );
 
 /**
  * Add security headers to the site.

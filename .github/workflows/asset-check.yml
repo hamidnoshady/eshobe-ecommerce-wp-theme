@@ -1,0 +1,29 @@
+name: Asset build check
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  check:
+    name: Verify minified assets are up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Regenerate .min files and the CSS bundle
+        run: pwsh -NoProfile -File bin/build-assets.ps1
+
+      - name: Fail on drift between source and minified assets
+        run: |
+          git diff --exit-code -- assets/
+          if [ $? -ne 0 ]; then
+            echo "::error::Minified assets and/or assets/css/theme-bundle.css are out of date. Run bin/build-assets.ps1 and commit the result."
+            exit 1
+          fi
+          echo "All minified assets are up to date."

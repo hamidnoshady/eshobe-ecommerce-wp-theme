@@ -58,9 +58,10 @@
         }
     } );
 
-    if ( window.jQuery ) {
-        window.jQuery( document.body ).on( 'added_to_cart', function () {
-            openDrawer();
-        } );
-    }
+    // WooCommerce's wc-cart.js fires `added_to_cart` on document.body via
+    // jQuery's trigger(), which dispatches a real DOM event — a native
+    // listener picks it up, so no jQuery dependency is needed here.
+    document.body.addEventListener( 'added_to_cart', function () {
+        openDrawer();
+    } );
 } )();
