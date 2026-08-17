@@ -14,6 +14,8 @@
         "badgeText": { "type": "string", "default": "" },
         "buttonText": { "type": "string", "default": "" },
         "style": { "type": "string", "default": "dark_card" },
+        "coverEnabled": { "type": "boolean", "default": true },
+        "coverColor": { "type": "string", "default": "" },
         "imageId": { "type": "number", "default": 0 },
         "linkMode": { "type": "string", "default": "price_range" },
         "manualUrl": { "type": "string", "default": "" },

@@ -53,8 +53,10 @@ if ( empty( $items ) ) {
             if ( ! $url ) {
                 continue;
             }
+            $cover_style_attr = wm_home_card_cover_style_attr( $item, 'style_' );
+            $cover_class      = empty( $item['style_cover_enabled'] ) ? ' wm-home-style-card--no-cover' : '';
             ?>
-            <a class="wm-home-style-card" href="<?php echo esc_url( $url ); ?>">
+            <a class="wm-home-style-card<?php echo esc_attr( $cover_class ); ?>" href="<?php echo esc_url( $url ); ?>"<?php echo $cover_style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <span class="wm-home-style-card__media">
                     <?php echo wm_home_get_image_html( ! empty( $item['style_image'] ) ? $item['style_image'] : '', 'medium', array( 'alt' => $item['style_title'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </span>

@@ -777,6 +777,22 @@ function wm_home_acf_dynamic_filter_sub_fields() {
         array( 'key' => 'field_filter_box_min_price', 'label' => 'حداقل قیمت', 'name' => 'filter_min_price', 'type' => 'number' ),
         array( 'key' => 'field_filter_box_max_price', 'label' => 'حداکثر قیمت', 'name' => 'filter_max_price', 'type' => 'number' ),
         array( 'key' => 'field_filter_box_color_value', 'label' => 'رنگ تاکیدی کارت', 'name' => 'filter_color_value', 'type' => 'color_picker' ),
+        array(
+            'key'           => 'field_filter_box_cover_enabled',
+            'label'         => 'نمایش پوشش روی تصویر',
+            'name'          => 'filter_cover_enabled',
+            'type'          => 'true_false',
+            'default_value' => 1,
+            'ui'            => 1,
+            'instructions'  => 'لایه رنگی روی تصویر کارت؛ برای حذف کامل آن این گزینه را غیرفعال کنید.',
+        ),
+        array(
+            'key'           => 'field_filter_box_cover_color',
+            'label'         => 'رنگ پوشش کارت',
+            'name'          => 'filter_cover_color',
+            'type'          => 'color_picker',
+            'instructions'  => 'رنگ لایه پوشش روی تصویر کارت؛ اگر خالی بماند از رنگ پیش‌فرض استایل (تیره/روشن) استفاده می‌شود.',
+        ),
         array( 'key' => 'field_filter_box_extra_query_args', 'label' => 'Query اضافه', 'name' => 'filter_extra_query_args', 'type' => 'textarea', 'rows' => 3, 'instructions' => 'هر خط به شکل key=value. فقط کلید و مقدار sanitize شده به URL اضافه می‌شود.' ),
     );
 }
@@ -885,6 +901,8 @@ function wm_site_settings_home_fields() {
                 array( 'key' => 'field_brand_term', 'label' => 'برند', 'name' => 'brand_term', 'type' => 'taxonomy', 'taxonomy' => 'product_brand', 'field_type' => 'select', 'return_format' => 'object', 'allow_null' => 1 ),
                 array( 'key' => 'field_brand_image', 'label' => 'تصویر', 'name' => 'brand_image', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'thumbnail' ),
                 array( 'key' => 'field_brand_subtitle', 'label' => 'زیرعنوان', 'name' => 'brand_subtitle', 'type' => 'text' ),
+                array( 'key' => 'field_brand_cover_enabled', 'label' => 'نمایش پوشش کارت', 'name' => 'brand_cover_enabled', 'type' => 'true_false', 'default_value' => 1, 'ui' => 1, 'instructions' => 'اگر غیرفعال شود، پس‌زمینه روشن کارت حذف می‌شود.' ),
+                array( 'key' => 'field_brand_cover_color', 'label' => 'رنگ پوشش کارت', 'name' => 'brand_cover_color', 'type' => 'color_picker', 'instructions' => 'رنگ پس‌زمینه کارت؛ اگر خالی بماند از سفید/روشن پیش‌فرض استفاده می‌شود.' ),
             ),
         ),
 
@@ -920,6 +938,8 @@ function wm_site_settings_home_fields() {
                 array( 'key' => 'field_style_term', 'label' => 'ترم', 'name' => 'style_term', 'type' => 'taxonomy', 'taxonomy' => 'style', 'field_type' => 'select', 'return_format' => 'object', 'allow_null' => 1 ),
                 array( 'key' => 'field_style_image', 'label' => 'تصویر', 'name' => 'style_image', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'medium' ),
                 array( 'key' => 'field_style_url', 'label' => 'لینک دستی', 'name' => 'style_url', 'type' => 'url' ),
+                array( 'key' => 'field_style_cover_enabled', 'label' => 'نمایش پوشش کارت', 'name' => 'style_cover_enabled', 'type' => 'true_false', 'default_value' => 1, 'ui' => 1, 'instructions' => 'اگر غیرفعال شود، پس‌زمینه روشن کارت حذف می‌شود.' ),
+                array( 'key' => 'field_style_cover_color', 'label' => 'رنگ پوشش کارت', 'name' => 'style_cover_color', 'type' => 'color_picker', 'instructions' => 'رنگ پس‌زمینه کارت؛ اگر خالی بماند از سفید/روشن پیش‌فرض استفاده می‌شود.' ),
             ),
         ),
 
