@@ -267,3 +267,41 @@ body.wm-cart-drawer-open {
     width: 100%;
   }
 }
+
+.wm-cart-drawer__empty {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  text-align: center;
+  padding: 32px 16px;
+}
+
+.wm-cart-drawer__empty-icon {
+  font-size: 40px;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.wm-cart-drawer__empty-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.wm-cart-drawer__empty-chip {
+  padding: 6px 14px;
+  border: 1px solid var(--wm-color-border, #e5e0d8);
+  border-radius: 999px;
+  background: var(--wm-color-surface, #fff);
+  color: var(--wm-color-primary, #111827);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: border-color 180ms ease, color 180ms ease;
+}
+
+.wm-cart-drawer__empty-chip:hover {
+  border-color: var(--wm-color-accent, #c89b3c);
+  color: var(--wm-color-accent-dark, #9f7425);
+}

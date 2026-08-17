@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.4' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.5' );
 }
 
 /**
@@ -129,10 +129,25 @@ function eshobe_ecommerce_scripts() {
         wp_enqueue_style( 'eshobe-ecommerce-product-components', wm_asset_uri( 'assets/css/components/product-components.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/product-components.css' ) );
     }
 
+    // Shared dialog focus trap + wishlist badge sync: load before the modal scripts.
+    wp_enqueue_script( 'eshobe-ecommerce-focus-trap', wm_asset_uri( 'assets/js/focus-trap.js' ), array(), wm_asset_version( 'assets/js/focus-trap.js' ), true );
+    wp_enqueue_script( 'eshobe-ecommerce-product-wishlist', wm_asset_uri( 'assets/js/product-wishlist.js' ), array(), wm_asset_version( 'assets/js/product-wishlist.js' ), true );
+
+    // Wishlist page renderer (enqueued lazily by the [wm_wishlist] shortcode).
+    wp_register_script( 'eshobe-ecommerce-wishlist', wm_asset_uri( 'assets/js/wishlist.js' ), array(), wm_asset_version( 'assets/js/wishlist.js' ), true );
+    wp_localize_script(
+        'eshobe-ecommerce-wishlist',
+        'wmWishlistData',
+        array(
+            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+            'nonce'   => wp_create_nonce( 'wm_wishlist_nonce' ),
+        )
+    );
+
     wp_enqueue_script( 'eshobe-ecommerce-navigation', wm_asset_uri( 'assets/js/navigation.js' ), array(), wm_asset_version( 'assets/js/navigation.js' ), true );
-    wp_enqueue_script( 'eshobe-ecommerce-header', wm_asset_uri( 'assets/js/header.js' ), array(), wm_asset_version( 'assets/js/header.js' ), true );
+    wp_enqueue_script( 'eshobe-ecommerce-header', wm_asset_uri( 'assets/js/header.js' ), array( 'eshobe-ecommerce-focus-trap' ), wm_asset_version( 'assets/js/header.js' ), true );
     wp_enqueue_style( 'eshobe-ecommerce-search-modal', wm_asset_uri( 'assets/css/components/search-modal.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/search-modal.css' ) );
-    wp_enqueue_script( 'eshobe-ecommerce-header-search', wm_asset_uri( 'assets/js/header-search.js' ), array(), wm_asset_version( 'assets/js/header-search.js' ), true );
+    wp_enqueue_script( 'eshobe-ecommerce-header-search', wm_asset_uri( 'assets/js/header-search.js' ), array( 'eshobe-ecommerce-focus-trap' ), wm_asset_version( 'assets/js/header-search.js' ), true );
     wp_localize_script(
         'eshobe-ecommerce-header-search',
         'wmSearchData',
@@ -150,7 +165,14 @@ function eshobe_ecommerce_scripts() {
         wp_enqueue_style( 'eshobe-ecommerce-mini-cart', wm_asset_uri( 'assets/css/components/mini-cart.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/mini-cart.css' ) );
         // Vanilla rewrite (no jQuery) — the drawer listens for the native
         // `added_to_cart` event WooCommerce dispatches via jQuery's trigger.
-        wp_enqueue_script( 'eshobe-ecommerce-mini-cart', wm_asset_uri( 'assets/js/mini-cart.js' ), array(), wm_asset_version( 'assets/js/mini-cart.js' ), true );
+        wp_enqueue_script( 'eshobe-ecommerce-mini-cart', wm_asset_uri( 'assets/js/mini-cart.js' ), array( 'eshobe-ecommerce-focus-trap' ), wm_asset_version( 'assets/js/mini-cart.js' ), true );
+        wp_localize_script(
+            'eshobe-ecommerce-mini-cart',
+            'wmMiniCartData',
+            array(
+                'homeUrl' => home_url( '/' ),
+            )
+        );
     }
     if ( is_front_page() || ( function_exists( 'wm_product_archive_is_context' ) && wm_product_archive_is_context() ) ) {
         wp_enqueue_style( 'eshobe-ecommerce-promo-banner', wm_asset_uri( 'assets/css/components/promo-banner.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/promo-banner.css' ) );
@@ -166,6 +188,29 @@ function eshobe_ecommerce_scripts() {
         wp_enqueue_script( 'eshobe-ecommerce-product-carousel', wm_asset_uri( 'assets/js/product-carousel.js' ), array(), wm_asset_version( 'assets/js/product-carousel.js' ), true );
     }
 
+    // Quick-view modal: product cards render on the home page, archives,
+    // and the single-product related items.
+    if (
+        is_front_page()
+        || is_home()
+        || ( function_exists( 'wm_product_archive_is_context' ) && wm_product_archive_is_context() )
+        || ( function_exists( 'is_product' ) && is_product() )
+    ) {
+        wp_enqueue_style( 'eshobe-ecommerce-quick-view', wm_asset_uri( 'assets/css/components/quick-view.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/quick-view.css' ) );
+        wp_enqueue_script( 'eshobe-ecommerce-quick-view', wm_asset_uri( 'assets/js/quick-view.js' ), array( 'eshobe-ecommerce-focus-trap' ), wm_asset_version( 'assets/js/quick-view.js' ), true );
+        wp_localize_script(
+            'eshobe-ecommerce-quick-view',
+            'wmQuickViewData',
+            array(
+                'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
+                'nonce'            => wp_create_nonce( 'wm_quick_view_nonce' ),
+                'loadingText'      => 'در حال بارگذاری…',
+                'errorText'        => 'محصول یافت نشد.',
+                'networkErrorText' => 'خطا در ارتباط با سرور.',
+            )
+        );
+    }
+
     if ( function_exists( 'wm_brand_archive_is_context' ) && wm_brand_archive_is_context() ) {
         wp_enqueue_style( 'eshobe-ecommerce-brand-archive', wm_asset_uri( 'assets/css/pages/brand-archive.css' ), array( 'eshobe-ecommerce-style', 'eshobe-ecommerce-decorative-motifs' ), wm_asset_version( 'assets/css/pages/brand-archive.css' ) );
         wp_enqueue_script( 'eshobe-ecommerce-brand-archive', wm_asset_uri( 'assets/js/brand-archive.js' ), array(), wm_asset_version( 'assets/js/brand-archive.js' ), true );
@@ -177,7 +222,6 @@ function eshobe_ecommerce_scripts() {
         wp_enqueue_script( 'eshobe-ecommerce-product-tabs', wm_asset_uri( 'assets/js/product-tabs.js' ), array(), wm_asset_version( 'assets/js/product-tabs.js' ), true );
         wp_enqueue_script( 'eshobe-ecommerce-related-products', wm_asset_uri( 'assets/js/related-products.js' ), array(), wm_asset_version( 'assets/js/related-products.js' ), true );
         wp_enqueue_script( 'eshobe-ecommerce-product-mobile', wm_asset_uri( 'assets/js/product-mobile.js' ), array(), wm_asset_version( 'assets/js/product-mobile.js' ), true );
-        wp_enqueue_script( 'eshobe-ecommerce-product-wishlist', wm_asset_uri( 'assets/js/product-wishlist.js' ), array(), wm_asset_version( 'assets/js/product-wishlist.js' ), true );
         wp_enqueue_style( 'eshobe-ecommerce-variation-swatches', wm_asset_uri( 'assets/css/components/variation-swatches.css' ), array( 'eshobe-ecommerce-product-components' ), wm_asset_version( 'assets/css/components/variation-swatches.css' ) );
         wp_enqueue_script( 'eshobe-ecommerce-product-variations', wm_asset_uri( 'assets/js/product-variations.js' ), array( 'jquery', 'wc-add-to-cart-variation' ), wm_asset_version( 'assets/js/product-variations.js' ), true );
     }
@@ -203,7 +247,7 @@ function eshobe_ecommerce_scripts() {
 
     if ( ! is_user_logged_in() ) {
         wp_enqueue_style( 'eshobe-ecommerce-otp-modal', wm_asset_uri( 'assets/css/components/otp-modal.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/otp-modal.css' ) );
-        wp_enqueue_script( 'eshobe-ecommerce-otp-auth', wm_asset_uri( 'assets/js/otp-auth.js' ), array(), wm_asset_version( 'assets/js/otp-auth.js' ), true );
+        wp_enqueue_script( 'eshobe-ecommerce-otp-auth', wm_asset_uri( 'assets/js/otp-auth.js' ), array( 'eshobe-ecommerce-focus-trap' ), wm_asset_version( 'assets/js/otp-auth.js' ), true );
         wp_localize_script(
             'eshobe-ecommerce-otp-auth',
             'wmOtpData',
@@ -233,6 +277,7 @@ require get_template_directory() . '/inc/acf/mega-menu-migration.php';
 require get_template_directory() . '/inc/components/mega-menu.php';
 require get_template_directory() . '/inc/components/site-header.php';
 require get_template_directory() . '/inc/components/mini-cart.php';
+require get_template_directory() . '/inc/components/quick-view.php';
 require get_template_directory() . '/inc/components/product-card.php';
 require get_template_directory() . '/inc/components/post-card.php';
 require get_template_directory() . '/inc/components/product-carousel.php';
@@ -247,6 +292,8 @@ require get_template_directory() . '/inc/woocommerce.php';
 require get_template_directory() . '/inc/yith-swatches.php';
 require get_template_directory() . '/inc/ajax/search.php';
 require get_template_directory() . '/inc/ajax/otp-auth.php';
+require get_template_directory() . '/inc/ajax/quick-view.php';
+require get_template_directory() . '/inc/ajax/wishlist.php';
 require get_template_directory() . '/inc/customizer/design-settings.php';
 require get_template_directory() . '/inc/patterns/register-patterns.php';
 require get_template_directory() . '/inc/acf/design-tokens.php';

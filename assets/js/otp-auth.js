@@ -46,6 +46,7 @@
   var currentStep    = 'phone';
   var isForced       = false;
   var passwordToken  = '';
+  var lastTrigger    = null;
   var resendSeconds  = parseInt(window.wmOtpData.resendSeconds, 10) || 60;
   var CLOSE_ANIMATION_MS = 240;
 
@@ -64,6 +65,15 @@
     var p = password || '';
     if (p.length < 8) { return false; }
     return strengthScore(p) >= 2;
+  }
+
+  /* ── digit helpers (Persian/Arabic → ASCII) ── */
+
+  function normalizeDigits(value) {
+    return String(value || '')
+      .replace(/[۰-۹]/g, function (d) { return String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)); })
+      .replace(/[٠-٩]/g, function (d) { return String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)); })
+      .replace(/[^0-9]/g, '');
   }
 
   /* ── sessionStorage helpers ── */
@@ -123,6 +133,9 @@
   function doClose() {
     if (modal.hidden || isForced) { return; }
     if (confirmExitBar) { confirmExitBar.hidden = true; }
+    if (window.wmFocusTrap) {
+      window.wmFocusTrap.release();
+    }
     modal.classList.remove('is-open');
     document.body.classList.remove('wm-otp-modal-open');
     window.clearTimeout(closeTimer);
@@ -155,6 +168,9 @@
     modal.classList.toggle('wm-otp-modal--forced', isForced);
     modal.hidden = false;
     document.body.classList.add('wm-otp-modal-open');
+    if (window.wmFocusTrap) {
+      window.wmFocusTrap.trap(modal, lastTrigger);
+    }
     window.requestAnimationFrame(function () { modal.classList.add('is-open'); });
     setStep('phone');
 
@@ -273,6 +289,7 @@
   triggers.forEach(function (trigger) {
     trigger.addEventListener('click', function (event) {
       event.preventDefault();
+      lastTrigger = trigger;
       redirectTo = trigger.getAttribute('data-wm-otp-redirect') || window.location.href;
       openModal(trigger.hasAttribute('data-wm-otp-force'));
     });
@@ -280,6 +297,7 @@
 
   var autoTriggerEl = document.querySelector('[data-wm-otp-autotrigger]');
   if (autoTriggerEl) {
+    lastTrigger = autoTriggerEl;
     redirectTo = autoTriggerEl.getAttribute('data-wm-otp-redirect') || window.location.href;
     openModal(autoTriggerEl.hasAttribute('data-wm-otp-force'));
   }
@@ -392,6 +410,36 @@
       });
     });
   }
+
+  /* ── Phone + code input UX ── */
+
+  if (phoneInput) {
+    phoneInput.addEventListener('input', function () {
+      phoneInput.value = normalizeDigits(phoneInput.value);
+    });
+  }
+
+  if (codeInput && codeForm) {
+    codeInput.addEventListener('input', function () {
+      codeInput.value = normalizeDigits(codeInput.value);
+      // Auto-submit as soon as the full 5-digit code is entered/pasted.
+      if (codeInput.value.length === 5) {
+        codeForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      }
+    });
+  }
+
+  // Password visibility toggles.
+  document.querySelectorAll('[data-otp-password-toggle]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var input = document.getElementById(button.getAttribute('data-otp-password-toggle'));
+      if (!input) { return; }
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      button.setAttribute('aria-label', show ? 'پنهان کردن رمز عبور' : 'نمایش رمز عبور');
+      button.classList.toggle('is-visible', show);
+    });
+  });
 
   /* ── Step 2b: OTP code verification ── */
 

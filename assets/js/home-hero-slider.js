@@ -2,6 +2,7 @@
   var home = document.querySelector('.wm-home');
 
   if (home && 'IntersectionObserver' in window) {
+    var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var revealItems = home.querySelectorAll('.wm-home-section, .wm-product-carousel');
     var revealObserver = new IntersectionObserver(function(entries) {
       entries.forEach(function(entry) {
@@ -12,10 +13,16 @@
       });
     }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
 
-    home.classList.add('is-motion-ready');
+    // Skip the staggered reveal animations for reduced-motion users;
+    // sections still fade in but without the per-item delay.
+    if (!reducedMotion) {
+      home.classList.add('is-motion-ready');
+    }
 
     revealItems.forEach(function(item, itemIndex) {
-      item.style.transitionDelay = Math.min(itemIndex * 40, 160) + 'ms';
+      if (!reducedMotion) {
+        item.style.transitionDelay = Math.min(itemIndex * 40, 160) + 'ms';
+      }
       revealObserver.observe(item);
     });
   }

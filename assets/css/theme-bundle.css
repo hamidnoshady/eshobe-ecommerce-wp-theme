@@ -2205,6 +2205,62 @@ body.wm-lightbox-open {
   padding: 0;
 }
 
+/* Sticky purchase CTA on desktop: keeps the buy box visible while the long
+   summary column scrolls (mirrors the mobile bottom bar behavior). */
+@media (min-width: 1024px) {
+  .wm-product-layout .wm-product-summary-column .wm-product-purchase {
+    position: sticky;
+    top: 24px;
+    z-index: 5;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+}
+
+/* Wishlist page grid */
+.wm-wishlist-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px;
+}
+
+.wm-wishlist-page__item {
+  position: relative;
+}
+
+.wm-wishlist-page__remove {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--wm-color-border, #e5e0d8);
+  border-radius: 50%;
+  background: var(--wm-color-surface, #fff);
+  color: var(--wm-color-primary, #111827);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wm-wishlist-page__remove:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.wm-wishlist-page__empty {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--wm-color-muted, #6b7280);
+}
+
 .wm-site-header,
 .wm-site-header * {
   box-sizing: border-box;
@@ -2611,6 +2667,24 @@ body.wm-lightbox-open {
   color: #fff;
   font-size: 11px;
   font-weight: 850;
+}
+
+.wm-site-header__wishlist-count {
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--wm-color-primary, #111827);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.wm-site-header__wishlist-count[hidden] {
+  display: none;
 }
 
 .wm-header-search {

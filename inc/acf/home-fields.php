@@ -258,6 +258,14 @@ function wm_site_settings_header_footer_fields() {
             'ui'            => 1,
         ),
         array(
+            'key'           => 'field_wm_header_show_wishlist',
+            'label'         => 'نمایش علاقه‌مندی‌ها',
+            'name'          => 'wm_header_show_wishlist',
+            'type'          => 'true_false',
+            'default_value' => 1,
+            'ui'            => 1,
+        ),
+        array(
             'key'           => 'field_wm_header_logo',
             'label'         => 'لوگوی هدر (دسکتاپ)',
             'name'          => 'wm_header_logo',

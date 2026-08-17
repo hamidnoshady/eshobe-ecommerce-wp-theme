@@ -26,6 +26,7 @@ function wm_get_product_card_default_args( $args ) {
             'enable_hover_image' => true,
             'ajax_add_to_cart'   => true,
             'fetchpriority'      => '',
+            'quick_view'         => true,
         )
     );
 }
@@ -100,6 +101,17 @@ function wm_render_product_card( $product, $args = array() ) {
             >
                 <?php echo esc_html( $product->add_to_cart_text() ); ?>
             </a>
+            <?php if ( ! empty( $args['quick_view'] ) && $product->is_visible() ) : ?>
+                <button
+                    type="button"
+                    class="wm-product-card__quick-view"
+                    data-wm-quick-view
+                    data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
+                    aria-label="<?php echo esc_attr( sprintf( __( 'نمایش سریع %s', 'eshobe-ecommerce' ), $title ) ); ?>"
+                >
+                    <?php echo esc_html__( 'نمایش سریع', 'eshobe-ecommerce' ); ?>
+                </button>
+            <?php endif; ?>
         </div>
     </article>
     <?php
