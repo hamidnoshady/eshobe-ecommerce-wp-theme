@@ -35,7 +35,15 @@ function wm_register_mega_menu_cpt() {
             'supports'           => array( 'title' ),
             'has_archive'        => false,
             'rewrite'            => false,
-            'capability_type'    => 'post',
+            'capabilities'       => array(
+                'edit_post'          => 'edit_theme_options',
+                'read_post'          => 'edit_theme_options',
+                'delete_post'        => 'edit_theme_options',
+                'edit_posts'         => 'edit_theme_options',
+                'edit_others_posts'  => 'edit_theme_options',
+                'publish_posts'      => 'edit_theme_options',
+                'read_private_posts' => 'edit_theme_options',
+            ),
         )
     );
 }
