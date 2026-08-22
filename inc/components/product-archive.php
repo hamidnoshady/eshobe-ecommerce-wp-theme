@@ -928,9 +928,12 @@ function wm_product_archive_filter_terms_by_availability( $terms, $available_ids
         }
     };
 
+    // ⚡ Bolt: Use a hash map (O(1) lookups) for selected slugs to prevent an O(n^2) bottleneck when filtering large term lists.
+    $selected_map = array_flip( $selected_slugs );
+
     foreach ( $terms as $term ) {
         $term_id = (int) $term->term_id;
-        if ( isset( $available_ids[ $term_id ] ) || in_array( $term->slug, $selected_slugs, true ) ) {
+        if ( isset( $available_ids[ $term_id ] ) || isset( $selected_map[ $term->slug ] ) ) {
             $mark_with_ancestors( $term_id );
         }
     }
