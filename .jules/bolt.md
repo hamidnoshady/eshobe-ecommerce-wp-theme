@@ -8,3 +8,7 @@
 ## 2023-10-27 - Double array processing in Product Gallery
 **Learning:** `wm_render_product_gallery()` was calling `wm_get_product_gallery_ids( $product )` twice. Because `wm_get_product_gallery_ids` performs array manipulation (`array_merge`, `array_values`, `array_unique`, `array_filter`, `array_map`), repeating the call redundantly processes the image array.
 **Action:** When a helper function performs array manipulation or object property extraction without internal caching, always assign its return value to a local variable and reuse that variable (e.g., using `count( $variable )`) rather than calling the function again for related derivations.
+
+## 2026-06-25 - Memoizing ACF get_field('...', 'option') calls
+**Learning:** Helper functions like `wm_get_option` that wrap ACF's `get_field('...', 'option')` can introduce severe performance bottlenecks because ACF option retrieval involves formatting and potentially extra database queries. When these helpers are called frequently (e.g. within `*_defaults()` and `*_get_option()` builders across different components), the overhead stacks up.
+**Action:** Memoize wrapper functions for `get_field` using a static array cache (`static $cache = array();`) so that redundant lookups within the same request are prevented.

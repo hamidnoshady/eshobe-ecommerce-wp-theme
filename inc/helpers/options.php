@@ -13,11 +13,24 @@
  * @return mixed
  */
 function wm_get_option( $key, $default = '' ) {
-	if ( function_exists( 'get_field' ) ) {
-		$value = get_field( $key, 'option' );
+	static $cache = array();
+
+	if ( array_key_exists( $key, $cache ) ) {
+		$value = $cache[ $key ];
 		if ( null !== $value && '' !== $value && false !== $value ) {
 			return $value;
 		}
+		return $default;
+	}
+
+	if ( function_exists( 'get_field' ) ) {
+		$value = get_field( $key, 'option' );
+		$cache[ $key ] = $value;
+		if ( null !== $value && '' !== $value && false !== $value ) {
+			return $value;
+		}
+	} else {
+		$cache[ $key ] = null;
 	}
 
 	return $default;
