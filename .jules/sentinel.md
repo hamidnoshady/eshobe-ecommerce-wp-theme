@@ -28,3 +28,8 @@
 **Vulnerability:** The custom post type `wm_mega_menu` was registered with `'capability_type' => 'post'`, which allowed lower-privileged users (like Contributors) to view, edit, and create Mega Menus, even though these are structural theme navigation elements.
 **Learning:** Structural layout and theme-related settings registered as Custom Post Types (such as Mega Menus or Block Regions) should not use the default post capability. Doing so can expose critical site architecture to low-privileged users.
 **Prevention:** Always restrict theme configuration and structure-related CPTs by passing an explicit `capabilities` array mapping standard operations (e.g., `edit_post`, `edit_posts`) to `edit_theme_options` (or another appropriate admin capability), unless non-admins explicitly need to modify them.
+
+## 2025-02-26 - Open Redirect in OTP Auth Redirect
+**Vulnerability:** The function `wm_otp_resolve_redirect_url` in `inc/ajax/otp-auth.php` used a custom URL validation logic relying on `filter_var` and `wp_parse_url`. This allowed attackers to craft URLs like `https://evil.com%5C@example.com` that passed `FILTER_VALIDATE_URL` but bypassed the host comparison check (`wp_parse_url` extracted `example.com` as the host instead of `evil.com`), resulting in an Open Redirect.
+**Learning:** Custom URL host extraction and validation using built-in PHP tools is notoriously prone to edge cases and parsing discrepancies, often leading to Open Redirect or SSRF vulnerabilities.
+**Prevention:** Always use WordPress core's `wp_validate_redirect()` function for safe redirect validation instead of writing custom URL validation logic.
