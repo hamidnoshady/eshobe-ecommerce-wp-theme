@@ -245,7 +245,7 @@ function wm_render_site_header() {
             <div class="wm-site-header__actions">
                 <?php if ( $show_search ) : ?>
                     <div class="wm-header-search">
-                        <button class="wm-site-header__action wm-site-header__search-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="wm-search-modal">
+                        <button class="wm-site-header__action wm-site-header__search-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="wm-search-modal" aria-label="<?php echo esc_attr__( 'جستجو', 'eshobe-ecommerce' ); ?>">
                             <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                             <span class="wm-site-header__action-text"><?php echo esc_html__( 'جستجو', 'eshobe-ecommerce' ); ?></span>
                         </button>
