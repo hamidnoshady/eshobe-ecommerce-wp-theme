@@ -353,6 +353,7 @@ function wm_product_archive_term_has_selected_descendant( $terms, $term_id, $sel
     static $last_terms = null;
     static $selected_map = array();
     static $last_selected = null;
+    static $result_cache = array(); // ⚡ Bolt: Memoize results to prevent O(N^2) traversal bottlenecks
 
     if ( $last_terms !== $terms ) {
         $hierarchy = array();
@@ -364,23 +365,32 @@ function wm_product_archive_term_has_selected_descendant( $terms, $term_id, $sel
             $hierarchy[ $term_parent ][] = $term;
         }
         $last_terms = $terms;
+        $result_cache = array();
     }
 
     if ( $last_selected !== $selected ) {
         $selected_map  = array_flip( $selected );
         $last_selected = $selected;
+        $result_cache = array();
+    }
+
+    if ( isset( $result_cache[ $term_id ] ) ) {
+        return $result_cache[ $term_id ];
     }
 
     if ( empty( $hierarchy[ $term_id ] ) ) {
+        $result_cache[ $term_id ] = false;
         return false;
     }
 
     foreach ( $hierarchy[ $term_id ] as $term ) {
         if ( isset( $selected_map[ $term->slug ] ) || wm_product_archive_term_has_selected_descendant( $terms, (int) $term->term_id, $selected ) ) {
+            $result_cache[ $term_id ] = true;
             return true;
         }
     }
 
+    $result_cache[ $term_id ] = false;
     return false;
 }
 
