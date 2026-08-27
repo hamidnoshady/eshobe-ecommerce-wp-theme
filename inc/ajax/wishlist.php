@@ -23,7 +23,7 @@ function wm_ajax_wishlist_products() {
 			$ids[] = $id;
 		}
 	}
-	$ids = array_values( array_unique( $ids ) );
+	$ids = array_slice( array_values( array_unique( $ids ) ), 0, 100 );
 
 	if ( empty( $ids ) || ! function_exists( 'wc_get_product' ) ) {
 		wp_send_json_success( array( 'cards' => array() ) );
