@@ -353,6 +353,7 @@ function wm_product_archive_term_has_selected_descendant( $terms, $term_id, $sel
     static $last_terms = null;
     static $selected_map = array();
     static $last_selected = null;
+    static $memo = array();
 
     if ( $last_terms !== $terms ) {
         $hierarchy = array();
@@ -364,23 +365,32 @@ function wm_product_archive_term_has_selected_descendant( $terms, $term_id, $sel
             $hierarchy[ $term_parent ][] = $term;
         }
         $last_terms = $terms;
+        $memo = array();
     }
 
     if ( $last_selected !== $selected ) {
         $selected_map  = array_flip( $selected );
         $last_selected = $selected;
+        $memo = array();
+    }
+
+    if ( isset( $memo[ $term_id ] ) ) {
+        return $memo[ $term_id ];
     }
 
     if ( empty( $hierarchy[ $term_id ] ) ) {
+        $memo[ $term_id ] = false;
         return false;
     }
 
     foreach ( $hierarchy[ $term_id ] as $term ) {
         if ( isset( $selected_map[ $term->slug ] ) || wm_product_archive_term_has_selected_descendant( $terms, (int) $term->term_id, $selected ) ) {
+            $memo[ $term_id ] = true;
             return true;
         }
     }
 
+    $memo[ $term_id ] = false;
     return false;
 }
 

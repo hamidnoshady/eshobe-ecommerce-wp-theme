@@ -12,3 +12,6 @@
 ## 2026-06-25 - Memoizing ACF get_field('...', 'option') calls
 **Learning:** Helper functions like `wm_get_option` that wrap ACF's `get_field('...', 'option')` can introduce severe performance bottlenecks because ACF option retrieval involves formatting and potentially extra database queries. When these helpers are called frequently (e.g. within `*_defaults()` and `*_get_option()` builders across different components), the overhead stacks up.
 **Action:** Memoize wrapper functions for `get_field` using a static array cache (`static $cache = array();`) so that redundant lookups within the same request are prevented.
+## 2024-05-18 - Memoize taxonomy descendant checks
+**Learning:** Memoizing recursive descendant checks in taxonomy trees prevents O(N^2) evaluation overhead when generating or evaluating complex filter trees.
+**Action:** Use a static `$memo` array to cache intermediate boolean results in recursive taxonomy logic, and invalidate it when the structure or selection state changes.
