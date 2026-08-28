@@ -15,6 +15,8 @@ function wm_ajax_wishlist_products() {
 	check_ajax_referer( 'wm_wishlist_nonce', 'nonce' );
 
 	$raw_ids = isset( $_POST['ids'] ) ? (array) wp_unslash( $_POST['ids'] ) : array();
+	// Limit to 100 items to prevent Array DoS via memory/DB exhaustion.
+	$raw_ids = array_slice( $raw_ids, 0, 100 );
 	$ids     = array();
 
 	foreach ( $raw_ids as $id ) {

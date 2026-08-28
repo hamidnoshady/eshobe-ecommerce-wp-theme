@@ -33,3 +33,8 @@
 **Vulnerability:** The function `wm_otp_resolve_redirect_url` in `inc/ajax/otp-auth.php` used a custom URL validation logic relying on `filter_var` and `wp_parse_url`. This allowed attackers to craft URLs like `https://evil.com%5C@example.com` that passed `FILTER_VALIDATE_URL` but bypassed the host comparison check (`wp_parse_url` extracted `example.com` as the host instead of `evil.com`), resulting in an Open Redirect.
 **Learning:** Custom URL host extraction and validation using built-in PHP tools is notoriously prone to edge cases and parsing discrepancies, often leading to Open Redirect or SSRF vulnerabilities.
 **Prevention:** Always use WordPress core's `wp_validate_redirect()` function for safe redirect validation instead of writing custom URL validation logic.
+
+## 2025-02-28 - Array DoS Vulnerability in AJAX Wishlist
+**Vulnerability:** The AJAX endpoint `wm_ajax_wishlist_products` processed an unbounded array of product IDs directly from `$_POST['ids']`. Because it looped over these IDs and called `wc_get_product()` (which can trigger database queries) for each, an attacker could submit thousands of IDs in a single POST request, causing a Database Denial of Service (DoS) and memory exhaustion.
+**Learning:** Any endpoint (especially AJAX) that processes lists of IDs or items provided by the client must enforce strict length limits. Bounding inputs prevents array-based DoS attacks that exploit processing loops.
+**Prevention:** Always use `array_slice()` to cap the maximum number of items processed from client-provided arrays (e.g., limiting to a reasonable maximum like 50 or 100).
