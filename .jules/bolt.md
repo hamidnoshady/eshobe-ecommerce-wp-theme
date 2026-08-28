@@ -12,3 +12,6 @@
 ## 2026-06-25 - Memoizing ACF get_field('...', 'option') calls
 **Learning:** Helper functions like `wm_get_option` that wrap ACF's `get_field('...', 'option')` can introduce severe performance bottlenecks because ACF option retrieval involves formatting and potentially extra database queries. When these helpers are called frequently (e.g. within `*_defaults()` and `*_get_option()` builders across different components), the overhead stacks up.
 **Action:** Memoize wrapper functions for `get_field` using a static array cache (`static $cache = array();`) so that redundant lookups within the same request are prevented.
+## 2024-05-18 - Memoizing WordPress Taxonomy Traversal
+**Learning:** Checking properties across descendant hierarchies in WordPress taxonomy filter trees without memoization leads to an O(N²) traversal bottleneck when repeated per term during rendering.
+**Action:** When implementing recursive search/traversal functions for taxonomy hierarchies, use a static `$memo` array mapped by term ID to cache results and ensure cache invalidation when the taxonomy term tree or selected active states change.
