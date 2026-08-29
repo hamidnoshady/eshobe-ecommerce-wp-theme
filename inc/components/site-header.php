@@ -245,7 +245,7 @@ function wm_render_site_header() {
             <div class="wm-site-header__actions">
                 <?php if ( $show_search ) : ?>
                     <div class="wm-header-search">
-                        <button class="wm-site-header__action wm-site-header__search-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="wm-search-modal">
+                        <button class="wm-site-header__action wm-site-header__search-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="wm-search-modal" aria-label="<?php echo esc_attr__( 'جستجو', 'eshobe-ecommerce' ); ?>">
                             <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                             <span class="wm-site-header__action-text"><?php echo esc_html__( 'جستجو', 'eshobe-ecommerce' ); ?></span>
                         </button>
@@ -255,17 +255,33 @@ function wm_render_site_header() {
                 <?php if ( $show_account ) : ?>
                     <?php $wm_header_otp_active = ! is_user_logged_in(); ?>
                     <div class="wm-site-header__account-wrap">
-                        <a class="wm-site-header__action wm-site-header__account" href="<?php echo esc_url( wm_header_get_account_url() ); ?>" aria-label="<?php echo esc_attr__( 'حساب کاربری', 'eshobe-ecommerce' ); ?>"<?php echo $wm_header_otp_active ? ' data-wm-otp-trigger' : ' data-wm-account-toggle aria-haspopup="true" aria-expanded="false"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <a class="wm-site-header__action wm-site-header__account" href="<?php echo esc_url( wm_header_get_account_url() ); ?>" aria-label="<?php echo esc_attr__( 'حساب کاربری', 'eshobe-ecommerce' ); ?>" data-wm-account-toggle aria-haspopup="true" aria-expanded="false">
                             <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'account' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                             <span class="wm-site-header__action-text"><?php echo esc_html__( 'حساب', 'eshobe-ecommerce' ); ?></span>
                         </a>
-                        <?php if ( ! $wm_header_otp_active ) : ?>
-                            <div class="wm-account-dropdown" data-wm-account-dropdown>
+                        <div class="wm-account-dropdown" data-wm-account-dropdown>
+                            <?php if ( $wm_header_otp_active ) : ?>
+                                <strong class="wm-account-dropdown__title"><?php echo esc_html__( 'حساب کاربری', 'eshobe-ecommerce' ); ?></strong>
+                                <p class="wm-notification-empty"><?php echo esc_html__( 'برای مشاهده اعلان‌ها، سفارش‌ها و علاقه‌مندی‌ها وارد شوید.', 'eshobe-ecommerce' ); ?></p>
+                            <?php else : ?>
                                 <strong class="wm-account-dropdown__title"><?php echo esc_html__( 'اعلان‌ها', 'eshobe-ecommerce' ); ?></strong>
                                 <div class="wm-notification-list" data-wm-notification-list></div>
+                            <?php endif; ?>
+
+                            <?php if ( $show_wishlist ) : ?>
+                                <a class="wm-account-dropdown__item" href="<?php echo esc_url( $wishlist_url ); ?>">
+                                    <span class="wm-account-dropdown__item-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'wishlist' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                                    <span class="wm-account-dropdown__item-text"><?php echo esc_html__( 'علاقه‌مندی‌ها', 'eshobe-ecommerce' ); ?></span>
+                                    <span class="wm-account-dropdown__item-count" data-wm-wishlist-count hidden>0</span>
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if ( $wm_header_otp_active ) : ?>
+                                <a class="wm-account-dropdown__link wm-account-dropdown__link--login" href="<?php echo esc_url( wm_header_get_account_url() ); ?>" data-wm-otp-trigger><?php echo esc_html__( 'ورود / ثبت‌نام', 'eshobe-ecommerce' ); ?></a>
+                            <?php else : ?>
                                 <a class="wm-account-dropdown__link" href="<?php echo esc_url( wm_header_get_account_url() ); ?>"><?php echo esc_html__( 'مشاهده حساب کاربری', 'eshobe-ecommerce' ); ?></a>
-                            </div>
-                        <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endif; ?>
 

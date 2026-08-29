@@ -23,3 +23,18 @@
 **Vulnerability:** The block regions setup handlers (`wm_blocks_admin_handle_setup_home` and `wm_blocks_admin_handle_setup_region`) only checked for the `edit_posts` capability. This allowed low-privileged users (like Contributors) to create pages and change site-wide options (`show_on_front` and `page_on_front`), effectively changing the site's homepage. The menus were also registered with `edit_posts`.
 **Learning:** Admin action handlers (like `admin_post_*` hooks) that modify site-wide settings or theme structures must enforce a strict capability, typically `edit_theme_options` or `manage_options`, rather than a lower-level post-editing capability like `edit_posts`.
 **Prevention:** Always use `edit_theme_options` for functionality that manages theme appearance, blocks, or layout settings, unless explicitly intended for lower-privileged content creators (in which case, do not allow changing global options).
+
+## 2025-02-25 - Authorization Bypass in Mega Menu Management
+**Vulnerability:** The custom post type `wm_mega_menu` was registered with `'capability_type' => 'post'`, which allowed lower-privileged users (like Contributors) to view, edit, and create Mega Menus, even though these are structural theme navigation elements.
+**Learning:** Structural layout and theme-related settings registered as Custom Post Types (such as Mega Menus or Block Regions) should not use the default post capability. Doing so can expose critical site architecture to low-privileged users.
+**Prevention:** Always restrict theme configuration and structure-related CPTs by passing an explicit `capabilities` array mapping standard operations (e.g., `edit_post`, `edit_posts`) to `edit_theme_options` (or another appropriate admin capability), unless non-admins explicitly need to modify them.
+
+## 2025-02-26 - Open Redirect in OTP Auth Redirect
+**Vulnerability:** The function `wm_otp_resolve_redirect_url` in `inc/ajax/otp-auth.php` used a custom URL validation logic relying on `filter_var` and `wp_parse_url`. This allowed attackers to craft URLs like `https://evil.com%5C@example.com` that passed `FILTER_VALIDATE_URL` but bypassed the host comparison check (`wp_parse_url` extracted `example.com` as the host instead of `evil.com`), resulting in an Open Redirect.
+**Learning:** Custom URL host extraction and validation using built-in PHP tools is notoriously prone to edge cases and parsing discrepancies, often leading to Open Redirect or SSRF vulnerabilities.
+**Prevention:** Always use WordPress core's `wp_validate_redirect()` function for safe redirect validation instead of writing custom URL validation logic.
+
+## 2025-02-27 - Denial of Service via Array Input in Wishlist AJAX
+**Vulnerability:** The `wm_ajax_wishlist_products` endpoint accepted an array of product IDs via POST, iterated over them, and loaded full product objects/HTML without rate-limiting. A malicious actor could send massive arrays in repeated requests, exhausting server memory and database connections.
+**Learning:** Any endpoint that processes an unbounded list of inputs provided by the client (even simple IDs) must enforce strict limits, especially if the processing loop executes database queries or complex template rendering.
+**Prevention:** Implement IP-based rate limiting on endpoints that process bulk data, and consider enforcing a hard upper limit on the number of items processed per request.

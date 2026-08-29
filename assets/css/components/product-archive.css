@@ -1026,14 +1026,21 @@
   display: none;
 }
 
+/* Keep the page behind the mobile filter drawer from scrolling while it is
+   open; the scroll position is naturally restored when the drawer closes.
+   The lock must cover <html> as well: theme.css sets `overflow-x: hidden` on
+   html, which stops a body-only `overflow: hidden` from propagating to the
+   viewport. */
+html:has(body.wm-archive-filter-open),
+html:has(body.wm-archive-filter-open) body {
+  overflow: hidden;
+}
+
 @media (max-width: 1023px) {
   .wm-product-archive__layout,
   .wm-product-archive--sidebar-left .wm-product-archive__layout {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .wm-product-archive__sidebar {
-    display: block;
+    gap: 0;
   }
 
   .wm-product-archive__grid {
@@ -1049,25 +1056,25 @@
   .wm-product-archive ul.products li.product:not(.wm-product-archive__item) img {
     height: 220px;
   }
-}
 
-@media (max-width: 767px) {
-  .wm-product-archive {
-    padding: 18px 0 calc(104px + env(safe-area-inset-bottom, 0px));
+  /*
+   * Mobile / tablet filter drawer.
+   *
+   * The drawer is a fixed sidebar plus a fixed backdrop. `.wm-section-decor > *`
+   * elevates this container into its own stacking context (z-index 2), which
+   * traps the drawer (z-index 1290) BELOW the backdrop (z-index 1280) and makes
+   * the panel invisible/unclickable. Dropping the container back to static lets
+   * the fixed drawer stack above the backdrop again.
+   */
+  .wm-section-decor > .wm-product-archive__container {
+    position: static;
+    z-index: auto;
   }
 
-  .wm-product-archive__container {
-    width: min(100% - 24px, var(--wm-content-width, 1200px));
-  }
-
-  .wm-product-archive__header {
-    margin-bottom: 12px;
-    padding: 20px 18px;
-    border-radius: 22px;
-  }
-
-  .wm-product-archive__layout {
-    gap: 0;
+  /* With the container no longer creating a stacking context, keep the corner
+     decor motif below the page content (as it is on desktop). */
+  .wm-product-archive.wm-section-decor--soft-grid::before {
+    z-index: -1;
   }
 
   .wm-product-archive__sidebar {
@@ -1138,6 +1145,26 @@
     justify-content: flex-start;
   }
 
+  .wm-product-archive__mobile-actions .wm-product-archive__filter-button {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 767px) {
+  .wm-product-archive {
+    padding: 18px 0 calc(104px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .wm-product-archive__container {
+    width: min(100% - 24px, var(--wm-content-width, 1200px));
+  }
+
+  .wm-product-archive__header {
+    margin-bottom: 12px;
+    padding: 20px 18px;
+    border-radius: 22px;
+  }
+
   .wm-product-archive__toolbar {
     min-height: 0;
     flex-wrap: wrap;
@@ -1155,10 +1182,6 @@
 
   .wm-product-archive__toolbar-end {
     justify-content: flex-start;
-  }
-
-  .wm-product-archive__mobile-actions .wm-product-archive__filter-button {
-    display: inline-flex;
   }
 
   .wm-product-archive__ordering {

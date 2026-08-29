@@ -109,6 +109,7 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 												data-name="<?php echo esc_attr( $term->name ); ?>"
 												role="option"
 												aria-selected="false"
+												aria-label="<?php echo esc_attr( $term->name ); ?>"
 												title="<?php echo esc_attr( $swatch['tooltip'] ? $swatch['tooltip'] : $term->name ); ?>"
 											>
 												<?php if ( 'color' === $swatch['type'] ) : ?>

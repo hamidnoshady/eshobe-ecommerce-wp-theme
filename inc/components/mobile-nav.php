@@ -267,6 +267,10 @@ function wm_mobile_nav_cart_subtotal() {
 
 function wm_mobile_nav_account_links() {
     $account_url = wm_mobile_nav_account_url();
+    $wishlist_link = array(
+        'label' => __( 'علاقه‌مندی‌ها', 'eshobe-ecommerce' ),
+        'url'   => function_exists( 'wm_wishlist_page_url' ) ? wm_wishlist_page_url() : home_url( '/' ),
+    );
 
     if ( ! is_user_logged_in() ) {
         $login_link = array(
@@ -276,10 +280,11 @@ function wm_mobile_nav_account_links() {
             'otp_trigger' => true,
         );
 
-        return array( $login_link );
+        return array( $wishlist_link, $login_link );
     }
 
     return array(
+        $wishlist_link,
         array( 'label' => __( 'کیف پول', 'eshobe-ecommerce' ), 'url' => $account_url ),
         array( 'label' => __( 'سفارش‌ها', 'eshobe-ecommerce' ), 'url' => function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'orders' ) : $account_url ),
         array( 'label' => __( 'آدرس‌ها', 'eshobe-ecommerce' ), 'url' => function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'edit-address' ) : $account_url ),

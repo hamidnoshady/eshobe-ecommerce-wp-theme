@@ -802,6 +802,22 @@
   font-size: 15px !important;
 }
 
+/* Single shipping method: WooCommerce renders a hidden input (there is no
+   radio to click), so show the lone card as an already-selected option
+   instead of a dead-looking radio. */
+.woocommerce-shipping-methods li:has(> input[type="hidden"].shipping_method) label {
+  border-color: var(--wm-color-accent-dark, #c18853) !important;
+  background: rgba(193, 164, 136, 0.08) !important;
+  font-weight: 700 !important;
+  cursor: default !important;
+}
+
+.woocommerce-shipping-methods li:has(> input[type="hidden"].shipping_method) label::after {
+  border-color: var(--wm-color-accent-dark, #c18853) !important;
+  background: var(--wm-color-accent-dark, #c18853) !important;
+  box-shadow: inset 0 0 0 4px var(--wm-color-surface, #fff) !important;
+}
+
 /* === FIX 4: Payment methods as cards === */
 .wc_payment_methods.payment_methods {
   list-style: none !important;

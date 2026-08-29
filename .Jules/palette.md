@@ -13,3 +13,11 @@
 ## 2026-08-16 - Price Range Slider Accessibility
 **Learning:** Native `<input type="range">` elements used in custom dual-thumb slider components (like the price filter in `inc/components/product-archive.php`) often lack explicit labels, making them difficult for screen reader users to identify their purpose (min vs max). Text inputs for manual entry accompanying the sliders can also lack labels if only visually associated via layout.
 **Action:** Always verify that interactive form elements within custom widgets, such as sliders and their accompanying manual text inputs, have explicit, localized `aria-label` attributes (e.g., `aria-label="<?php esc_attr_e( 'حداقل قیمت', 'eshobe-ecommerce' ); ?>"`).
+
+## 2026-08-20 - Custom Product Variation Swatches Accessibility
+**Learning:** Product variation swatches (like colors or image swatches) that are rendered as custom `<button>` elements replacing standard dropdowns often lack visible text and rely entirely on visual cues or a `title` attribute. Screen readers need an explicit `aria-label` because the `title` attribute is not reliably announced by all screen readers in listbox contexts, especially on mobile devices.
+**Action:** Always ensure that custom swatch buttons in variation forms include an explicit `aria-label` (e.g., `aria-label="<?php echo esc_attr( $term->name ); ?>"`) to provide an accessible name for screen reader users.
+
+## 2026-10-25 - Visually Hidden Text in Icon-Only Buttons
+**Learning:** Some buttons (like the header search toggle) contain both an icon and text, but the text is visually hidden via CSS (`display: none`) on certain viewpoints (e.g., mobile). Screen readers might not announce this visually hidden text reliably, effectively turning the button into an icon-only button without an accessible name.
+**Action:** Always provide an explicit `aria-label` to buttons where the inner text is hidden via CSS (`display: none`), ensuring screen reader users can understand the button's purpose regardless of styling rules.
