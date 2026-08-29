@@ -353,6 +353,7 @@ function wm_product_archive_term_has_selected_descendant( $terms, $term_id, $sel
     static $last_terms = null;
     static $selected_map = array();
     static $last_selected = null;
+    static $cache = array();
 
     if ( $last_terms !== $terms ) {
         $hierarchy = array();
@@ -364,23 +365,35 @@ function wm_product_archive_term_has_selected_descendant( $terms, $term_id, $sel
             $hierarchy[ $term_parent ][] = $term;
         }
         $last_terms = $terms;
+        $cache = array();
     }
 
     if ( $last_selected !== $selected ) {
         $selected_map  = array_flip( $selected );
         $last_selected = $selected;
+        $cache = array();
+    }
+
+    // ⚡ Bolt Optimization:
+    // Caching recursive descendant lookups prevents O(N²) traversal when rendering
+    // large filter trees, reducing evaluation time drastically for deep/large taxonomies.
+    if ( isset( $cache[ $term_id ] ) ) {
+        return $cache[ $term_id ];
     }
 
     if ( empty( $hierarchy[ $term_id ] ) ) {
+        $cache[ $term_id ] = false;
         return false;
     }
 
     foreach ( $hierarchy[ $term_id ] as $term ) {
         if ( isset( $selected_map[ $term->slug ] ) || wm_product_archive_term_has_selected_descendant( $terms, (int) $term->term_id, $selected ) ) {
+            $cache[ $term_id ] = true;
             return true;
         }
     }
 
+    $cache[ $term_id ] = false;
     return false;
 }
 
