@@ -12,3 +12,7 @@
 ## 2026-06-25 - Memoizing ACF get_field('...', 'option') calls
 **Learning:** Helper functions like `wm_get_option` that wrap ACF's `get_field('...', 'option')` can introduce severe performance bottlenecks because ACF option retrieval involves formatting and potentially extra database queries. When these helpers are called frequently (e.g. within `*_defaults()` and `*_get_option()` builders across different components), the overhead stacks up.
 **Action:** Memoize wrapper functions for `get_field` using a static array cache (`static $cache = array();`) so that redundant lookups within the same request are prevented.
+
+## 2026-08-29 - O(N²) Tree Traversal Bottleneck
+**Learning:** Checking for active nested term selections using a recursive function that repeatedly scans descendants without caching creates an O(N²) traversal bottleneck during product archive rendering.
+**Action:** When evaluating recursive filter trees for properties that remain constant during the request (like whether a term has selected descendants), always implement a static array cache ($memo = array()) keyed by term ID, and ensure the cache invalidates correctly if input dependencies (terms or selections) mutate.
