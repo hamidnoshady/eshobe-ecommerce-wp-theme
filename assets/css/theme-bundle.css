@@ -1403,6 +1403,67 @@ button, input, select, textarea { font-family: var(--wm-font-primary); font-size
   box-shadow: none !important;
 }
 
+/*
+ * "View cart" link injected by WooCommerce's add-to-cart script right after
+ * the button when an AJAX add succeeds. Rendered as a bare anchor by default,
+ * so style it as a themed success pill that slides in under the button.
+ */
+.wm-product-card .added_to_cart.wc-forward,
+.wm-related-card .added_to_cart.wc-forward,
+ul.products li.product .added_to_cart.wc-forward {
+  width: 100%;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 4px 14px;
+  border: 1px solid rgba(200, 155, 60, 0.34);
+  border-radius: 999px;
+  background: rgba(200, 155, 60, 0.1);
+  color: var(--wm-color-accent-dark, #9f7425);
+  font-family: var(--wm-font-primary);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
+  text-decoration: none;
+  box-sizing: border-box;
+  animation: wm-view-cart-in 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wm-product-card .added_to_cart.wc-forward::before,
+.wm-related-card .added_to_cart.wc-forward::before,
+ul.products li.product .added_to_cart.wc-forward::before {
+  content: "\2713";
+  font-size: 11px;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.wm-product-card .added_to_cart.wc-forward:hover,
+.wm-product-card .added_to_cart.wc-forward:focus,
+.wm-related-card .added_to_cart.wc-forward:hover,
+.wm-related-card .added_to_cart.wc-forward:focus,
+ul.products li.product .added_to_cart.wc-forward:hover,
+ul.products li.product .added_to_cart.wc-forward:focus {
+  border-color: rgba(200, 155, 60, 0.5);
+  background: rgba(200, 155, 60, 0.16);
+  color: var(--wm-color-accent-dark, #9f7425);
+  transform: translateY(-1px);
+}
+
+@keyframes wm-view-cart-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .wm-product-specs__fade,
 .wm-product-specs__toggle,
 .wm-product-specs__toggle-wrap,

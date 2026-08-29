@@ -42,20 +42,70 @@ if ( ! function_exists( 'wm_cart_totals_capture' ) ) {
 
 if ( ! function_exists( 'wm_cart_totals_shipping_fragment' ) ) {
 	/**
-	 * Convert the default WooCommerce shipping row into a non-table fragment.
+	 * Render the cart summary shipping methods list.
+	 *
+	 * Renders every available radio method for the current shipping package
+	 * directly, instead of stripping WooCommerce's table-and-calculator
+	 * fragment (whose destination paragraph and shipping-calculator form
+	 * looked messy inside the narrow summary column).
 	 *
 	 * @return string
 	 */
 	function wm_cart_totals_shipping_fragment() {
-		$shipping_html = wm_cart_totals_capture( 'wc_cart_totals_shipping_html' );
-		// Keep WooCommerce's complete shipping fragment, including every
-		// available radio method. Only remove the table wrappers that do not
-		// fit this summary layout; stripping inner markup can hide methods.
-		$shipping_html = preg_replace( '#</?(tr|th|td)[^>]*>#i', '', $shipping_html );
-		$shipping_html = preg_replace( '#<span class="woocommerce-shipping-destination">.*?</span>#is', '', $shipping_html );
-		$shipping_html = preg_replace( '#^\s*(Shipment|Shipping)\s*#i', '', $shipping_html );
+		$packages = WC()->shipping()->get_packages();
 
-		return $shipping_html;
+		if ( empty( $packages ) ) {
+			return '<p class="wm-cart-summary__shipping-empty">' . esc_html__( 'آدرس خود را برای مشاهده گزینه‌های حمل و نقل وارد کنید.', 'eshobe-ecommerce' ) . '</p>';
+		}
+
+		ob_start();
+		foreach ( $packages as $package_index => $package ) {
+			$available_methods = ! empty( $package['rates'] ) ? $package['rates'] : array();
+			$chosen_method     = isset( WC()->session->chosen_shipping_methods[ $package_index ] ) ? WC()->session->chosen_shipping_methods[ $package_index ] : '';
+
+			if ( empty( $available_methods ) ) {
+				echo '<p class="wm-cart-summary__shipping-empty">' . esc_html__( 'آدرس خود را برای مشاهده گزینه‌های حمل و نقل وارد کنید.', 'eshobe-ecommerce' ) . '</p>';
+				continue;
+			}
+
+			?>
+			<ul class="woocommerce-shipping-methods">
+				<?php foreach ( $available_methods as $method ) : ?>
+					<li>
+						<?php
+						if ( 1 < count( $available_methods ) ) {
+							printf(
+								'<input type="radio" name="shipping_method[%1$d]" data-index="%1$d" id="shipping_method_%1$d_%2$s" value="%3$s" class="shipping_method" %4$s />',
+								absint( $package_index ),
+								esc_attr( sanitize_title( $method->id ) ),
+								esc_attr( $method->id ),
+								checked( $chosen_method, $method->id, false ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							);
+						} else {
+							printf(
+								'<input type="hidden" name="shipping_method[%1$d]" data-index="%1$d" id="shipping_method_%1$d_%2$s" value="%3$s" class="shipping_method" />',
+								absint( $package_index ),
+								esc_attr( sanitize_title( $method->id ) ),
+								esc_attr( $method->id )
+							);
+						}
+
+						printf(
+							'<label for="shipping_method_%1$s_%2$s">%3$s</label>',
+							esc_attr( absint( $package_index ) ),
+							esc_attr( sanitize_title( $method->id ) ),
+							wc_cart_totals_shipping_method_label( $method ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						);
+
+						do_action( 'woocommerce_after_shipping_rate', $method, $package_index );
+						?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<?php
+		}
+
+		return ob_get_clean();
 	}
 }
 ?>
@@ -90,10 +140,39 @@ if ( ! function_exists( 'wm_cart_totals_shipping_fragment' ) ) {
 		}
 
 		if ( WC()->cart->needs_shipping() && WC()->cart->show_shipping() ) {
+			$wm_shipping_state   = WC()->customer->get_shipping_state();
+			$wm_shipping_country = WC()->customer->get_shipping_country();
+
+			// Map the state code (e.g. THR) to its localized label (تهران).
+			if ( $wm_shipping_state && $wm_shipping_country && function_exists( 'WC' ) ) {
+				$wm_shipping_states = WC()->countries->get_states( $wm_shipping_country );
+				if ( ! empty( $wm_shipping_states[ $wm_shipping_state ] ) ) {
+					$wm_shipping_state = $wm_shipping_states[ $wm_shipping_state ];
+				}
+			}
+
+			$wm_shipping_destination = array_filter(
+				array_map(
+					'trim',
+					array(
+						$wm_shipping_state,
+						WC()->customer->get_shipping_city(),
+						trim( WC()->customer->get_shipping_address_1() . ' ' . WC()->customer->get_shipping_address_2() ),
+						WC()->customer->get_shipping_postcode(),
+					)
+				)
+			);
 			?>
 			<div class="wm-cart-summary__row shipping">
 				<div class="wm-cart-summary__label"><?php echo esc_html__( 'ارسال', 'eshobe-ecommerce' ); ?></div>
 				<div class="wm-cart-summary__value wm-cart-summary__shipping">
+					<?php if ( $wm_shipping_destination ) : ?>
+						<span class="wm-cart-summary__destination">
+							<?php echo esc_html__( 'ارسال به', 'eshobe-ecommerce' ); ?>:
+							<strong><?php echo esc_html( implode( '، ', $wm_shipping_destination ) ); ?></strong>
+						</span>
+						<a class="wm-cart-summary__change-address" href="<?php echo esc_url( wc_get_checkout_url() ); ?>"><?php echo esc_html__( 'تغییر آدرس', 'eshobe-ecommerce' ); ?></a>
+					<?php endif; ?>
 					<?php echo wm_cart_totals_shipping_fragment(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 			</div>

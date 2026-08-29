@@ -3003,3 +3003,67 @@
     border-radius: 0 0 20px 20px !important;
   }
 }
+
+/* Shipping destination + change-address link inside the cart summary. The
+   WooCommerce destination paragraph used to leak into this column raw and
+   messy; the theme now renders its own clean line (see cart-totals.php). */
+.wm-cart-summary__shipping {
+  gap: 6px;
+}
+
+.wm-cart-summary__destination {
+  display: block;
+  width: 100%;
+  color: var(--wm-color-muted, #6b7280);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.75;
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.wm-cart-summary__destination strong {
+  color: var(--wm-color-primary, #111827);
+  font-weight: 800;
+}
+
+.wm-cart-summary__change-address {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  margin-top: 2px;
+  color: var(--wm-color-accent-dark, #9f7425);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.6;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.wm-cart-summary__change-address::before {
+  content: "\270E";
+  font-size: 11px;
+  line-height: 1;
+}
+
+.wm-cart-summary__change-address:hover,
+.wm-cart-summary__change-address:focus {
+  color: var(--wm-color-accent, #c89b3c);
+  text-decoration: underline;
+}
+
+.wm-cart-summary__shipping-empty {
+  color: var(--wm-color-muted, #6b7280);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.8;
+}
+
+/* wpautop injects stray line-breaks/empty paragraphs into the shipping
+   summary; hide them so the destination line renders as one clean unit. */
+.wm-cart-summary__shipping br,
+.wm-cart-summary__shipping > p:empty {
+  display: none !important;
+}
