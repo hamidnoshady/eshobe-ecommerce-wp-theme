@@ -20,6 +20,28 @@
     }
   }
 
+  function updateBadge(count) {
+    document.querySelectorAll('[data-wm-wishlist-count]').forEach(function (el) {
+      el.textContent = String(count);
+      el.hidden = count === 0;
+    });
+  }
+
+  // Keep every badge on the page (and across tabs) in sync.
+  updateBadge(readWishlist().length);
+  window.addEventListener('storage', function (event) {
+    if (event.key === STORAGE_KEY) {
+      updateBadge(readWishlist().length);
+    }
+  });
+  window.addEventListener('wm:wishlist', function (event) {
+    if (event.detail && typeof event.detail.count === 'number') {
+      updateBadge(event.detail.count);
+    } else {
+      updateBadge(readWishlist().length);
+    }
+  });
+
   document.querySelectorAll('[data-wm-wishlist-toggle]').forEach(function (button) {
     var id = button.getAttribute('data-product-id');
     var isSaved = readWishlist().indexOf(id) !== -1;
@@ -40,6 +62,8 @@
       writeWishlist(ids);
       button.classList.toggle('is-active', nowSaved);
       button.setAttribute('aria-pressed', nowSaved ? 'true' : 'false');
+
+      window.dispatchEvent(new window.CustomEvent('wm:wishlist', { detail: { count: ids.length } }));
     });
   });
 })();

@@ -370,3 +370,91 @@ body.wm-otp-modal-open {
 .wm-otp-modal__resume-btn:hover {
   opacity: 0.85;
 }
+
+.wm-otp-modal__strength {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0 0;
+}
+
+.wm-otp-modal__strength span {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--wm-color-border, #e5e0d8);
+  transition: background 160ms ease;
+}
+
+.wm-otp-modal__strength[data-strength="1"] span:first-child {
+  background: #dc2626;
+}
+
+.wm-otp-modal__strength[data-strength="2"] span:nth-child(-n + 2) {
+  background: #d97706;
+}
+
+.wm-otp-modal__strength[data-strength="3"] span {
+  background: #16a34a;
+}
+
+.wm-otp-modal__input--ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+.wm-otp-modal__pw-wrap {
+  position: relative;
+}
+
+.wm-otp-modal__pw-toggle {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--wm-color-muted, #6b7280);
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.wm-otp-modal__pw-toggle:hover {
+  color: var(--wm-color-primary, #111827);
+}
+
+.wm-otp-modal__pw-toggle-icon {
+  width: 18px;
+  height: 18px;
+  border: 1.6px solid currentColor;
+  border-radius: 5px;
+  position: relative;
+}
+
+.wm-otp-modal__pw-toggle-icon::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.wm-otp-modal__pw-toggle.is-visible .wm-otp-modal__pw-toggle-icon::after {
+  display: none;
+}
+
+.wm-otp-modal__pw-toggle.is-visible .wm-otp-modal__pw-toggle-icon {
+  background: currentColor;
+}
+
+.wm-otp-modal__pw-toggle.is-visible .wm-otp-modal__pw-toggle-icon::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--wm-color-surface, #fff);
+}

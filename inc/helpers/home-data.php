@@ -10,6 +10,70 @@ function wm_home_get_option( $key, $default = '' ) {
 }
 
 /**
+ * URL of the first rendered hero slide's desktop image (LCP preload target).
+ *
+ * Mirrors the slide merge order in template-parts/home/hero-slider.php
+ * (content slides, then image slides, then video slides) so the preload link
+ * in <head> points at the same image the first slide actually renders.
+ *
+ * @return string
+ */
+function wm_home_first_hero_image_url() {
+	$content_slides = wm_home_get_valid_items(
+		'home_hero_slides',
+		function( $slide ) {
+			return ! empty( $slide['slide_enabled'] ) && ( ! empty( $slide['slide_title'] ) || ! empty( $slide['slide_image_desktop'] ) );
+		}
+	);
+
+	if ( ! empty( $content_slides[0]['slide_image_desktop'] ) ) {
+		return wm_home_get_image_url( $content_slides[0]['slide_image_desktop'], 'large' );
+	}
+
+	$image_slides = wm_home_get_valid_items(
+		'home_hero_image_slides',
+		function( $slide ) {
+			return ! empty( $slide['image_slide_enabled'] ) && ( ! empty( $slide['image_slide_image_desktop'] ) || ! empty( $slide['image_slide_image_mobile'] ) );
+		}
+	);
+
+	if ( ! empty( $image_slides[0]['image_slide_image_desktop'] ) ) {
+		return wm_home_get_image_url( $image_slides[0]['image_slide_image_desktop'], 'full' );
+	}
+
+	return '';
+}
+
+/**
+ * Transient key for the assembled front-page sections output.
+ *
+ * The front page runs several `wc_get_products` and term queries per request
+ * (bestsellers, recommended, brand/style cards). The rendered sections are
+ * cached here for a short TTL and flushed whenever products or the ACF
+ * options that feed them change.
+ *
+ * @return string
+ */
+function wm_home_cache_key() {
+	return 'wm_home_sections_output_v1';
+}
+
+/**
+ * Flush the front-page sections cache.
+ */
+function wm_home_cache_flush() {
+	delete_transient( wm_home_cache_key() );
+}
+
+// Invalidate on product lifecycle changes (create/update/trash/untrash) and
+// on any ACF save (options pages + product meta) so edits surface promptly.
+add_action( 'save_post_product', 'wm_home_cache_flush' );
+add_action( 'woocommerce_update_product', 'wm_home_cache_flush' );
+add_action( 'trashed_post', 'wm_home_cache_flush' );
+add_action( 'untrashed_post', 'wm_home_cache_flush' );
+add_action( 'acf/save_post', 'wm_home_cache_flush' );
+
+/**
  * Gets a home option and filters its items using a callback.
  *
  * @param string   $key      The option key.
