@@ -48,8 +48,11 @@ if ( ! function_exists( 'wm_cart_totals_shipping_fragment' ) ) {
 	 */
 	function wm_cart_totals_shipping_fragment() {
 		$shipping_html = wm_cart_totals_capture( 'wc_cart_totals_shipping_html' );
+		// Keep WooCommerce's complete shipping fragment, including every
+		// available radio method. Only remove the table wrappers that do not
+		// fit this summary layout; stripping inner markup can hide methods.
 		$shipping_html = preg_replace( '#</?(tr|th|td)[^>]*>#i', '', $shipping_html );
-		$shipping_html = preg_replace( '#>\s*(Shipment|Shipping)\s*<#i', '><', $shipping_html );
+		$shipping_html = preg_replace( '#<span class="woocommerce-shipping-destination">.*?</span>#is', '', $shipping_html );
 		$shipping_html = preg_replace( '#^\s*(Shipment|Shipping)\s*#i', '', $shipping_html );
 
 		return $shipping_html;

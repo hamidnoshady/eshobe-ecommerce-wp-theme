@@ -750,6 +750,7 @@
 }
 
 .woocommerce-shipping-methods li label {
+  flex-wrap: wrap !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
@@ -800,6 +801,19 @@
   font-weight: 700 !important;
   color: var(--wm-color-primary, #111827) !important;
   font-size: 15px !important;
+}
+
+/* Keep every available method visible; WooCommerce may render the list as a
+   table-like fragment and inherited rules can otherwise collapse siblings. */
+.wm-checkout-review-box .woocommerce-shipping-totals,
+.wm-checkout-review-box .woocommerce-shipping-methods li,
+.wm-checkout-review-box .woocommerce-shipping-methods li label {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.wm-checkout-review-box .woocommerce-shipping-methods li + li {
+  margin-top: var(--wm-space-3, 12px) !important;
 }
 
 /* Single shipping method: WooCommerce renders a hidden input (there is no
