@@ -72,6 +72,7 @@ function wm_render_product_card( $product, $args = array() ) {
     ob_start();
     ?>
     <article class="<?php echo esc_attr( $classes ); ?>">
+        <div class="wm-product-card__media-wrap">
         <a class="wm-product-card__media" href="<?php echo esc_url( $permalink ); ?>" aria-label="<?php echo esc_attr( $title ); ?>">
             <?php if ( function_exists( 'wm_marketing_get_sale_badge_html' ) ) { echo wm_marketing_get_sale_badge_html( $product ); } ?>
             <?php
@@ -85,6 +86,19 @@ function wm_render_product_card( $product, $args = array() ) {
                 <?php echo wp_get_attachment_image( $secondary_id, 'woocommerce_thumbnail', false, array( 'class' => 'wm-product-card__image wm-product-card__image-hover', 'alt' => $title, 'loading' => 'lazy' ) ); ?>
             <?php endif; ?>
         </a>
+            <?php if ( ! empty( $args['quick_view'] ) && $product->is_visible() ) : ?>
+                <button
+                    type="button"
+                    class="wm-product-card__quick-view"
+                    data-wm-quick-view
+                    data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
+                    aria-label="<?php echo esc_attr( sprintf( __( 'نمایش سریع %s', 'eshobe-ecommerce' ), $title ) ); ?>"
+                    title="<?php echo esc_attr__( 'نمایش سریع', 'eshobe-ecommerce' ); ?>"
+                >
+                    <span aria-hidden="true">⌕</span>
+                </button>
+            <?php endif; ?>
+        </div>
         <h3 class="wm-product-card__title"><a href="<?php echo esc_url( $permalink ); ?>"><?php echo esc_html( $title ); ?></a></h3>
         <?php if ( $product->get_price_html() ) : ?>
             <div class="wm-product-card__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
@@ -101,17 +115,6 @@ function wm_render_product_card( $product, $args = array() ) {
             >
                 <?php echo esc_html( $product->add_to_cart_text() ); ?>
             </a>
-            <?php if ( ! empty( $args['quick_view'] ) && $product->is_visible() ) : ?>
-                <button
-                    type="button"
-                    class="wm-product-card__quick-view"
-                    data-wm-quick-view
-                    data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
-                    aria-label="<?php echo esc_attr( sprintf( __( 'نمایش سریع %s', 'eshobe-ecommerce' ), $title ) ); ?>"
-                >
-                    <?php echo esc_html__( 'نمایش سریع', 'eshobe-ecommerce' ); ?>
-                </button>
-            <?php endif; ?>
         </div>
     </article>
     <?php
