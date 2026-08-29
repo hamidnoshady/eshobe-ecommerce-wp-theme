@@ -210,6 +210,8 @@ function wm_render_site_header() {
     $show_search   = (bool) wm_header_get_option( 'wm_header_show_search', true );
     $show_account  = (bool) wm_header_get_option( 'wm_header_show_account', true );
     $show_cart     = (bool) wm_header_get_option( 'wm_header_show_cart', true );
+    $show_wishlist = (bool) wm_header_get_option( 'wm_header_show_wishlist', true );
+    $wishlist_url  = function_exists( 'wm_wishlist_page_url' ) ? wm_wishlist_page_url() : home_url( '/' );
     $sticky_class  = wm_header_get_option( 'wm_header_sticky_enabled', true ) ? ' is-sticky' : '';
     $cart_count    = wm_header_get_cart_count();
 
@@ -264,6 +266,14 @@ function wm_render_site_header() {
                             <?php else : ?>
                                 <strong class="wm-account-dropdown__title"><?php echo esc_html__( 'اعلان‌ها', 'eshobe-ecommerce' ); ?></strong>
                                 <div class="wm-notification-list" data-wm-notification-list></div>
+                            <?php endif; ?>
+
+                            <?php if ( $show_wishlist ) : ?>
+                                <a class="wm-account-dropdown__item" href="<?php echo esc_url( $wishlist_url ); ?>">
+                                    <span class="wm-account-dropdown__item-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'wishlist' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                                    <span class="wm-account-dropdown__item-text"><?php echo esc_html__( 'علاقه‌مندی‌ها', 'eshobe-ecommerce' ); ?></span>
+                                    <span class="wm-account-dropdown__item-count" data-wm-wishlist-count hidden>0</span>
+                                </a>
                             <?php endif; ?>
 
                             <?php if ( $wm_header_otp_active ) : ?>

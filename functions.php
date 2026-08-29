@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.12' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.14' );
 }
 
 /**
@@ -187,7 +187,14 @@ function eshobe_ecommerce_scripts() {
         wp_enqueue_style( 'eshobe-ecommerce-promo-banner', wm_asset_uri( 'assets/css/components/promo-banner.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/promo-banner.css' ) );
     }
 
-    if ( is_home() || is_singular( 'post' ) || is_page() ) {
+    // Blog typography is scoped to post content; skip it on WooCommerce pages
+    // (cart/checkout/my-account ship their own styles, and its generic
+    // `.entry-content h1-h4` rule would otherwise override their titles).
+    $wm_is_woocommerce_page = ( function_exists( 'is_cart' ) && is_cart() )
+        || ( function_exists( 'is_checkout' ) && is_checkout() )
+        || ( function_exists( 'is_account_page' ) && is_account_page() );
+
+    if ( is_home() || is_singular( 'post' ) || ( is_page() && ! $wm_is_woocommerce_page ) ) {
         wp_enqueue_style( 'eshobe-ecommerce-blog', wm_asset_uri( 'assets/css/pages/blog.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/pages/blog.css' ) );
     }
 
