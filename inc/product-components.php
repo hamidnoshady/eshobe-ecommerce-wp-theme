@@ -374,7 +374,7 @@ function wm_render_product_specs() {
     ob_start();
     ?>
     <section class="<?php echo esc_attr( $class ); ?>" aria-label="<?php esc_attr_e( 'Product specifications', 'eshobe-ecommerce' ); ?>">
-        <div class="wm-product-specs__grid">
+        <div class="wm-product-specs__grid" id="wm-product-specs-grid">
             <?php foreach ( $items as $item ) : ?>
                 <div class="wm-product-specs__item">
                     <span class="wm-product-specs__dot" aria-hidden="true"></span>
@@ -386,10 +386,10 @@ function wm_render_product_specs() {
         <?php if ( $has_mobile_toggle ) : ?>
             <div class="wm-product-specs__fade" aria-hidden="true"></div>
             <div class="wm-product-specs__toggle-wrap">
-            <button class="wm-product-specs__toggle wm-product-specs__toggle--more" type="button" data-specs-toggle aria-expanded="false">
+            <button class="wm-product-specs__toggle wm-product-specs__toggle--more" type="button" data-specs-toggle aria-expanded="false" aria-controls="wm-product-specs-grid">
                 <?php echo esc_html__( 'مشاهده بیشتر', 'eshobe-ecommerce' ); ?>
             </button>
-            <button class="wm-product-specs__toggle wm-product-specs__toggle--less" type="button" data-specs-toggle aria-expanded="true">
+            <button class="wm-product-specs__toggle wm-product-specs__toggle--less" type="button" data-specs-toggle aria-expanded="true" aria-controls="wm-product-specs-grid">
                 <?php echo esc_html__( 'مشاهده کمتر', 'eshobe-ecommerce' ); ?>
             </button>
             </div>
@@ -519,15 +519,15 @@ function wm_get_mobile_collapsible_description( $html ) {
     ob_start();
     ?>
     <div class="wm-product-description wm-product-description--collapsed" data-mobile-description>
-        <div class="wm-product-description__content">
+        <div class="wm-product-description__content" id="wm-product-description-content">
             <?php echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         </div>
         <div class="wm-product-description__fade" aria-hidden="true"></div>
         <div class="wm-product-description__toggle-wrap">
-            <button class="wm-product-description__toggle wm-product-description__toggle--more" type="button" data-description-toggle aria-expanded="false">
+            <button class="wm-product-description__toggle wm-product-description__toggle--more" type="button" data-description-toggle aria-expanded="false" aria-controls="wm-product-description-content">
                 <?php echo esc_html__( 'مشاهده بیشتر', 'eshobe-ecommerce' ); ?>
             </button>
-            <button class="wm-product-description__toggle wm-product-description__toggle--less" type="button" data-description-toggle aria-expanded="true">
+            <button class="wm-product-description__toggle wm-product-description__toggle--less" type="button" data-description-toggle aria-expanded="true" aria-controls="wm-product-description-content">
                 <?php echo esc_html__( 'مشاهده کمتر', 'eshobe-ecommerce' ); ?>
             </button>
         </div>
