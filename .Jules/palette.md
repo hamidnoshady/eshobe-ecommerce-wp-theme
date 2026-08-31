@@ -21,3 +21,7 @@
 ## 2026-10-25 - Visually Hidden Text in Icon-Only Buttons
 **Learning:** Some buttons (like the header search toggle) contain both an icon and text, but the text is visually hidden via CSS (`display: none`) on certain viewpoints (e.g., mobile). Screen readers might not announce this visually hidden text reliably, effectively turning the button into an icon-only button without an accessible name.
 **Action:** Always provide an explicit `aria-label` to buttons where the inner text is hidden via CSS (`display: none`), ensuring screen reader users can understand the button's purpose regardless of styling rules.
+
+## 2026-11-20 - Expand/Collapse Accessibility with aria-controls
+**Learning:** Custom expand/collapse toggle buttons (like those used for product descriptions and specs on mobile) that use `aria-expanded` without a corresponding `aria-controls` attribute are less accessible for screen reader users, as the relationship to the content block being toggled is not explicitly defined.
+**Action:** When creating or modifying toggle buttons that show/hide content, always ensure the target content block has an `id` attribute, and the toggle buttons have a matching `aria-controls` attribute.
