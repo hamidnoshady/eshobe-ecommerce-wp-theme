@@ -96,26 +96,32 @@ function wm_taxonomy_landing_maybe_hijack_query( $wp ) {
     }
 
     $taxonomy_name = $taxonomies[ $request ];
-    $term_ids      = get_terms(
+
+    // Preserve the 404 short-circuit for empty taxonomies without loading all term IDs
+    $has_terms = get_terms(
         array(
             'taxonomy'   => $taxonomy_name,
             'hide_empty' => true,
             'fields'     => 'ids',
+            'number'     => 1, // We only need to know if ONE exists!
         )
     );
 
-    if ( is_wp_error( $term_ids ) || empty( $term_ids ) ) {
+    if ( is_wp_error( $has_terms ) || empty( $has_terms ) ) {
         return; // Nothing to show; let the real 404 stand.
     }
 
+    // ⚡ Bolt Optimization:
+    // Replaced fetching all term IDs and passing them into a massive IN (...)
+    // clause with the much more efficient EXISTS operator. EXISTS compiles to
+    // a clean INNER JOIN in SQL, eliminating the N+1 query overhead and avoiding
+    // enormous payloads for taxonomies with thousands of terms.
     $wp->query_vars = array(
         'post_type' => 'product',
         'tax_query' => array(
             array(
                 'taxonomy' => $taxonomy_name,
-                'field'    => 'term_id',
-                'terms'    => $term_ids,
-                'operator' => 'IN',
+                'operator' => 'EXISTS',
             ),
         ),
     );
@@ -141,24 +147,28 @@ function wm_taxonomy_landing_maybe_filter_shop_query( $query ) {
         return;
     }
 
-    $term_ids = get_terms(
+    $has_terms = get_terms(
         array(
             'taxonomy'   => $taxonomy_name,
             'hide_empty' => true,
             'fields'     => 'ids',
+            'number'     => 1, // We only need to know if ONE exists!
         )
     );
 
-    if ( is_wp_error( $term_ids ) || empty( $term_ids ) ) {
+    if ( is_wp_error( $has_terms ) || empty( $has_terms ) ) {
         return;
     }
 
+    // ⚡ Bolt Optimization:
+    // Replaced fetching all term IDs and passing them into a massive IN (...)
+    // clause with the much more efficient EXISTS operator. EXISTS compiles to
+    // a clean INNER JOIN in SQL, eliminating the N+1 query overhead and avoiding
+    // enormous payloads for taxonomies with thousands of terms.
     $tax_query   = (array) $query->get( 'tax_query' );
     $tax_query[] = array(
         'taxonomy' => $taxonomy_name,
-        'field'    => 'term_id',
-        'terms'    => $term_ids,
-        'operator' => 'IN',
+        'operator' => 'EXISTS',
     );
     $query->set( 'tax_query', $tax_query );
 

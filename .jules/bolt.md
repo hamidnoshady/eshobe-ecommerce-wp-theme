@@ -17,3 +17,7 @@
 **Learning:** `wm_product_archive_term_has_selected_descendant` is a recursive function called on every term node when rendering taxonomy filter trees. Without memoization, evaluating deep hierarchies or large lists of terms caused an O(N²) traversal that was shown to take ~2.5s for 5000 terms.
 
 **Action:** Added a static `$cache` inside the recursive function (similar to the existing `$last_terms` pattern) to memoize results based on `$term_id`, reducing traversal time by ~99% (down to ~0.03s for the same data).
+
+## 2023-11-09 - WP_Tax_Query EXISTS operator vs fetching all terms
+**Learning:** When using `WP_Tax_Query` to filter by a taxonomy where we want any term in that taxonomy, using `get_terms` to fetch all IDs and then passing them to an `IN` operator is a massive bottleneck. It creates an N+1 query issue to load the terms, memory overhead to hold them, and generates enormous, slow SQL queries with huge `IN (...)` clauses for large taxonomies.
+**Action:** When querying for the presence of *any* term in a taxonomy, use the `EXISTS` operator in `tax_query` (e.g. `'operator' => 'EXISTS'`). This compiles into an efficient `INNER JOIN` in MySQL, skipping the term-loading completely.
