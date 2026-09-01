@@ -524,7 +524,7 @@ function wm_render_mobile_nav() {
                     $attrs      = 'class="' . esc_attr( $item_class ) . '"';
                     ?>
                     <?php if ( 'sheet' === $item['type'] ) : ?>
-                        <button type="button" <?php echo $attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> data-mobile-sheet-target="<?php echo esc_attr( $item['key'] ); ?>" aria-expanded="false">
+                        <button type="button" <?php echo $attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> data-mobile-sheet-target="<?php echo esc_attr( $item['key'] ); ?>" aria-expanded="false" aria-controls="wm-mobile-sheet-<?php echo esc_attr( $item['key'] ); ?>">
                             <span class="wm-mobile-nav__icon"><?php echo wm_mobile_nav_icon( $item['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                             <?php if ( isset( $item['badge'] ) ) : ?>
                                 <span class="wm-mobile-nav__badge<?php echo absint( $item['badge'] ) > 0 ? '' : ' wm-mobile-nav__badge--hidden'; ?>"><?php echo esc_html( number_format_i18n( absint( $item['badge'] ) ) ); ?></span>

@@ -434,7 +434,7 @@ function wm_product_archive_render_term_tree( $terms, $key, $selected, $parent =
         return;
     }
     ?>
-    <ul class="wm-custom-filter__options<?php echo 0 < $depth ? ' wm-custom-filter__options--child' : ''; ?>">
+    <ul class="wm-custom-filter__options<?php echo 0 < $depth ? ' wm-custom-filter__options--child' : ''; ?>" <?php echo null !== $parent ? 'id="wm-filter-tree-' . esc_attr( $key . '-' . $parent ) . '"' : ''; ?>>
         <?php foreach ( $children as $term ) : ?>
             <?php
             $checked       = isset( $selected_map[ $term->slug ] );
@@ -451,7 +451,7 @@ function wm_product_archive_render_term_tree( $terms, $key, $selected, $parent =
                     <?php endif; ?>
                 </label>
                 <?php if ( $has_children && ! empty( $config['hierarchy_toggle'] ) ) : ?>
-                    <button class="wm-custom-filter__tree-toggle" type="button" aria-expanded="<?php echo esc_attr( $tree_open ? 'true' : 'false' ); ?>" aria-label="<?php echo esc_attr__( 'نمایش زیرمجموعه‌ها', 'eshobe-ecommerce' ); ?>"></button>
+                    <button class="wm-custom-filter__tree-toggle" type="button" aria-expanded="<?php echo esc_attr( $tree_open ? 'true' : 'false' ); ?>" aria-controls="wm-filter-tree-<?php echo esc_attr( $key . '-' . $term->term_id ); ?>" aria-label="<?php echo esc_attr__( 'نمایش زیرمجموعه‌ها', 'eshobe-ecommerce' ); ?>"></button>
                 <?php endif; ?>
                 <?php wm_product_archive_render_term_tree( $terms, $key, $selected, (int) $term->term_id, $depth + 1, $config ); ?>
             </li>
@@ -1750,7 +1750,7 @@ function wm_product_archive_render_sidebar() {
         return;
     }
     ?>
-    <aside class="wm-product-archive__sidebar" data-product-archive-sidebar>
+    <aside class="wm-product-archive__sidebar" id="wm-product-archive-sidebar" data-product-archive-sidebar>
         <div class="wm-product-archive__sidebar-panel">
             <div class="wm-product-archive__sidebar-header">
                 <strong><?php echo esc_html__( 'فیلترها', 'eshobe-ecommerce' ); ?></strong>
@@ -1828,7 +1828,7 @@ function wm_product_archive_render_toolbar() {
     ?>
     <?php if ( wm_product_archive_sidebar_enabled() ) : ?>
         <div class="wm-product-archive__mobile-actions">
-            <button class="wm-product-archive__filter-button" type="button" data-archive-filter-toggle aria-expanded="true">
+            <button class="wm-product-archive__filter-button" type="button" data-archive-filter-toggle aria-expanded="true" aria-controls="wm-product-archive-sidebar">
                 <span aria-hidden="true">☰</span>
                 <?php echo esc_html__( 'فیلترها', 'eshobe-ecommerce' ); ?>
             </button>
