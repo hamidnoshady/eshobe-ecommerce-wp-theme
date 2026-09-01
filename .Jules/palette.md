@@ -25,7 +25,3 @@
 ## 2026-11-20 - Expand/Collapse Accessibility with aria-controls
 **Learning:** Custom expand/collapse toggle buttons (like those used for product descriptions and specs on mobile) that use `aria-expanded` without a corresponding `aria-controls` attribute are less accessible for screen reader users, as the relationship to the content block being toggled is not explicitly defined.
 **Action:** When creating or modifying toggle buttons that show/hide content, always ensure the target content block has an `id` attribute, and the toggle buttons have a matching `aria-controls` attribute.
-
-## 2024-05-18 - Ensure aria-controls is Used for Toggles
-**Learning:** For accessibility, when creating or modifying toggle buttons (like accordion expand/collapse, mega menu toggles, or filter toggles) that use `aria-expanded`, it's critical to also include an `aria-controls` attribute that matches the `id` of the content block being toggled. Without this, screen readers might not effectively convey the relationship between the button and the toggled content.
-**Action:** When implementing or modifying interactive toggle elements, always verify that an `aria-controls` attribute is present on the button and perfectly points to the `id` of the target container.
