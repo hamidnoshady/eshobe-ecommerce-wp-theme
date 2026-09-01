@@ -43,11 +43,7 @@ function wm_ajax_search_products() {
 
 	$term = isset( $_GET['term'] ) ? sanitize_text_field( wp_unslash( $_GET['term'] ) ) : '';
 
-	// Rate limit first (cheap), then validate the term (min 2, max 60 chars).
-	if ( wm_search_is_throttled() ) {
-		wp_send_json_success( array( 'results' => array() ) );
-	}
-
+	// Validate the term first (min 2, max 60 chars).
 	if ( '' === $term || mb_strlen( $term ) < 2 || mb_strlen( $term ) > 60 || ! function_exists( 'wc_get_products' ) ) {
 		wp_send_json_success( array( 'results' => array() ) );
 	}
@@ -61,6 +57,11 @@ function wm_ajax_search_products() {
 	$cached    = get_transient( $cache_key );
 	if ( is_array( $cached ) ) {
 		wp_send_json_success( array( 'results' => $cached ) );
+	}
+
+	// Rate limit only on cache misses before we run expensive LIKE queries.
+	if ( wm_search_is_throttled() ) {
+		wp_send_json_success( array( 'results' => array() ) );
 	}
 
 	$products = wc_get_products(
