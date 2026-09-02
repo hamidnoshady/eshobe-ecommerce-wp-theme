@@ -168,6 +168,7 @@ function wm_mega_menu_nav_link_attributes( $atts, $item, $args, $depth ) {
     $atts['data-mega-key'] = (string) $mega_post_id;
     $atts['aria-haspopup'] = 'true';
     $atts['aria-expanded'] = 'false';
+    $atts['aria-controls'] = 'wm-mega-menu-' . $mega_post_id;
 
     return $atts;
 }
@@ -243,7 +244,7 @@ function wm_render_header_mega_menus() {
             $has_feature = ! empty( $menu['has_feature'] );
             wm_header_mega_debug_comment( 'key ' . $menu['mega_trigger_key'] . ' rendered' );
             ?>
-            <div class="wm-mega-menu__panel" data-mega-key="<?php echo esc_attr( $menu['mega_trigger_key'] ); ?>" aria-hidden="true">
+            <div class="wm-mega-menu__panel" id="wm-mega-menu-<?php echo esc_attr( $menu['mega_trigger_key'] ); ?>" data-mega-key="<?php echo esc_attr( $menu['mega_trigger_key'] ); ?>" aria-hidden="true">
                 <div class="wm-mega-menu__inner <?php echo $has_feature ? '' : 'wm-mega-menu__inner--no-feature'; ?>">
                     <div class="wm-mega-menu__main">
                         <?php if ( ! empty( $menu['mega_title'] ) || ! empty( $menu['mega_subtitle'] ) ) : ?>
