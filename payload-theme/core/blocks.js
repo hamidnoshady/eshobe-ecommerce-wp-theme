@@ -174,6 +174,7 @@ function renderProductGrid(block, site, locale, index) {
   const viewAll = block.viewAllUrl || '';
   return `<wm-product-grid
       host="${escapeAttr(site.host || '')}"
+      base="${escapeAttr(site.base || '')}"
       locale="${escapeAttr(locale)}"
       collection="${escapeAttr(block.collection || '')}"
       limit="${escapeAttr(block.limit || 10)}"

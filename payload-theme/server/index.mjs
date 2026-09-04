@@ -37,34 +37,59 @@ function svgPlaceholder(title, bg = '#F6F5F2', fg = '#111827') {
   return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
 }
 
+const SPECS_FIRST = [
+  { label: 'جنس', value: 'چرم طبیعی' },
+  { label: 'رنگ‌بندی', value: 'سرمه‌ای، مشکی' },
+  { label: 'نوع بسته‌بندی', value: 'جعبه اختصاصی' },
+  { label: 'کشور سازنده', value: 'ایران' },
+];
+const SPECS_SECOND = [
+  { label: 'جنس', value: 'پارچه ترکیبی' },
+  { label: 'نحوه شستشو', value: 'شستشوی دستی ملایم' },
+  { label: 'فصل', value: 'چهار فصل' },
+  { label: 'نوع', value: 'محصول اسپرت' },
+];
+
 const PRODUCTS = [
-  { title: 'کیف چرم دست‌دوز', price: 2450000, badge: 'تخفیف ویژه', brand: 'چرم برند' },
-  { title: 'کفش اسپرت روزمره', price: 1890000, badge: '', brand: 'اسپرت' },
-  { title: 'شومیز دخترانه', price: 980000, badge: '', brand: 'پوشاک' },
-  { title: 'عطر ادکلن مردانه', price: 3120000, badge: 'پیشنهاد شیک', brand: 'ادکلن' },
-  { title: 'دستبند نقره', price: 1450000, badge: '', brand: 'زیورآلات' },
-  { title: 'هودی زمستانی', price: 1200000, badge: '', brand: 'پوشاک' },
-  { title: 'ساعت مچی کلاسیک', price: 4280000, badge: 'کالای لوکس', brand: 'ساعت' },
-  { title: 'کوله‌پشتی شهری', price: 1580000, badge: '', brand: 'کیف و کوله' },
-  { title: 'بافت پشمی', price: 1100000, badge: '', brand: 'پوشاک' },
-  { title: 'عینک آفتابی', price: 800000, badge: '', brand: 'عینک' },
-  { title: 'پالتو چرمی', price: 5600000, badge: 'تخفیف ویژه', brand: 'چرم برند' },
-  { title: 'کفش راحتی', price: 720000, badge: '', brand: 'اسپرت' },
+  { title: 'کیف چرم دست‌دوز', price: 2450000, badge: 'تخفیف ویژه', brand: 'چرم برند', category: 'کیف و کوله', specs: SPECS_FIRST },
+  { title: 'کفش اسپرت روزمره', price: 1890000, badge: '', brand: 'اسپرت', category: 'کفش', specs: SPECS_SECOND },
+  { title: 'شومیز دخترانه', price: 980000, badge: '', brand: 'پوشاک', category: 'پوشاک', specs: SPECS_SECOND },
+  { title: 'عطر ادکلن مردانه', price: 3120000, badge: 'پیشنهاد شیک', brand: 'ادکلن', category: 'عطر و ادکلن', specs: SPECS_FIRST },
+  { title: 'دستبند نقره', price: 1450000, badge: '', brand: 'زیورآلات', category: 'زیورآلات', specs: SPECS_FIRST },
+  { title: 'هودی زمستانی', price: 1200000, badge: '', brand: 'پوشاک', category: 'پوشاک', specs: SPECS_SECOND },
+  { title: 'ساعت مچی کلاسیک', price: 4280000, badge: 'کالای لوکس', brand: 'ساعت', category: 'ساعت و اکسسوری', specs: SPECS_FIRST },
+  { title: 'کوله‌پشتی شهری', price: 1580000, badge: '', brand: 'کیف و کوله', category: 'کیف و کوله', specs: SPECS_SECOND },
+  { title: 'بافت پشمی', price: 1100000, badge: '', brand: 'پوشاک', category: 'پوشاک', specs: SPECS_SECOND },
+  { title: 'عینک آفتابی', price: 800000, badge: '', brand: 'عینک', category: 'ساعت و اکسسوری', specs: SPECS_FIRST },
+  { title: 'پالتو چرمی', price: 5600000, badge: 'تخفیف ویژه', brand: 'چرم برند', category: 'پوشاک', specs: SPECS_FIRST },
+  { title: 'کفش راحتی', price: 720000, badge: '', brand: 'اسپرت', category: 'کفش', specs: SPECS_SECOND },
 ].map((p, i) => {
   const slug = p.title.replace(/\s+/g, '-').replace(/[^\u0600-\u06FF\w-]/g, '');
   const first = i % 2 === 0 ? '#F6F5F2' : '#EFECE6';
+  const padded = String(i + 1).padStart(2, '0');
   return {
-    id: `prod-${String(i + 1).padStart(2, '0')}`,
+    id: `prod-${padded}`,
     title: p.title,
     slug,
     price: p.price,
     currency: 'IRR',
-    image: { src: svgPlaceholder(p.title, first), alt: p.title },
-    gallery: [{ src: svgPlaceholder(p.title, '#E9E4DB'), alt: p.title }],
+    sku: `ESH-${padded}`,
+    guarantee: '۱۸ ماه گارانتی',
+    category: p.category,
+    categoryUrl: `/shop?cat=${encodeURIComponent(p.category)}`,
     brand: p.brand,
+    brandUrl: `/brand/${encodeURIComponent(p.brand)}`,
+    image: { src: svgPlaceholder(p.title, first), alt: p.title },
+    gallery: [
+      { src: svgPlaceholder(p.title, '#E9E4DB'), alt: p.title },
+      { src: svgPlaceholder(p.title, '#EFECE6'), alt: p.title },
+    ],
     url: `/products/${slug}`,
     badge: p.badge,
     inStock: i !== 5,
+    publishedAt: `2026-0${(i % 9) + 1}-1${i % 9}`,
+    specs: p.specs,
+    description: `${p.title} از برند «${p.brand}» با کیفیت ساخت بالا و طراحی متناسب با سلیقه مخاطب. این محصول گزینه‌ای مطمئن برای خرید آنلاین با ضمانت اصالت کالا و ارسال سریع است.`,
   };
 });
 
@@ -233,9 +258,20 @@ const MIME = {
   '.jpg': 'image/jpeg',
 };
 
+// Permissive CORS so a real Payload deployment reached via `api-base` from
+// another origin can be used during development. Tighten to your origin(s)
+// in production.
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Accept, Host',
+  'Access-Control-Max-Age': '86400',
+};
+
 function sendJson(res, code, body) {
   const buf = Buffer.from(JSON.stringify(body));
   res.writeHead(code, {
+    ...CORS,
     'Content-Type': 'application/json; charset=utf-8',
     'Content-Length': buf.length,
     'Cache-Control': 'no-store',
@@ -246,6 +282,7 @@ function sendJson(res, code, body) {
 function sendHtml(res, code, body) {
   const buf = Buffer.from(body);
   res.writeHead(code, {
+    ...CORS,
     'Content-Type': 'text/html; charset=utf-8',
     'Content-Length': buf.length,
   });
@@ -280,6 +317,15 @@ function handleProducts(req, res, url) {
   sendJson(res, 200, { products, total: PRODUCTS.length, locale, collection });
 }
 
+function handleProductDetail(req, res, key) {
+  const decoded = decodeURIComponent(key);
+  const product = PRODUCTS.find((p) => p.id === decoded || p.slug === decoded);
+  if (!product) {
+    return sendJson(res, 404, { error: 'not_found', message: 'محصول یافت نشد.' });
+  }
+  sendJson(res, 200, { product });
+}
+
 function handleCheckout(req, res, body) {
   let parsed;
   try {
@@ -302,7 +348,7 @@ function handleCheckout(req, res, body) {
 
   const redirectUrl = `/checkout/success?order=${encodeURIComponent(parsed.product)}&qty=${encodeURIComponent(parsed.quantity || 1)}`;
   // 302 redirect (fetch follows it; the client reads res.url and navigates).
-  res.writeHead(302, { Location: redirectUrl, 'Content-Type': 'text/plain; charset=utf-8' });
+  res.writeHead(302, { ...CORS, Location: redirectUrl, 'Content-Type': 'text/plain; charset=utf-8' });
   res.end('Redirecting to ' + redirectUrl);
 }
 
@@ -347,7 +393,7 @@ async function serveStatic(req, res, url) {
 }
 
 function sendRaw(res, code, buf, type) {
-  res.writeHead(code, { 'Content-Type': type || 'application/octet-stream', 'Content-Length': buf.length });
+  res.writeHead(code, { ...CORS, 'Content-Type': type || 'application/octet-stream', 'Content-Length': buf.length });
   res.end(buf);
 }
 
@@ -374,11 +420,20 @@ function requestBody(req) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'acme.ir'}`);
   try {
+    // Preflight for cross-origin api-base usage.
+    if (req.method === 'OPTIONS' && url.pathname.startsWith('/api/')) {
+      res.writeHead(204, CORS);
+      return res.end();
+    }
     if (url.pathname === '/api/site' && req.method === 'GET') {
       return handleSite(req, res);
     }
     if (url.pathname === '/api/products' && req.method === 'GET') {
       return handleProducts(req, res, url);
+    }
+    const detailMatch = url.pathname.match(/^\/api\/products\/([^/]+)$/);
+    if (detailMatch && req.method === 'GET') {
+      return handleProductDetail(req, res, detailMatch[1]);
     }
     if (url.pathname === '/api/checkout' && req.method === 'POST') {
       const body = await requestBody(req);

@@ -11,7 +11,7 @@
 import { api, escapeHtml, escapeAttr } from '../core/theme.js';
 
 class WmProductGrid extends HTMLElement {
-  static observedAttributes = ['host', 'locale', 'collection', 'limit', 'title', 'subtitle', 'url', 'class'];
+  static observedAttributes = ['host', 'base', 'locale', 'collection', 'limit', 'title', 'subtitle', 'url', 'class'];
 
   connectedCallback() {
     this._load();
@@ -29,6 +29,7 @@ class WmProductGrid extends HTMLElement {
   async _load() {
     this._renderShell(null, true);
     const host = this.getAttribute('host') || '';
+    const base = this.getAttribute('base') || '';
     const locale = this.getAttribute('locale') || 'fa';
     const collection = this.getAttribute('collection') || '';
     const limit = Number(this.getAttribute('limit') || 10) || 10;
@@ -39,7 +40,7 @@ class WmProductGrid extends HTMLElement {
     const qs = params.toString();
 
     try {
-      const res = await api(`/api/products?${qs}`, { host });
+      const res = await api(`/api/products?${qs}`, { host, base });
       if (!res.ok) throw new Error(`GET /api/products failed (${res.status})`);
       const data = await res.json();
       const products = (data && data.products) || [];
@@ -53,6 +54,7 @@ class WmProductGrid extends HTMLElement {
 
   _renderShell(products, loading) {
     const host = this.getAttribute('host') || '';
+    const base = this.getAttribute('base') || '';
     const title = this.getAttribute('title') || '';
     const subtitle = this.getAttribute('subtitle') || '';
     const url = this.getAttribute('url') || '';
@@ -71,6 +73,7 @@ class WmProductGrid extends HTMLElement {
         .map((p) => {
           const el = document.createElement('wm-product-card');
           el.setAttribute('host', host);
+          el.setAttribute('base', base);
           el.setAttribute('locale', locale);
           el.setAttribute('currency', p.currency || '');
           // The product is passed as a serialized attribute so the card can

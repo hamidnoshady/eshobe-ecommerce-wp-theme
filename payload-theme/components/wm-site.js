@@ -5,22 +5,30 @@
  *   1. GET /api/site (Host: <host>)        -> site {availableLocales, blocks, store, theme}
  *   2. document.dir = dirFor(locale); doc.lang = locale
  *   3. inject <style> from themeCss(site.theme)
- *   4. render <wm-header> topbar/nav + <main> blocks + <wm-footer>
+ *   4. render header (topbar/nav + locale switcher) + <main> blocks + footer
  *   5. mount a <wm-buy-form> and listen for `wm:open-buy` from product cards
  *
- * Attributes: host, locale. All other data come from the API.
+ * Deployment attributes:
+ *   host     -> value sent as the Host header
+ *   base     -> api-base; a real Payload deployment on another origin
+ *   locale   -> the initial locale (falls back to availableLocales[0] / defaultLocale)
+ *
+ * Locale switcher toggles between site.availableLocales; on change the site is
+ * re-fetched, dir/lang re-applied and the page re-rendered. Client routing on
+ * `#/products/:key` shows the reusable <wm-product-detail>; `#/` shows home.
  */
 
-import { getSite, themeCss, dirFor, escapeHtml, escapeAttr, formatDate } from '../core/theme.js';
+import { getSite, getProduct, themeCss, dirFor, escapeHtml, escapeAttr } from '../core/theme.js';
 import { renderBlocks } from '../core/blocks.js';
 
 class WmSite extends HTMLElement {
-  static observedAttributes = ['host', 'locale'];
+  static observedAttributes = ['host', 'base', 'locale'];
 
   constructor() {
     super();
     this._site = null;
     this._inited = false;
+    this._currentKey = '';
   }
 
   connectedCallback() {
@@ -31,26 +39,26 @@ class WmSite extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldV, newV) {
-    if (name === 'locale' && this._site && this.isConnected && oldV !== undefined && oldV !== newV) {
-      this._applyLocale(newV);
+    if (!this._site) return;
+    if (name === 'locale' && oldV !== undefined && oldV !== newV) {
+      this._reboot();
     }
   }
 
   get _host() {
     return this.getAttribute('host') || '';
   }
-
+  get _base() {
+    return this.getAttribute('base') || '';
+  }
   get _locale() {
     return this.getAttribute('locale') || '';
   }
 
   async _boot() {
-    const host = this._host;
-    // Render an empty shell immediately so the page has its RTL direction and
-    // header area before the first paint of async data.
     this.renderShell();
     try {
-      const site = await getSite({ host, locale: this._locale });
+      const site = await getSite({ host: this._host, base: this._base, locale: this._locale });
       this._site = site;
       this._applyLocale(site.locale);
       this._injectTheme(site.theme);
@@ -58,9 +66,24 @@ class WmSite extends HTMLElement {
     } catch (err) {
       this.dataset.error = String(err && err.message || 'boot failed');
       const main = this.querySelector('[data-main]');
-      if (main) {
-        main.innerHTML = `<p class="wm-site__error">خطا در بارگذاری اطلاعات فروشگاه. لطفاً دوباره تلاش کنید.</p>`;
-      }
+      if (main) main.innerHTML = `<p class="wm-site__error">خطا در بارگذاری اطلاعات فروشگاه. لطفاً دوباره تلاش کنید.</p>`;
+    }
+  }
+
+  async _reboot() {
+    // keep shell, clear error, re-boot with the new locale
+    const main = this.querySelector('[data-main]');
+    if (main) main.innerHTML = `<p class="wm-site__loading">در حال بارگذاری…</p>`;
+    this._site = null;
+    this._currentKey = '';
+    try {
+      const site = await getSite({ host: this._host, base: this._base, locale: this._locale });
+      this._site = site;
+      this._applyLocale(site.locale);
+      this._injectTheme(site.theme);
+      this.render(site);
+    } catch (err) {
+      if (main) main.innerHTML = `<p class="wm-site__error">خطا در بارگذاری اطلاعات فروشگاه. لطفاً دوباره تلاش کنید.</p>`;
     }
   }
 
@@ -91,7 +114,7 @@ class WmSite extends HTMLElement {
   render(site) {
     const store = site.store || {};
     const locale = site.locale;
-    const header = buildHeader(store);
+    const header = buildHeader(store, { availableLocales: site.availableLocales, locale });
     const footer = buildFooter(store, locale);
     const main = renderBlocks({ site, locale, host: site.host });
 
@@ -99,7 +122,7 @@ class WmSite extends HTMLElement {
       ${header}
       <main id="primary" class="site-main wm-home" data-main>${main}</main>
       ${footer}
-      <wm-buy-form host="${escapeAttr(site.host)}" locale="${escapeAttr(locale)}" currency="${escapeAttr(store.currency || '')}"></wm-buy-form>
+      <wm-buy-form host="${escapeAttr(site.host)}" base="${escapeAttr(site.base || '')}" locale="${escapeAttr(locale)}" currency="${escapeAttr(store.currency || '')}"></wm-buy-form>
     `;
 
     this._afterRender();
@@ -114,8 +137,89 @@ class WmSite extends HTMLElement {
       }
     });
 
+    // Locale switcher
+    const localeBtns = this.querySelectorAll('[data-locale]');
+    localeBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const code = btn.getAttribute('data-locale');
+        if (code && code !== this.getAttribute('locale')) {
+          this.setAttribute('locale', code);
+        }
+      });
+    });
+
+    // Internal link interception (client routing)
+    this.addEventListener('click', (e) => this._onLinkClick(e));
+
+    // Hash routing for the product detail view
+    this._onHashChange = () => this._route();
+    window.addEventListener('hashchange', this._onHashChange);
+    this._route({ fromInit: true });
+
     this._initHero();
     this._initBackToTop();
+  }
+
+  _onLinkClick(e) {
+    const link = e.target.closest && e.target.closest('a[href]');
+    if (!link) return;
+    const href = link.getAttribute('href') || '';
+    if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+    // Hash routing
+    const productMatch = href.match(/^\/products\/([^/?#]+)/);
+    if (productMatch) {
+      e.preventDefault();
+      window.location.hash = '#/products/' + productMatch[1];
+      return;
+    }
+    if (href === '/' || href === '#/') {
+      e.preventDefault();
+      window.location.hash = '#/';
+      return;
+    }
+    if (href.startsWith('#/')) {
+      e.preventDefault();
+      window.location.hash = href; // force re-route
+      return;
+    }
+    // Other internal links are not real SPA pages in this demo — no-op.
+    if (href.startsWith('/')) e.preventDefault();
+  }
+
+  async _route(opts = {}) {
+    const main = this.querySelector('[data-main]');
+    if (!main || !this._site) return;
+    const hash = window.location.hash || '#/';
+    const productMatch = hash.match(/^#\/products\/([^/?#]+)/);
+
+    if (productMatch && productMatch[1] !== this._currentKey) {
+      this._currentKey = productMatch[1];
+      main.classList.add('wm-single-product');
+      main.innerHTML = `<p class="wm-site__loading">در حال بارگذاری…</p>`;
+      try {
+        const product = await getProduct(productMatch[1], { host: this._host, base: this._base, locale: this._site.locale });
+        const el = document.createElement('wm-product-detail');
+        el.setAttribute('host', this._host);
+        el.setAttribute('base', this._base);
+        el.setAttribute('locale', this._site.locale);
+        el.setAttribute('currency', (this._site.store && this._site.store.currency) || '');
+        el.product = product;
+        main.replaceChildren(el);
+      } catch (err) {
+        main.innerHTML = `<p class="wm-site__error">محصول یافت نشد.</p>`;
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (!productMatch && this._currentKey) {
+      // back to home
+      this._currentKey = '';
+      main.classList.remove('wm-single-product');
+      main.innerHTML = renderBlocks({ site: this._site, locale: this._site.locale, host: this._site.host });
+      this._initHero();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   _initHero() {
@@ -145,9 +249,7 @@ class WmSite extends HTMLElement {
 
     let timer = null;
     const start = () => {
-      if (interval > 0 && total > 1) {
-        timer = setInterval(() => go(index + 1), interval);
-      }
+      if (interval > 0 && total > 1) timer = setInterval(() => go(index + 1), interval);
     };
     const stop = () => { if (timer) clearInterval(timer); timer = null; };
 
@@ -162,9 +264,7 @@ class WmSite extends HTMLElement {
     const btn = this.querySelector('[data-wm-back-to-top]');
     if (!btn) return;
     btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-    const onScroll = () => {
-      btn.classList.toggle('is-visible', (window.scrollY || 0) > 400);
-    };
+    const onScroll = () => btn.classList.toggle('is-visible', (window.scrollY || 0) > 400);
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
   }
@@ -173,7 +273,7 @@ class WmSite extends HTMLElement {
 /* ------------------------------------------------------------------ *
  * Header
  * ------------------------------------------------------------------ */
-function buildHeader(store) {
+function buildHeader(store, roles) {
   const name = store.name || 'فروشگاه آنلاین';
   const logo = store.logo && store.logo.src ? store.logo.src : '';
   const logoAlt = (store.logo && store.logo.alt) || name;
@@ -186,7 +286,6 @@ function buildHeader(store) {
     .filter(Boolean)
     .map((t) => `<span class="wm-header-topbar__item">${escapeHtml(t)}</span>`)
     .join('');
-
   const topbarHtml = topbar
     ? `<div class="wm-header-topbar"><div class="wm-header-topbar__inner">${topbar}</div></div>`
     : '';
@@ -197,11 +296,20 @@ function buildHeader(store) {
     { label: 'تماس با ما', href: '/contact-us' },
   ]).map((n) => `<li><a href="${escapeAttr(n.href)}">${escapeHtml(n.label)}</a></li>`).join('');
 
+  // Locale switcher — one button per available locale.
+  const locales = (roles && roles.availableLocales) || ['fa'];
+  const current = (roles && roles.locale) || locales[0] || 'fa';
+  const localeSwitcher = locales.length > 1
+    ? `<div class="wm-locale-switcher" role="group" aria-label="زبان">${locales
+        .map((l) => `<button type="button" class="wm-locale-switcher__btn${l === current ? ' is-active' : ''}" data-locale="${escapeAttr(l)}" aria-pressed="${l === current ? 'true' : 'false'}">${escapeHtml(localeLabel(l))}</button>`)
+        .join('')}</div>`
+    : '';
+
   return `
     <header id="masthead" class="wm-site-header is-sticky">
       ${topbarHtml}
       <div class="wm-site-header__inner">
-        <a class="wm-site-header__brand${logo ? ' wm-site-header__brand--has-logo' : ''}" href="/" rel="home">
+        <a class="wm-site-header__brand${logo ? ' wm-site-header__brand--has-logo' : ''}" href="#/" rel="home">
           ${brands}
           <span class="wm-site-header__site-name screen-reader-text">${escapeHtml(name)}</span>
           ${siteName}
@@ -215,6 +323,7 @@ function buildHeader(store) {
           <ul class="wm-site-header__menu">${navItems}</ul>
         </nav>
         <div class="wm-site-header__actions">
+          ${localeSwitcher}
           <button class="wm-site-header__action wm-site-header__search-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="جستجو">
             <span class="wm-site-header__action-icon" aria-hidden="true">${icon('search')}</span>
             <span class="wm-site-header__action-text">جستجو</span>
@@ -234,6 +343,11 @@ function buildHeader(store) {
   `;
 }
 
+function localeLabel(code) {
+  const map = { fa: 'فارسی', en: 'EN' };
+  return map[String(code).toLowerCase()] || String(code).toUpperCase();
+}
+
 /* ------------------------------------------------------------------ *
  * Footer
  * ------------------------------------------------------------------ */
@@ -243,10 +357,10 @@ function buildFooter(store, locale) {
   const title = footer.title || name;
   const description = footer.description || 'انتخابی مطمئن برای خرید آنلاین با ضمانت اصالت کالا و ارسال سریع.';
   const links = (footer.links || [
-    { label: 'درباره ما', href: '/about-us' },
-    { label: 'تماس با ما', href: '/contact-us' },
-    { label: 'راهنمای خرید', href: '/buying-guide' },
-    { label: 'پیگیری سفارش', href: '/order-tracking' },
+    { label: 'درباره ما', href: '/' },
+    { label: 'تماس با ما', href: '/' },
+    { label: 'راهنمای خرید', href: '/' },
+    { label: 'پیگیری سفارش', href: '/' },
   ]).map((l) => `<li><a href="${escapeAttr(l.href)}">${escapeHtml(l.label)}</a></li>`).join('');
 
   const guarantee = footer.guarantee || 'ضمانت بازگشت کالا تا ۷ روز پس از تحویل سفارش';

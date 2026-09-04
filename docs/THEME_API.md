@@ -46,6 +46,30 @@ already expressed in `site.store.currency`. If the backend stores prices in
 minor units, the theme treats the value it returns from `/api/products` as the
 value to format — it does not guess.
 
+### 1.4 Cross-origin deployment (`api-base`)
+
+`Host` is a forbidden header in browsers, so when the storefront is served on a
+different origin from the Payload backend you tell the theme the API origin with
+the `api-base` attribute on `<wm-site>`:
+
+```html
+<wm-site host="acme.ir" base="https://cms.example.com"></wm-site>
+```
+
+The theme then resolves every request (`/api/site`, `/api/products`,
+`/api/products/:key`, `/api/checkout`) against that base and adds standard CORS
+preflight handling. The `host` value is still passed to `core/theme.js` `api()`
+and is sent as the `Host` header when running server-side/SSR (Node), where it
+is not a forbidden header.
+
+### 1.5 Locale switching
+
+`availableLocales` drives a header switcher. Changing locale re-fetches
+`/api/site` with the new `locale`, re-applies `dirFor(locale)` (toggling
+`dir`/`lang` on `<html>`), re-injects `themeCss(site.theme)`, and re-renders the
+home page. A Payload deployment should return localized strings for each
+locale in `availableLocales`.
+
 ---
 
 ## 2. `GET /api/site`
@@ -203,20 +227,49 @@ Optional query-string filters the theme may send (they are safe to ignore):
 
 ### 3.2 Product fields
 
-| Field     | Type       | Notes                                                |
-| --------- | ---------- | ---------------------------------------------------- |
-| `id`      | `uuid`     | used as `product` in `/api/checkout`                 |
-| `title`   | `string`   | product name                                         |
-| `price`   | `number`   | numeric amount in `site.store.currency`              |
-| `currency`| `string`   | ignored for formatting; `site.store.currency` is used |
-| `image`   | `{src,alt}`| primary image                                        |
-| `gallery` | `[]`       | hover image is `gallery[0]` when present              |
-| `url`     | `string`   | product landing URL                                  |
-| `badge`   | `string`   | optional ribbon text                                 |
-| `inStock` | `boolean`  | controls the buy CTA state                            |
+| Field         | Type       | Notes                                                |
+| ------------- | ---------- | ---------------------------------------------------- |
+| `id`          | `uuid`     | used as `product` in `/api/checkout`                 |
+| `title`       | `string`   | product name                                         |
+| `price`       | `number`   | numeric amount in `site.store.currency`              |
+| `currency`    | `string`   | ignored for formatting; `site.store.currency` is used |
+| `image`       | `{src,alt}`| primary image                                        |
+| `gallery`     | `[]`       | `gallery[0]` = hover image; used by the detail view  |
+| `url`         | `string`   | product landing URL                                  |
+| `badge`       | `string`   | optional ribbon text                                 |
+| `inStock`     | `boolean`  | controls the buy CTA state                            |
+| `description` | `string`   | short description (detail view)                       |
+| `specs`       | `[]`       | `{label, value}[]` (detail view)                      |
+| `sku`         | `string`   | optional (detail view meta)                           |
+| `guarantee`   | `string`   | optional (detail view meta)                           |
+| `category`    | `string`   | optional (detail view meta)                           |
+| `categoryUrl` | `string`   | optional (detail view meta link)                      |
+| `brand`       | `string`   | brand name (card + detail)                            |
+| `brandUrl`    | `string`   | optional (detail view meta link)                      |
+| `publishedAt` | `string`   | ISO date (formatted via `formatDate` in the detail view) |
 
 The theme renders each product with `<wm-product-card>`. The card's buy button
 opens the `<wm-buy-form>` (see §6) which POSTs to `/api/checkout`.
+
+### 3.3 `GET /api/products/:key`
+
+The product-detail view (`#/products/:key`) fetches a **single** product with
+the fuller field set above (description, specs, sku, guarantee, gallery,
+publishedAt). `:key` may be the product `id` (uuid) **or** its `slug`.
+
+```
+GET /api/products/9f8c1e2a-3b4d-4c5e-8f6a-7b8c9d0e1f2a
+GET /api/products/leather-handbag
+Host: acme.ir
+```
+
+Response:
+
+```json
+{ "product": { "id": "…", "title": "…", "price": 2450000, "specs": […], "description": "…" } }
+```
+
+Returns `404 {"error":"not_found"}` when no product matches.
 
 ---
 
@@ -395,3 +448,21 @@ The theme surfaces `message` (or a localized fallback) inline.
 - `.woocommerce-Price-amount` base styling is intentionally kept (see
   `theme.css`) so any reused markup keeps left-to-right numeric prices inside
   an RTL document.
+
+---
+
+## 8. Client routing
+
+The storefront is a single page. `<wm-site>` routes on the URL hash:
+
+| Hash                    | View                                            |
+| ----------------------- | ----------------------------------------------- |
+| `#/`                    | home — renders `site.blocks` in order           |
+| `#/products/:key`       | product detail — `GET /api/products/:key`       |
+
+Internal product links are intercepted and converted to `#/products/:key`.
+The product detail is rendered by the reusable `<wm-product-detail>` element
+(which mirrors the Eshobe `single-product` markup: `<wm-product-layout>`,
+`<wm-product-gallery>`, `<wm-product-intro>`, `<wm-product-specs>`,
+`<wm-product-purchase>`). Its buy button emits `wm:open-buy`, which the host
+answers with a `<wm-buy-form>`.

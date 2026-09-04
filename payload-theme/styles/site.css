@@ -1,0 +1,65 @@
+/* Theme-level helpers that are specific to the Payload storefront (not part of
+   the copied Eshobe design system): locale switcher, async loading/error text,
+   and the product-detail main wrapper. All visual values use design tokens. */
+
+.wm-locale-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid var(--wm-color-border, #E5E0D8);
+  border-radius: var(--wm-radius-xs, 8px);
+  background: var(--wm-color-soft, #F9F8F5);
+  padding: 2px;
+}
+.wm-locale-switcher__btn {
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--wm-color-muted, #6B7280);
+  cursor: pointer;
+  font-family: var(--wm-font-primary);
+  font-size: 12px;
+  font-weight: 700;
+  transition: var(--wm-transition);
+}
+.wm-locale-switcher__btn:hover { color: var(--wm-color-primary, #111827); }
+.wm-locale-switcher__btn.is-active {
+  background: var(--wm-color-surface, #fff);
+  color: var(--wm-color-primary, #111827);
+  box-shadow: var(--wm-shadow-sm, 0 8px 24px rgba(17,24,39,.06));
+}
+
+.wm-site__loading,
+.wm-site__error {
+  margin: var(--wm-space-10) auto;
+  padding: var(--wm-space-6);
+  text-align: center;
+  color: var(--wm-color-muted, #6B7280);
+  font-size: var(--wm-font-size-h3, 20px);
+}
+.wm-site__error {
+  color: var(--wm-color-danger-text, #B42318);
+  background: var(--wm-color-danger-bg, #FEF3F2);
+  border: 1px solid color-mix(in srgb, var(--wm-color-danger-text, #B42318) 30%, transparent);
+  border-radius: var(--wm-radius-md, 18px);
+  max-width: 680px;
+}
+
+/* The detail view swaps the home main for a single-product main. */
+main.wm-single-product.wm-home {
+  padding-block: var(--wm-space-6);
+}
+main.wm-single-product .wm-product-layout {
+  align-items: flex-start;
+}
+
+/* Header actions can grow: allow the action cluster to wrap on narrow widths. */
+.wm-site-header__actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+@media (max-width: 767px) {
+  .wm-locale-switcher { display: none; }
+}

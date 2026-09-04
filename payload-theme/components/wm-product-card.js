@@ -14,7 +14,7 @@
 import { escapeHtml, escapeAttr, formatPrice } from '../core/theme.js';
 
 class WmProductCard extends HTMLElement {
-  static observedAttributes = ['host', 'locale', 'currency'];
+  static observedAttributes = ['host', 'base', 'locale', 'currency'];
 
   constructor() {
     super();
@@ -52,6 +52,7 @@ class WmProductCard extends HTMLElement {
   get _ctx() {
     return {
       host: this.getAttribute('host') || '',
+      base: this.getAttribute('base') || '',
       locale: this.getAttribute('locale') || 'fa',
       currency: this.getAttribute('currency') || '',
     };

@@ -46,17 +46,19 @@ deployment that follows `docs/THEME_API.md`.
 ### Pointing at a real backend
 
 The `host` attribute on `<wm-site>` is the value sent as the `Host` header
-(and is what the backend uses to pick the site):
+(and is what the backend uses to pick the site).
+
+`Host` is a **forbidden header in browsers**, so when the storefront lives on a
+different origin from the Payload backend, give the theme the API origin via
+`base` (the `api-base` attribute). The theme then resolves every `/api/…` call
+against it and handles CORS preflight.
 
 ```html
-<wm-site host="acme.ir"></wm-site>
+<wm-site host="acme.ir" base="https://cms.example.com"></wm-site>
 ```
 
-For a real Payload deployment served on a different origin, change the fetch
-base in one place — `core/theme.js` `api()` — or add an `api-base` attribute to
-`<wm-site>` (see `core/theme.js`). The `Host` header is a forbidden header in
-browsers, so in the browser it is ignored and your frontend proxy routes by
-host/origin instead; Node/SSR consumers send it directly.
+Node/SSR consumers send the `Host` header directly; browsers send the host of
+the `base`/page origin.
 
 ---
 
@@ -69,9 +71,10 @@ payload-theme/
 │   ├── theme.js               # getSite, api, formatPrice, formatDate, dirFor, themeCss
 │   └── blocks.js              # block registry + renderers (hero, productGrid, brandGrid, …)
 ├── components/                # reusable, framework-free custom elements
-│   ├── wm-site.js             # orchestrator: site -> themeCss -> dir -> header/main/footer
+│   ├── wm-site.js             # orchestrator: site -> themeCss -> dir -> header/main/footer + routing
 │   ├── wm-product-card.js     # single product card (emits wm:open-buy / wm:quick-view)
 │   ├── wm-product-grid.js     # carousel that fetches GET /api/products
+│   ├── wm-product-detail.js   # single-product view (#/products/:key)
 │   └── wm-buy-form.js         # checkout modal with company honeypot
 ├── styles/                    # copied verbatim from the Eshobe WP theme
 │   ├── tokens.css theme.css fonts.css pages-home.css
@@ -100,9 +103,10 @@ Each custom element is usable standalone in any theme:
 | Component            | Reusable API                                                                      |
 | -------------------- | --------------------------------------------------------------------------------- |
 | `<wm-product-card>`  | `.product = {id,title,price,currency,image,gallery,url,badge,inStock}`            |
-| `<wm-product-grid>`  | attributes `host,locale,collection,limit,title,subtitle,url,class`                 |
+| `<wm-product-grid>`  | attributes `host,locale,collection,limit,title,subtitle,url,class` (plus `base`)   |
+| `<wm-product-detail>`| `.product = {...}`, `host`, `base`, `locale`, `currency`; emits `wm:open-buy`      |
 | `<wm-buy-form>`      | `.product = {...}`, `.open()`, `.close()`, POSTs to `/api/checkout` + honeypot     |
-| `<wm-site>`          | `host`, `locale` — boots the whole storefront                                      |
+| `<wm-site>`          | `host`, `base`, `locale` — boots storefront + locale switcher + client routing     |
 
 Example — drop a product carousel into any page, no `<wm-site>` required:
 
@@ -133,11 +137,17 @@ touches WordPress, WooCommerce, or ACF at runtime.
 
 - `GET /api/site` — `availableLocales`, `defaultLocale`, `store`, `theme`, `blocks`.
 - `GET /api/products` — `{ products: [...] }`; a `productGrid` block issues this.
+- `GET /api/products/:key` — single product (`id` or `slug`) for the detail view.
 - `POST /api/checkout` — JSON body `{product, quantity, name, phone, company}`;
   `company` is the honeypot (empty = human, non-empty = bot → `400`); success is
   a `302` to the order confirmation page (`redirectUrl`).
 - Prices: `formatPrice(product.price, site.store.currency, locale)` — formatting
   only, **never** a currency conversion.
+
+The storefront is a single page with hash routing:
+`#/` = home (`site.blocks`), `#/products/:key` = product detail. The header has
+a **locale switcher** (from `availableLocales`) that re-fetches the site,
+re-applies `dirFor(locale)` and `themeCss(site.theme)`.
 
 ---
 

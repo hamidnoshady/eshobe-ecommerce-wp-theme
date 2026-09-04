@@ -197,12 +197,25 @@ export function themeCss(theme, opts = {}) {
 }
 
 /**
+ * Resolve a relative API path against an optional base origin.
+ * A path is left untouched if it is already absolute. This is what lets the
+ * theme reach a real Payload deployment on a different origin via `api-base`.
+ */
+export function resolveApiUrl(path, base) {
+  if (/^https?:\/\//i.test(String(path))) return path;
+  if (!base) return path;
+  const b = String(base).replace(/\/+$/, '');
+  return `${b}/${String(path).replace(/^\/+/, '')}`;
+}
+
+/**
  * Minimal fetch wrapper that always sets the API Accept header and, when
  * `host` is given, attempts to send the Host header (browsers ignore it —
  * that is fine, the mock/Node server uses it; same-origin browsers already
- * send the correct Host).
+ * send the correct Host). When `base` is given, path is resolved against it
+ * (used for cross-origin Payload deployments via `api-base`).
  */
-export async function api(path, { host, method = 'GET', body, headers = {}, credentials } = {}) {
+export async function api(path, { host, base = '', method = 'GET', body, headers = {}, credentials } = {}) {
   const h = { Accept: 'application/json', ...headers };
   if (host) h.Host = host;
   const opts = { method, headers: h };
@@ -211,7 +224,7 @@ export async function api(path, { host, method = 'GET', body, headers = {}, cred
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(body);
   }
-  return fetch(path, opts);
+  return fetch(resolveApiUrl(path, base), opts);
 }
 
 /** Normalize a /api/site payload into a flat, typed site object. */
@@ -229,14 +242,30 @@ export function normalizeSite(data, ctx = {}) {
   };
 }
 
-/** GET /api/site with Host: <host>. */
-export async function getSite({ host, locale } = {}) {
-  const res = await api('/api/site', { host });
+/** GET /api/site with Host: <host>, resolved against an optional api-base. */
+export async function getSite({ host, base = '', locale } = {}) {
+  const res = await api('/api/site', { host, base });
   if (!res.ok) {
     throw new Error(`GET /api/site failed (${res.status})`);
   }
   const data = await res.json();
-  return normalizeSite(data, { host, locale });
+  const site = normalizeSite(data, { host, locale });
+  site.base = base;
+  return site;
+}
+
+/**
+ * Fetch a single product for the product-detail view.
+ * Accepts a UUID `id` or `slug`; the mock/real server serves `GET /api/products/:key`.
+ */
+export async function getProduct(key, { host, base = '', locale } = {}) {
+  const k = String(key || '').replace(/^\/+/, '');
+  const res = await api(`/api/products/${encodeURIComponent(k)}`, { host, base });
+  if (!res.ok) {
+    throw new Error(`GET /api/products/${k} failed (${res.status})`);
+  }
+  const data = await res.json();
+  return data && (data.product || data);
 }
 
 /** Escape a string for safe interpolation into HTML. */

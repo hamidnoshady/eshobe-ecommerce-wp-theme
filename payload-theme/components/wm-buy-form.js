@@ -14,7 +14,7 @@
 import { api, escapeHtml, escapeAttr, formatPrice } from '../core/theme.js';
 
 class WmBuyForm extends HTMLElement {
-  static observedAttributes = ['host', 'locale', 'currency'];
+  static observedAttributes = ['host', 'base', 'locale', 'currency'];
 
   constructor() {
     super();
@@ -60,6 +60,7 @@ class WmBuyForm extends HTMLElement {
   get _ctx() {
     return {
       host: this.getAttribute('host') || '',
+      base: this.getAttribute('base') || '',
       locale: this.getAttribute('locale') || 'fa',
       currency: this.getAttribute('currency') || '',
     };
@@ -172,6 +173,7 @@ class WmBuyForm extends HTMLElement {
     try {
       const res = await api('/api/checkout', {
         host: ctx.host,
+        base: ctx.base,
         method: 'POST',
         body: payload,
         headers: { Accept: 'application/json' },
