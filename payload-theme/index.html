@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>فروشگاه آنلاین — Eshobe (Payload)</title>
+  <meta name="description" content="انتخابی مطمئن برای خرید آنلاین با ضمانت اصالت کالا.">
+
+  <!-- Design system — copied verbatim from the Eshobe WP theme so the storefront
+       is pixel-identical. themeCss(site.theme) overrides :root tokens afterwards. -->
+  <link rel="stylesheet" href="./styles/fonts.css">
+  <link rel="stylesheet" href="./styles/tokens.css">
+  <link rel="stylesheet" href="./styles/theme.css">
+  <link rel="stylesheet" href="./styles/components/header.css">
+  <link rel="stylesheet" href="./styles/components/footer.css">
+  <link rel="stylesheet" href="./styles/components/decorative-motifs.css">
+  <link rel="stylesheet" href="./styles/components/product-components.css">
+  <link rel="stylesheet" href="./styles/components/checkout.css">
+  <link rel="stylesheet" href="./styles/components/quick-view.css">
+  <link rel="stylesheet" href="./styles/components/search-modal.css">
+  <link rel="stylesheet" href="./styles/components/mini-cart.css">
+  <link rel="stylesheet" href="./styles/components/notifications.css">
+  <link rel="stylesheet" href="./styles/pages-home.css">
+  <link rel="stylesheet" href="./styles/components/buy-form.css">
+  <link rel="stylesheet" href="./styles/site.css">
+
+  <!-- Reusable components: each is a framework-free custom element. -->
+  <script type="module" src="./components/wm-product-card.js"></script>
+  <script type="module" src="./components/wm-product-grid.js"></script>
+  <script type="module" src="./components/wm-product-detail.js"></script>
+  <script type="module" src="./components/wm-search.js"></script>
+  <script type="module" src="./components/wm-cart.js"></script>
+  <script type="module" src="./components/wm-buy-form.js"></script>
+  <script type="module" src="./components/wm-site.js"></script>
+</head>
+<body class="wm-home-body">
+  <div id="page" class="site">
+    <!-- host="acme.ir" is the value sent as the Host header. Change per deployment. -->
+    <wm-site host="acme.ir"></wm-site>
+  </div>
+</body>
+</html>
