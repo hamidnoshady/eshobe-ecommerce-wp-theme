@@ -199,6 +199,10 @@ Optional query-string filters the theme may send (they are safe to ignore):
   `collection` config, when provided)
 - `limit` — max number of items (echoes the block's `limit`)
 - `locale` — the active locale (`fa`, `en`)
+- `search` — free-text query; the header live-search modal sends it. The
+  backend should match against title/brand/category (case-insensitive) and
+  return at most `limit` matches. An empty match set returns
+  `{ "products": [] }`.
 
 ### 3.1 Response shape
 
@@ -466,3 +470,28 @@ The product detail is rendered by the reusable `<wm-product-detail>` element
 `<wm-product-gallery>`, `<wm-product-intro>`, `<wm-product-specs>`,
 `<wm-product-purchase>`). Its buy button emits `wm:open-buy`, which the host
 answers with a `<wm-buy-form>`.
+
+---
+
+## 9. Search, basket & CTA banner
+
+### 9.1 Live search modal
+The header search button opens `<wm-search>`. Typing debounces a
+`GET /api/products?search=<q>&limit=8` and renders `.wm-search-result` rows.
+Selecting a result routes to `#/products/:key`. `/` opens the modal when the
+focus is not in an input; `Esc` closes it.
+
+### 9.2 Basket (mini-cart drawer)
+The storefront keeps a **client-side basket** in `localStorage`
+(`key: wm-cart:v1`) rendered by `<wm-cart>`. The product card and detail-page
+"افزودن به سبد" buttons dispatch `wm:add-to-cart`, the host adds the item, and
+the drawer/badge update. Because checkout is a **single-product**
+`POST /api/checkout`, the basket's "ثبت سفارش" checks out the **first** row via
+the same `<wm-buy-form>` (the single-product contract is preserved — the theme
+never invents a bulk endpoint). Rows can be removed individually.
+
+### 9.3 Product-detail CTA banner
+Below the purchase card, the detail view renders a `<section.wm-product-cta>`
+with a primary "خرید مستقیم" (→ `wm:open-buy`) and a secondary
+"افزودن به سبد" (→ `wm:add-to-cart`). It is themed entirely via the design
+tokens so `themeCss` re-skins it.

@@ -130,20 +130,41 @@ class WmProductDetail extends HTMLElement {
             ${price ? `<div class="wm-product-purchase__price">${price}</div>` : ''}
             ${stock}
             <div class="wm-product-purchase__cart">
-              <button type="button" class="button wm-product-purchase__add single_add_to_cart_button${inStock ? '' : ' disabled'}" data-wm-buy ${inStock ? '' : 'disabled'}>${inStock ? 'افزودن به سبد' : 'ناموجود'}</button>
+              <button type="button" class="button wm-product-purchase__add single_add_to_cart_button${inStock ? '' : ' disabled'}" data-wm-add-to-cart ${inStock ? '' : 'disabled'}>${inStock ? 'افزودن به سبد' : 'ناموجود'}</button>
+              <button type="button" class="button wm-product-purchase__buy-now" data-wm-buy-now ${inStock ? '' : 'disabled'}>خرید مستقیم</button>
             </div>
             ${(sku || guarantee) ? `<div class="wm-product-purchase__meta">${sku}${guarantee ? `<div class="wm-product-purchase__meta-item">${guarantee}</div>` : ''}</div>` : ''}
             <div class="wm-product-purchase__trust"><span>ضمانت اصالت کالا</span><span>ارسال سریع</span><span>پرداخت امن</span></div>
           </section>
+          ${renderCtaBanner(p, currency, locale, inStock)}
         </div>
       </div>
     `;
 
-    // Buy
-    const buyBtn = this.querySelector('[data-wm-buy]');
+    // Add to cart
+    const addBtn = this.querySelector('[data-wm-add-to-cart]');
+    if (addBtn && inStock) {
+      addBtn.addEventListener('click', () => {
+        this.dispatchEvent(new CustomEvent('wm:add-to-cart', { detail: { product: p, ctx }, bubbles: true, composed: true }));
+      });
+    }
+    // Buy now (direct single-product checkout)
+    const buyBtn = this.querySelector('[data-wm-buy-now]');
     if (buyBtn && inStock) {
       buyBtn.addEventListener('click', () => {
         this.dispatchEvent(new CustomEvent('wm:open-buy', { detail: { product: p, ctx }, bubbles: true, composed: true }));
+      });
+    }
+    const cta = this.querySelector('[data-wm-cta-buy]');
+    if (cta && inStock) {
+      cta.addEventListener('click', () => {
+        this.dispatchEvent(new CustomEvent('wm:open-buy', { detail: { product: p, ctx }, bubbles: true, composed: true }));
+      });
+    }
+    const ctaAdd = this.querySelector('[data-wm-cta-add]');
+    if (ctaAdd && inStock) {
+      ctaAdd.addEventListener('click', () => {
+        this.dispatchEvent(new CustomEvent('wm:add-to-cart', { detail: { product: p, ctx }, bubbles: true, composed: true }));
       });
     }
 
@@ -175,6 +196,34 @@ class WmProductDetail extends HTMLElement {
       });
     });
   }
+}
+
+/**
+ * A leading call-to-action banner rendered below the purchase card. Uses the
+ * design tokens so any re-skin via themeCss applies. Both CTAs dispatch the
+ * standard events (`wm:add-to-cart` / `wm:open-buy`), keeping it reusable.
+ */
+function renderCtaBanner(p, currency, locale, inStock) {
+  const title = p.title || 'این محصول';
+  const badge = p.badge ? escapeHtml(p.badge) : '';
+  const trustRow = ['ضمانت اصالت کالا', 'ارسال سریع', 'پرداخت امن', 'پشتیبانی قبل از خرید']
+    .map((t) => `<span class="wm-product-cta__trust-item">${escapeHtml(t)}</span>`)
+    .join('');
+
+  return `
+    <section class="wm-product-cta wm-section-decor wm-section-decor--cta" aria-label="خرید ${escapeAttr(title)}">
+      <div class="wm-product-cta__body">
+        <div class="wm-product-cta__kicker">${badge ? `پیشنهاد ویژه · ${badge}` : 'پیشنهاد ویژه'}</div>
+        <h2 class="wm-product-cta__title">${escapeHtml(title)} را همین امروز سفارش دهید</h2>
+        <p class="wm-product-cta__text">با ضمانت اصالت کالا، ارسال سریع و پشتیبانی پیش از خرید. در صورت نارضایتی تا ۷ روز پس از تحویل، بازگشت کالا.</p>
+        <div class="wm-product-cta__actions">
+          <button type="button" class="wm-product-cta__btn wm-product-cta__btn--primary" data-wm-cta-buy ${inStock ? '' : 'disabled'}>${inStock ? 'خرید مستقیم' : 'ناموجود'}</button>
+          ${inStock ? `<button type="button" class="wm-product-cta__btn wm-product-cta__btn--secondary" data-wm-cta-add>افزودن به سبد</button>` : ''}
+        </div>
+        <div class="wm-product-cta__trust">${trustRow}</div>
+      </div>
+    </section>
+  `;
 }
 
 if (!customElements.get('wm-product-detail')) {

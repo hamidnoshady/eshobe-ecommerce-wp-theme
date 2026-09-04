@@ -302,6 +302,7 @@ function handleSite(req, res) {
 function handleProducts(req, res, url) {
   const params = url.searchParams;
   const collection = params.get('collection') || '';
+  const search = (params.get('search') || '').trim();
   const limit = Math.max(1, Math.min(Number(params.get('limit') || 10), 24)) || 10;
   const locale = params.get('locale') || 'fa';
 
@@ -313,8 +314,15 @@ function handleProducts(req, res, url) {
     list = PRODUCTS.filter((p) => p.badge);
   }
 
+  if (search) {
+    const q = search.toLowerCase();
+    list = list.filter((p) =>
+      [p.title, p.brand, p.category, (p.badge || '')].join(' ').toLowerCase().includes(q)
+    );
+  }
+
   const products = list.slice(0, limit).map((p) => ({ ...p }));
-  sendJson(res, 200, { products, total: PRODUCTS.length, locale, collection });
+  sendJson(res, 200, { products, total: list.length, locale, collection, search });
 }
 
 function handleProductDetail(req, res, key) {

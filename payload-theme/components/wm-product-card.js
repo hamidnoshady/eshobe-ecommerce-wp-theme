@@ -101,12 +101,13 @@ class WmProductCard extends HTMLElement {
       </article>
     `);
 
-    // Wire the buy button: emit an event the host listens for.
+    // Wire the add-to-cart button: emit an event the host listens for.
     const buyBtn = frag.querySelector('[data-wm-buy]');
     if (buyBtn && p.inStock !== false) {
-      buyBtn.addEventListener('click', () => {
+      buyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         this.dispatchEvent(
-          new CustomEvent('wm:open-buy', { detail: { product: p, ctx }, bubbles: true, composed: true })
+          new CustomEvent('wm:add-to-cart', { detail: { product: p, ctx }, bubbles: true, composed: true })
         );
       });
     }

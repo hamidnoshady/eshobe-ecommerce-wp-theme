@@ -55,6 +55,130 @@ main.wm-single-product .wm-product-layout {
   align-items: flex-start;
 }
 
+/* Purchase card: two actions (add-to-cart primary, buy-now secondary). */
+.wm-product-purchase__cart {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--wm-space-3);
+  align-items: stretch;
+}
+.wm-product-purchase__buy-now {
+  min-height: 48px;
+  padding: 10px 20px;
+  border: 1px solid var(--wm-color-border, #E5E0D8);
+  border-radius: var(--wm-radius-sm, 10px);
+  background: var(--wm-color-soft, #F9F8F5);
+  color: var(--wm-color-primary, #111827);
+  font-weight: var(--wm-font-weight-heading, 800);
+  cursor: pointer;
+  transition: var(--wm-transition);
+}
+.wm-product-purchase__buy-now:hover {
+  border-color: var(--wm-color-accent, #C89B3C);
+  color: var(--wm-color-accent-dark, #9F7425);
+}
+.wm-product-purchase__buy-now:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Product-detail leading CTA banner — design-token driven. */
+.wm-product-cta {
+  position: relative;
+  margin-top: var(--wm-space-8);
+  padding: var(--wm-space-8) var(--wm-space-6);
+  border-radius: var(--wm-radius-lg, 28px);
+  overflow: hidden;
+  background:
+    radial-gradient(120% 140% at 85% 10%, color-mix(in srgb, var(--wm-color-accent, #C89B3C) 18%, transparent), transparent 60%),
+    linear-gradient(135deg, var(--wm-color-primary, #111827), #1f2937);
+  color: #fff;
+}
+.wm-product-cta__body {
+  position: relative;
+  max-width: 640px;
+  display: grid;
+  gap: var(--wm-space-3);
+}
+.wm-product-cta__kicker {
+  font-size: var(--wm-font-size-small, 13px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--wm-color-accent, #C89B3C) 85%, #fff);
+}
+.wm-product-cta__title {
+  margin: 0;
+  font-size: clamp(24px, 4vw, 38px);
+  font-weight: var(--wm-font-weight-heading, 800);
+  line-height: 1.5;
+}
+.wm-product-cta__text {
+  margin: 0;
+  font-size: var(--wm-font-size-base, 15px);
+  line-height: var(--wm-line-height-body, 1.9);
+  color: color-mix(in srgb, #fff 82%, transparent);
+}
+.wm-product-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-space-3);
+  margin-top: var(--wm-space-2);
+}
+.wm-product-cta__btn {
+  min-height: 48px;
+  padding: 12px 26px;
+  border-radius: var(--wm-radius-sm, 10px);
+  border: 0;
+  cursor: pointer;
+  font-family: var(--wm-font-primary);
+  font-size: var(--wm-font-size-base, 15px);
+  font-weight: var(--wm-font-weight-heading, 800);
+  transition: var(--wm-transition);
+}
+.wm-product-cta__btn--primary {
+  background: var(--wm-color-accent, #C89B3C);
+  color: #fff;
+}
+.wm-product-cta__btn--primary:hover { filter: brightness(1.06); }
+.wm-product-cta__btn--secondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.wm-product-cta__btn--secondary:hover { background: rgba(255, 255, 255, 0.2); }
+.wm-product-cta__btn:disabled { opacity: 0.6; cursor: default; }
+.wm-product-cta__trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-space-4);
+  margin-top: var(--wm-space-4);
+  padding-top: var(--wm-space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+.wm-product-cta__trust-item {
+  font-size: var(--wm-font-size-small, 13px);
+  color: color-mix(in srgb, #fff 78%, transparent);
+}
+.wm-product-cta__trust-item::before {
+  content: "✓";
+  margin-inline-end: 6px;
+  color: var(--wm-color-accent, #C89B3C);
+}
+
+/* Toast action button (used by the add-to-cart toast). */
+.wm-toast__action {
+  margin-inline-start: auto;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.wm-toast__close {
+  margin-inline-start: 8px;
+}
+
 /* Header actions can grow: allow the action cluster to wrap on narrow widths. */
 .wm-site-header__actions {
   flex-wrap: wrap;

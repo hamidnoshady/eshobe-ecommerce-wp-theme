@@ -72,9 +72,11 @@ payload-theme/
 │   └── blocks.js              # block registry + renderers (hero, productGrid, brandGrid, …)
 ├── components/                # reusable, framework-free custom elements
 │   ├── wm-site.js             # orchestrator: site -> themeCss -> dir -> header/main/footer + routing
-│   ├── wm-product-card.js     # single product card (emits wm:open-buy / wm:quick-view)
+│   ├── wm-product-card.js     # single product card (emits wm:add-to-cart / wm:quick-view)
 │   ├── wm-product-grid.js     # carousel that fetches GET /api/products
-│   ├── wm-product-detail.js   # single-product view (#/products/:key)
+│   ├── wm-product-detail.js   # single-product view (#/products/:key) + CTA banner
+│   ├── wm-search.js           # header live-search modal (GET /api/products?search=)
+│   ├── wm-cart.js             # mini-cart drawer (client-side basket, localStorage)
 │   └── wm-buy-form.js         # checkout modal with company honeypot
 ├── styles/                    # copied verbatim from the Eshobe WP theme
 │   ├── tokens.css theme.css fonts.css pages-home.css
@@ -102,9 +104,11 @@ Each custom element is usable standalone in any theme:
 
 | Component            | Reusable API                                                                      |
 | -------------------- | --------------------------------------------------------------------------------- |
-| `<wm-product-card>`  | `.product = {id,title,price,currency,image,gallery,url,badge,inStock}`            |
+| `<wm-product-card>`  | `.product = {...}`; emits `wm:add-to-cart` / `wm:quick-view`                       |
 | `<wm-product-grid>`  | attributes `host,locale,collection,limit,title,subtitle,url,class` (plus `base`)   |
-| `<wm-product-detail>`| `.product = {...}`, `host`, `base`, `locale`, `currency`; emits `wm:open-buy`      |
+| `<wm-product-detail>`| `.product = {...}`, `host`, `base`, `locale`, `currency`; emits `wm:add-to-cart` + `wm:open-buy`; includes a CTA banner |
+| `<wm-search>`        | `.open()`, `.close()`, `.isOpen`; `GET /api/products?search=…`; emits `wm:select-product` |
+| `<wm-cart>`          | `.add(product)`, `.remove(key)`, `.items`, `.count`, `.open()`, `.close()`; localStorage-backed; emits `wm:open-buy` on checkout |
 | `<wm-buy-form>`      | `.product = {...}`, `.open()`, `.close()`, POSTs to `/api/checkout` + honeypot     |
 | `<wm-site>`          | `host`, `base`, `locale` — boots storefront + locale switcher + client routing     |
 
@@ -137,6 +141,8 @@ touches WordPress, WooCommerce, or ACF at runtime.
 
 - `GET /api/site` — `availableLocales`, `defaultLocale`, `store`, `theme`, `blocks`.
 - `GET /api/products` — `{ products: [...] }`; a `productGrid` block issues this.
+  Accepts optional `?search=…` (title/brand/category match, used by the header
+  live-search modal) plus `?collection`, `?limit`, `?locale`.
 - `GET /api/products/:key` — single product (`id` or `slug`) for the detail view.
 - `POST /api/checkout` — JSON body `{product, quantity, name, phone, company}`;
   `company` is the honeypot (empty = human, non-empty = bot → `400`); success is

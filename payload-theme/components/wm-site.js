@@ -20,6 +20,8 @@
 
 import { getSite, getProduct, themeCss, dirFor, escapeHtml, escapeAttr } from '../core/theme.js';
 import { renderBlocks } from '../core/blocks.js';
+import './wm-cart.js';
+import './wm-search.js';
 
 class WmSite extends HTMLElement {
   static observedAttributes = ['host', 'base', 'locale'];
@@ -123,6 +125,9 @@ class WmSite extends HTMLElement {
       <main id="primary" class="site-main wm-home" data-main>${main}</main>
       ${footer}
       <wm-buy-form host="${escapeAttr(site.host)}" base="${escapeAttr(site.base || '')}" locale="${escapeAttr(locale)}" currency="${escapeAttr(store.currency || '')}"></wm-buy-form>
+      <wm-search host="${escapeAttr(site.host)}" base="${escapeAttr(site.base || '')}" locale="${escapeAttr(locale)}" currency="${escapeAttr(store.currency || '')}"></wm-search>
+      <wm-cart host="${escapeAttr(site.host)}" base="${escapeAttr(site.base || '')}" locale="${escapeAttr(locale)}" currency="${escapeAttr(store.currency || '')}"></wm-cart>
+      <div class="wm-toast-container" data-wm-toasts aria-live="polite"></div>
     `;
 
     this._afterRender();
@@ -136,6 +141,38 @@ class WmSite extends HTMLElement {
         buyForm.open();
       }
     });
+
+    // Add-to-cart -> cart drawer + toast
+    const cart = this.querySelector('wm-cart');
+    this.addEventListener('wm:add-to-cart', (e) => {
+      if (cart && e.detail && e.detail.product) {
+        cart.add(e.detail.product, e.detail.quantity || 1);
+        this._toast(`${e.detail.product.title || 'محصول'} به سبد خرید اضافه شد.`, { type: 'success', action: 'مشاهده سبد', onAction: () => cart.open() });
+      }
+    });
+
+    // Header search toggle opens <wm-search>
+    const searchToggle = this.querySelector('[data-search-open]');
+    const search = this.querySelector('wm-search');
+    if (searchToggle && search) {
+      searchToggle.addEventListener('click', () => search.open());
+    }
+
+    // Header cart toggle opens <wm-cart>
+    const cartToggle = this.querySelector('[data-cart-open]');
+    if (cartToggle && cart) {
+      cartToggle.addEventListener('click', () => cart.open());
+    }
+
+    // Keep the header badge in sync with the cart.
+    const badge = this.querySelector('[data-wm-cart-count]');
+    const syncBadge = (n) => {
+      if (!badge) return;
+      badge.textContent = String(n);
+      badge.classList.toggle('wm-site-header__cart-count--hidden', n <= 0);
+    };
+    syncBadge(cart ? cart.count : 0);
+    this.addEventListener('wm:cart-change', (e) => syncBadge(e.detail ? e.detail.count : 0));
 
     // Locale switcher
     const localeBtns = this.querySelectorAll('[data-locale]');
@@ -260,6 +297,44 @@ class WmSite extends HTMLElement {
     start();
   }
 
+  _toast(message, opts = {}) {
+    const container = this.querySelector('[data-wm-toasts]');
+    if (!container) return;
+    const type = opts.type || 'info';
+    const toast = document.createElement('div');
+    toast.className = `wm-toast wm-toast--${type}`;
+    toast.innerHTML = `<span class="wm-toast__text">${escapeHtml(message)}</span>`;
+    if (opts.action) {
+      const action = document.createElement('button');
+      action.type = 'button';
+      action.className = 'wm-toast__action';
+      action.textContent = opts.action;
+      action.addEventListener('click', () => {
+        if (opts.onAction) opts.onAction();
+        dismiss();
+      });
+      toast.appendChild(action);
+    }
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'wm-toast__close';
+    close.setAttribute('aria-label', 'بستن');
+    close.textContent = '×';
+    close.addEventListener('click', dismiss);
+    toast.appendChild(close);
+
+    function dismiss() {
+      toast.classList.remove('is-visible');
+      toast.classList.add('is-leaving');
+      setTimeout(() => toast.remove(), 220);
+    }
+
+    container.appendChild(toast);
+    const raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : (fn) => setTimeout(fn, 0);
+    raf(() => toast.classList.add('is-visible'));
+    if (!opts.persist) setTimeout(dismiss, opts.duration || 2600);
+  }
+
   _initBackToTop() {
     const btn = this.querySelector('[data-wm-back-to-top]');
     if (!btn) return;
@@ -324,7 +399,7 @@ function buildHeader(store, roles) {
         </nav>
         <div class="wm-site-header__actions">
           ${localeSwitcher}
-          <button class="wm-site-header__action wm-site-header__search-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="جستجو">
+          <button class="wm-site-header__action wm-site-header__search-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="جستجو" data-search-open>
             <span class="wm-site-header__action-icon" aria-hidden="true">${icon('search')}</span>
             <span class="wm-site-header__action-text">جستجو</span>
           </button>
@@ -332,11 +407,11 @@ function buildHeader(store, roles) {
             <span class="wm-site-header__action-icon" aria-hidden="true">${icon('account')}</span>
             <span class="wm-site-header__action-text">حساب</span>
           </a>
-          <a class="wm-site-header__action wm-site-header__cart" href="#" aria-label="سبد خرید">
+          <button type="button" class="wm-site-header__action wm-site-header__cart" href="#" aria-label="سبد خرید" data-cart-open>
             <span class="wm-site-header__action-icon" aria-hidden="true">${icon('cart')}</span>
             <span class="wm-site-header__action-text">سبد خرید</span>
             <span class="wm-site-header__cart-count wm-site-header__cart-count--hidden" data-wm-cart-count>0</span>
-          </a>
+          </button>
         </div>
       </div>
     </header>
