@@ -25,3 +25,7 @@
 ## 2026-11-20 - Expand/Collapse Accessibility with aria-controls
 **Learning:** Custom expand/collapse toggle buttons (like those used for product descriptions and specs on mobile) that use `aria-expanded` without a corresponding `aria-controls` attribute are less accessible for screen reader users, as the relationship to the content block being toggled is not explicitly defined.
 **Action:** When creating or modifying toggle buttons that show/hide content, always ensure the target content block has an `id` attribute, and the toggle buttons have a matching `aria-controls` attribute.
+
+## 2026-11-21 - Expand/Collapse Accessibility with aria-controls on Coupon Toggle
+**Learning:** The coupon toggle button on checkout page used `aria-expanded` without a corresponding `aria-controls` attribute, which makes it less accessible for screen reader users as the relationship to the content block being toggled is not explicitly defined.
+**Action:** Added the target content block `id="wm_coupon_input_row"` attribute, and the toggle button `aria-controls="wm_coupon_input_row"` attribute in checkout JS scripts.
