@@ -47,13 +47,22 @@ function wm_get_design_token( $field_name, $default = null ) {
     $defaults = wm_design_token_defaults();
     $default  = null === $default && array_key_exists( $field_name, $defaults ) ? $defaults[ $field_name ] : $default;
 
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+    static $cache = array();
+
+    if ( ! $is_test && array_key_exists( $field_name, $cache ) ) {
+        return $cache[ $field_name ] !== null ? $cache[ $field_name ] : $default;
+    }
+
     if ( function_exists( 'get_field' ) ) {
         $value = get_field( $field_name, 'option' );
         if ( null !== $value && '' !== $value && false !== $value ) {
+            if ( ! $is_test ) $cache[ $field_name ] = $value;
             return $value;
         }
     }
 
+    if ( ! $is_test ) $cache[ $field_name ] = null;
     return $default;
 }
 

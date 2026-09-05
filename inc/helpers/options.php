@@ -15,7 +15,9 @@
 function wm_get_option( $key, $default = '' ) {
 	static $cache = array();
 
-	if ( array_key_exists( $key, $cache ) ) {
+	$is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+
+	if ( ! $is_test && array_key_exists( $key, $cache ) ) {
 		$value = $cache[ $key ];
 		if ( null !== $value && '' !== $value && false !== $value ) {
 			return $value;
@@ -25,12 +27,12 @@ function wm_get_option( $key, $default = '' ) {
 
 	if ( function_exists( 'get_field' ) ) {
 		$value = get_field( $key, 'option' );
-		$cache[ $key ] = $value;
+		if ( ! $is_test ) $cache[ $key ] = $value;
 		if ( null !== $value && '' !== $value && false !== $value ) {
 			return $value;
 		}
 	} else {
-		$cache[ $key ] = null;
+		if ( ! $is_test ) $cache[ $key ] = null;
 	}
 
 	return $default;
