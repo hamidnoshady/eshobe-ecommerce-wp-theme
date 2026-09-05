@@ -38,5 +38,35 @@
     <!-- host="acme.ir" is the value sent as the Host header. Change per deployment. -->
     <wm-site host="acme.ir"></wm-site>
   </div>
+  <script>
+    /*
+     * Backend switch, without editing this file.
+     *
+     *   /                                        -> the bundled mock API (server/index.mjs)
+     *   /?base=http://shop.localhost:3000        -> a live Payload CMS on another origin
+     *   /?base=…&host=shop.localhost&locale=en   -> pin the tenant and the initial locale
+     *
+     * `Host` is a forbidden header in browsers, so against a live CMS the tenant
+     * is the host of `base` — which is why the local setup points `base` at
+     * `shop.localhost:3000` rather than `localhost:3000` (see LOCAL-CMS.md).
+     */
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var site = document.querySelector('wm-site');
+      if (!site) return;
+      var base = params.get('base');
+      if (base) {
+        site.setAttribute('base', base);
+        try {
+          site.setAttribute('host', params.get('host') || new URL(base).hostname);
+        } catch (err) {
+          /* a malformed base is left to the theme's own error handling */
+        }
+      } else if (params.get('host')) {
+        site.setAttribute('host', params.get('host'));
+      }
+      if (params.get('locale')) site.setAttribute('locale', params.get('locale'));
+    })();
+  </script>
 </body>
 </html>

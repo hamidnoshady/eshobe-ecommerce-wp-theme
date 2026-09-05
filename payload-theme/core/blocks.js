@@ -36,6 +36,7 @@ export function renderBlock(block, site, locale, index = 0) {
     hero: renderHero,
     brandGrid: renderBrandGrid,
     productGrid: renderProductGrid,
+    richText: renderRichText,
     filterBoxes: renderFilterBoxes,
     styleGrid: renderStyleGrid,
     trust: renderTrust,
@@ -165,6 +166,23 @@ function renderBrandGrid(block, site, locale) {
 }
 
 /* ------------------------------------------------------------------ *
+ * 5.2b richText — a CMS `content` block
+ *
+ * The mock API's blocks are all pre-shaped sections; a real CMS's most common
+ * block is a rich-text column, which arrives here already rendered to HTML by
+ * core/payload-adapter.js. `dir` is the *field's* own direction, not the page's:
+ * a Persian site can hold an English pull-quote and vice versa.
+ * ------------------------------------------------------------------ */
+function renderRichText(block) {
+  const html = (block && block.html) || '';
+  if (!html) return '';
+  const dir = block.dir ? ` dir="${escapeAttr(block.dir)}"` : '';
+  return `<section class="wm-home-section wm-home-richtext">
+    <div class="wm-home-section__inner"${dir}>${html}</div>
+  </section>`;
+}
+
+/* ------------------------------------------------------------------ *
  * 5.3 productGrid — delegates to the reusable <wm-product-grid> element
  * ------------------------------------------------------------------ */
 function renderProductGrid(block, site, locale, index) {
@@ -177,6 +195,7 @@ function renderProductGrid(block, site, locale, index) {
       base="${escapeAttr(site.base || '')}"
       locale="${escapeAttr(locale)}"
       collection="${escapeAttr(block.collection || '')}"
+      ids="${escapeAttr((block.products || []).join(','))}"
       limit="${escapeAttr(block.limit || 10)}"
       title="${escapeAttr(block.title || 'پیشنهاد ما')}"
       subtitle="${escapeAttr(block.subtitle || '')}"

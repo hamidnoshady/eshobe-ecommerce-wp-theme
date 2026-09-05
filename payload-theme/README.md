@@ -43,6 +43,33 @@ The bundled `server/index.mjs` is a **mock Payload backend** that implements
 without a live CMS. Replace it (or point the theme) at a real Payload
 deployment that follows `docs/THEME_API.md`.
 
+### Pointing at a real Payload CMS (`eshobe-cms`)
+
+The bundled mock implements `docs/THEME_API.md` literally. A real
+[`eshobe-cms`](https://github.com/hamidnoshady/eshobe-cms) does **not**: its
+`GET /api/site` is a bootstrap descriptor (locales, design tokens, currency, the
+*names* of the allowed blocks), the page content lives in `/api/pages`, and
+everything else is Payload's generic REST API with `{docs:[…]}` and its own
+query language.
+
+`core/payload-adapter.js` bridges the two. It engages by itself — a descriptor
+carrying `contractVersion` and a `blocks` array of strings is a live CMS — and
+translates `/api/products*` and the checkout answer behind `api()`, so no
+component knows which backend it is on. Run the pair locally with
+[`LOCAL-CMS.md`](./LOCAL-CMS.md):
+
+```bash
+node server/index.mjs
+# then: http://localhost:4173/?base=http://shop.localhost:3000
+```
+
+`?base=` (and optional `&host=` / `&locale=`) set the `<wm-site>` attributes, so
+the same page serves both backends without an edit. Adapter tests:
+
+```bash
+node --test tests/*.test.mjs
+```
+
 ### Pointing at a real backend
 
 The `host` attribute on `<wm-site>` is the value sent as the `Host` header
@@ -69,7 +96,8 @@ payload-theme/
 ├── index.html                 # boot page (fa + RTL), loads design system + components
 ├── core/
 │   ├── theme.js               # getSite, api, formatPrice, formatDate, dirFor, themeCss
-│   └── blocks.js              # block registry + renderers (hero, productGrid, brandGrid, …)
+│   ├── blocks.js              # block registry + renderers (hero, productGrid, brandGrid, …)
+│   └── payload-adapter.js     # live eshobe-cms translation (descriptor, pages, REST)
 ├── components/                # reusable, framework-free custom elements
 │   ├── wm-site.js             # orchestrator: site -> themeCss -> dir -> header/main/footer + routing
 │   ├── wm-product-card.js     # single product card (emits wm:add-to-cart / wm:quick-view)
@@ -82,6 +110,7 @@ payload-theme/
 │   ├── tokens.css theme.css fonts.css pages-home.css
 │   └── components/{header,footer,decorative-motifs,product-components,checkout,quick-view,buy-form}.css
 ├── fonts/vazirmatn/           # bundled Vazirmatn woff2
+├── tests/                     # node --test, adapter translation only
 └── server/index.mjs           # mock Payload API + static server
 ```
 

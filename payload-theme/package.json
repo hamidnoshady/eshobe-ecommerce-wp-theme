@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Persian-first RTL ecommerce storefront theme for Payload CMS. Themed after the Eshobe WooCommerce theme (identical design system).",
   "scripts": {
-    "serve": "node server/index.mjs"
+    "serve": "node server/index.mjs",
+    "test": "node --test tests/*.test.mjs"
   }
 }

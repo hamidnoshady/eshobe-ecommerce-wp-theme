@@ -16,6 +16,13 @@
  * for server-side / Node consumers and for the bundled mock API).
  */
 
+import {
+  adaptSite,
+  isActive as liveBackendActive,
+  isPayloadDescriptor,
+  payloadRequest,
+} from './payload-adapter.js';
+
 const DEFAULT_LOCALE = 'fa';
 
 /** Locales that are right-to-left. */
@@ -215,7 +222,7 @@ export function resolveApiUrl(path, base) {
  * send the correct Host). When `base` is given, path is resolved against it
  * (used for cross-origin Payload deployments via `api-base`).
  */
-export async function api(path, { host, base = '', method = 'GET', body, headers = {}, credentials } = {}) {
+export async function rawApi(path, { host, base = '', method = 'GET', body, headers = {}, credentials } = {}) {
   const h = { Accept: 'application/json', ...headers };
   if (host) h.Host = host;
   const opts = { method, headers: h };
@@ -225,6 +232,22 @@ export async function api(path, { host, base = '', method = 'GET', body, headers
     opts.body = JSON.stringify(body);
   }
   return fetch(resolveApiUrl(path, base), opts);
+}
+
+/**
+ * The call every component makes. Against the bundled mock (or any backend that
+ * implements docs/THEME_API.md literally) this is `rawApi`. Against a live
+ * Payload CMS — detected once, by `getSite` — `payloadRequest` answers the
+ * `/api/products*` and `/api/checkout` calls in the contract's shape after
+ * translating them into Payload's REST query language. Components never learn
+ * which backend they are talking to.
+ */
+export async function api(path, options = {}) {
+  if (liveBackendActive()) {
+    const handled = await payloadRequest(path, options, { fetchApi: rawApi });
+    if (handled) return handled;
+  }
+  return rawApi(path, options);
 }
 
 /** Normalize a /api/site payload into a flat, typed site object. */
@@ -244,12 +267,18 @@ export function normalizeSite(data, ctx = {}) {
 
 /** GET /api/site with Host: <host>, resolved against an optional api-base. */
 export async function getSite({ host, base = '', locale } = {}) {
-  const res = await api('/api/site', { host, base });
+  const res = await rawApi('/api/site', { host, base });
   if (!res.ok) {
     throw new Error(`GET /api/site failed (${res.status})`);
   }
   const data = await res.json();
-  const site = normalizeSite(data, { host, locale });
+  // A live Payload CMS answers a bootstrap descriptor, not a page: locales,
+  // design tokens, currency and the *names* of the blocks it allows. The
+  // adapter turns that into the same site object the mock returns, fetching
+  // the home page's layout for `blocks` (see core/payload-adapter.js).
+  const site = isPayloadDescriptor(data)
+    ? await adaptSite(data, { host, base, locale, fetchApi: rawApi })
+    : normalizeSite(data, { host, locale });
   site.base = base;
   return site;
 }
