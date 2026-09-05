@@ -11,19 +11,35 @@
 import { api, escapeHtml, escapeAttr } from '../core/theme.js';
 
 class WmProductGrid extends HTMLElement {
-  static observedAttributes = ['host', 'base', 'locale', 'collection', 'limit', 'title', 'subtitle', 'url', 'class'];
+  static observedAttributes = ['host', 'base', 'locale', 'collection', 'ids', 'limit', 'title', 'subtitle', 'url', 'class'];
 
   connectedCallback() {
-    this._load();
+    this._schedule();
   }
 
   attributeChangedCallback(name, oldV, newV) {
     // Reload only when a data-affecting attribute changes after mount.
-    if (this.isConnected && name !== 'class' && oldV !== undefined && oldV !== newV) {
-      this._load();
+    //
+    // `oldV != null` rather than `!== undefined`: the browser reports the first
+    // value of every attribute with an old value of *null*, and an element
+    // written with ten attributes is upgraded attribute by attribute — so the
+    // looser check fired ten `GET /api/products` for one carousel. `_schedule`
+    // collapses whatever is left into a single request per turn.
+    if (this.isConnected && name !== 'class' && oldV != null && oldV !== newV) {
+      this._schedule();
     } else if (name === 'class' && this.isConnected) {
       this._renderShell(this._products || []);
     }
+  }
+
+  /** Coalesce the loads triggered while attributes are still being applied. */
+  _schedule() {
+    if (this._pending) return;
+    this._pending = true;
+    Promise.resolve().then(() => {
+      this._pending = false;
+      if (this.isConnected) this._load();
+    });
   }
 
   async _load() {
@@ -32,9 +48,13 @@ class WmProductGrid extends HTMLElement {
     const base = this.getAttribute('base') || '';
     const locale = this.getAttribute('locale') || 'fa';
     const collection = this.getAttribute('collection') || '';
+    // A CMS ProductGrid block with `populateBy: 'selection'` names its rows;
+    // the adapter turns this list into the backend's own id query.
+    const ids = this.getAttribute('ids') || '';
     const limit = Number(this.getAttribute('limit') || 10) || 10;
     const params = new URLSearchParams();
     if (collection) params.set('collection', collection);
+    if (ids) params.set('ids', ids);
     params.set('limit', String(limit));
     params.set('locale', locale);
     const qs = params.toString();

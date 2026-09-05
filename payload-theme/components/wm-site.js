@@ -18,8 +18,9 @@
  * `#/products/:key` shows the reusable <wm-product-detail>; `#/` shows home.
  */
 
-import { getSite, getProduct, themeCss, dirFor, escapeHtml, escapeAttr } from '../core/theme.js';
+import { getSite, getProduct, rawApi, themeCss, dirFor, escapeHtml, escapeAttr } from '../core/theme.js';
 import { renderBlocks } from '../core/blocks.js';
+import { fetchPageBlocks, isActive as liveBackendActive } from '../core/payload-adapter.js';
 import './wm-cart.js';
 import './wm-search.js';
 
@@ -228,6 +229,38 @@ class WmSite extends HTMLElement {
     if (!main || !this._site) return;
     const hash = window.location.hash || '#/';
     const productMatch = hash.match(/^#\/products\/([^/?#]+)/);
+    const pageMatch = hash.match(/^#\/p\/([^/?#]+)/);
+
+    // `#/p/<slug>` — a CMS page other than the home page. The mock API has no
+    // page collection, so this route only exists against a live backend; the
+    // nav is built from the site's pages there (core/payload-adapter.js).
+    if (pageMatch && liveBackendActive()) {
+      const slug = decodeURIComponent(pageMatch[1]);
+      if (this._currentKey === 'page:' + slug) return;
+      this._currentKey = 'page:' + slug;
+      main.classList.remove('wm-single-product');
+      main.innerHTML = `<p class="wm-site__loading">در حال بارگذاری…</p>`;
+      try {
+        const { blocks, page } = await fetchPageBlocks({
+          slug,
+          locale: this._site.locale,
+          host: this._host,
+          base: this._base,
+          fetchApi: rawApi,
+        });
+        if (!page) throw new Error('page not found');
+        main.innerHTML = renderBlocks({
+          site: { ...this._site, blocks },
+          locale: this._site.locale,
+          host: this._site.host,
+        });
+        this._initHero();
+      } catch (err) {
+        main.innerHTML = `<p class="wm-site__error">صفحه یافت نشد.</p>`;
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
 
     if (productMatch && productMatch[1] !== this._currentKey) {
       this._currentKey = productMatch[1];
@@ -249,7 +282,7 @@ class WmSite extends HTMLElement {
       return;
     }
 
-    if (!productMatch && this._currentKey) {
+    if (!productMatch && !pageMatch && this._currentKey) {
       // back to home
       this._currentKey = '';
       main.classList.remove('wm-single-product');
