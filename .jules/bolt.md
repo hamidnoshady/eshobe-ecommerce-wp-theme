@@ -21,3 +21,7 @@
 ## 2023-11-09 - WP_Tax_Query EXISTS operator vs fetching all terms
 **Learning:** When using `WP_Tax_Query` to filter by a taxonomy where we want any term in that taxonomy, using `get_terms` to fetch all IDs and then passing them to an `IN` operator is a massive bottleneck. It creates an N+1 query issue to load the terms, memory overhead to hold them, and generates enormous, slow SQL queries with huge `IN (...)` clauses for large taxonomies.
 **Action:** When querying for the presence of *any* term in a taxonomy, use the `EXISTS` operator in `tax_query` (e.g. `'operator' => 'EXISTS'`). This compiles into an efficient `INNER JOIN` in MySQL, skipping the term-loading completely.
+
+## 2026-06-25 - N+1 Array filtering in hierarchical UI trees
+**Learning:** When building fallback taxonomy trees for UI components (like mobile nav) that support multiple levels, fetching top-level terms and then iterating to fetch children for each term creates a severe N+1 database query problem.
+**Action:** Always fetch all terms across the taxonomy in a single `get_terms` call without a parent constraint, and build a `$hierarchy` array in memory mapping `$term->parent` to child terms. Then, construct the tree using this in-memory map to avoid extra database roundtrips.

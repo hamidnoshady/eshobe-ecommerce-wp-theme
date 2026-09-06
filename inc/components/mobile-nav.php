@@ -110,39 +110,6 @@ function wm_mobile_nav_primary_links() {
 }
 
 /**
- * Retrieve subcategories for a given product_cat term.
- *
- * @param int $term_id Term ID of the product_cat.
- * @return array List of tree node items.
- */
-function wm_mobile_nav_get_category_children( $term_id ) {
-    if ( ! taxonomy_exists( 'product_cat' ) ) {
-        return array();
-    }
-
-    $children = array();
-
-    $term_children = get_terms( array(
-        'taxonomy'   => 'product_cat',
-        'parent'     => $term_id,
-        'hide_empty' => false,
-    ) );
-
-    if ( ! is_wp_error( $term_children ) && ! empty( $term_children ) ) {
-        foreach ( $term_children as $term ) {
-            $children[] = array(
-                'id'       => 'cat_' . $term->term_id,
-                'label'    => $term->name,
-                'url'      => get_term_link( $term ),
-                'children' => array(),
-            );
-        }
-    }
-
-    return $children;
-}
-
-/**
  * Returns a hierarchical tree of the primary WordPress menu (top-level items
  * with their nested children). The shop sheet renders each non-leaf node as a
  * button that opens a drill-down sub-view in the same modal.
@@ -162,23 +129,45 @@ function wm_mobile_nav_primary_tree() {
         $tree = array();
 
         if ( taxonomy_exists( 'product_cat' ) ) {
-            $top_terms = get_terms( array(
+            // ⚡ Bolt Optimization:
+            // Fetch all categories at once and build the hierarchy map in PHP,
+            // instead of calling get_terms() recursively per parent. This fixes
+            // an N+1 query problem and avoids numerous database roundtrips.
+            $all_terms = get_terms( array(
                 'taxonomy'   => 'product_cat',
-                'parent'     => 0,
                 'hide_empty' => false,
             ) );
 
-            if ( ! is_wp_error( $top_terms ) && ! empty( $top_terms ) ) {
-                foreach ( $top_terms as $term ) {
+            if ( ! is_wp_error( $all_terms ) && ! empty( $all_terms ) ) {
+                $hierarchy = array();
+                foreach ( $all_terms as $term ) {
                     if ( 'uncategorized' === $term->slug ) {
                         continue;
                     }
-                    $tree[] = array(
-                        'id'       => 'cat_' . $term->term_id,
-                        'label'    => $term->name,
-                        'url'      => get_term_link( $term ),
-                        'children' => wm_mobile_nav_get_category_children( $term->term_id ),
-                    );
+                    $hierarchy[ (int) $term->parent ][] = $term;
+                }
+
+                if ( ! empty( $hierarchy[0] ) ) {
+                    foreach ( $hierarchy[0] as $term ) {
+                        $children = array();
+                        if ( ! empty( $hierarchy[ $term->term_id ] ) ) {
+                            foreach ( $hierarchy[ $term->term_id ] as $child_term ) {
+                                $children[] = array(
+                                    'id'       => 'cat_' . $child_term->term_id,
+                                    'label'    => $child_term->name,
+                                    'url'      => get_term_link( $child_term ),
+                                    'children' => array(), // Only supporting 2 levels deep for the fallback right now, as it was before.
+                                );
+                            }
+                        }
+
+                        $tree[] = array(
+                            'id'       => 'cat_' . $term->term_id,
+                            'label'    => $term->name,
+                            'url'      => get_term_link( $term ),
+                            'children' => $children,
+                        );
+                    }
                 }
             }
         }
