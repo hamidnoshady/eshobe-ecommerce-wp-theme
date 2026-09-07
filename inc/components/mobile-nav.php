@@ -109,38 +109,6 @@ function wm_mobile_nav_primary_links() {
     return array_slice( $flat, 0, 8 );
 }
 
-/**
- * Retrieve subcategories for a given product_cat term.
- *
- * @param int $term_id Term ID of the product_cat.
- * @return array List of tree node items.
- */
-function wm_mobile_nav_get_category_children( $term_id ) {
-    if ( ! taxonomy_exists( 'product_cat' ) ) {
-        return array();
-    }
-
-    $children = array();
-
-    $term_children = get_terms( array(
-        'taxonomy'   => 'product_cat',
-        'parent'     => $term_id,
-        'hide_empty' => false,
-    ) );
-
-    if ( ! is_wp_error( $term_children ) && ! empty( $term_children ) ) {
-        foreach ( $term_children as $term ) {
-            $children[] = array(
-                'id'       => 'cat_' . $term->term_id,
-                'label'    => $term->name,
-                'url'      => get_term_link( $term ),
-                'children' => array(),
-            );
-        }
-    }
-
-    return $children;
-}
 
 /**
  * Returns a hierarchical tree of the primary WordPress menu (top-level items
@@ -162,27 +130,52 @@ function wm_mobile_nav_primary_tree() {
         $tree = array();
 
         if ( taxonomy_exists( 'product_cat' ) ) {
-            $top_terms = get_terms( array(
+            // ⚡ Bolt: Fetch all terms in a single query to prevent N+1 bottleneck
+            // previously caused by fetching children for each top-level term individually.
+            $all_terms = get_terms( array(
                 'taxonomy'   => 'product_cat',
-                'parent'     => 0,
                 'hide_empty' => false,
             ) );
 
-            if ( ! is_wp_error( $top_terms ) && ! empty( $top_terms ) ) {
-                foreach ( $top_terms as $term ) {
-                    if ( 'uncategorized' === $term->slug ) {
-                        continue;
+            if ( ! is_wp_error( $all_terms ) && ! empty( $all_terms ) ) {
+                // ⚡ Bolt: Build a parent-to-children map in memory for O(1) lookups.
+                $hierarchy = array();
+                foreach ( $all_terms as $term ) {
+                    $parent_id = (int) $term->parent;
+                    if ( ! isset( $hierarchy[ $parent_id ] ) ) {
+                        $hierarchy[ $parent_id ] = array();
                     }
-                    $tree[] = array(
-                        'id'       => 'cat_' . $term->term_id,
-                        'label'    => $term->name,
-                        'url'      => get_term_link( $term ),
-                        'children' => wm_mobile_nav_get_category_children( $term->term_id ),
-                    );
+                    $hierarchy[ $parent_id ][] = $term;
+                }
+
+                if ( ! empty( $hierarchy[0] ) ) {
+                    foreach ( $hierarchy[0] as $top_term ) {
+                        if ( 'uncategorized' === $top_term->slug ) {
+                            continue;
+                        }
+
+                        $children_nodes = array();
+                        if ( ! empty( $hierarchy[ $top_term->term_id ] ) ) {
+                            foreach ( $hierarchy[ $top_term->term_id ] as $child_term ) {
+                                $children_nodes[] = array(
+                                    'id'       => 'cat_' . $child_term->term_id,
+                                    'label'    => $child_term->name,
+                                    'url'      => get_term_link( $child_term ),
+                                    'children' => array(),
+                                );
+                            }
+                        }
+
+                        $tree[] = array(
+                            'id'       => 'cat_' . $top_term->term_id,
+                            'label'    => $top_term->name,
+                            'url'      => get_term_link( $top_term ),
+                            'children' => $children_nodes,
+                        );
+                    }
                 }
             }
         }
-
         if ( empty( $tree ) ) {
             $fallback = array(
                 array( 'label' => __( 'خانه', 'eshobe-ecommerce' ), 'url' => home_url( '/' ) ),
