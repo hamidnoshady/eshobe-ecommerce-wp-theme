@@ -21,3 +21,7 @@
 ## 2023-11-09 - WP_Tax_Query EXISTS operator vs fetching all terms
 **Learning:** When using `WP_Tax_Query` to filter by a taxonomy where we want any term in that taxonomy, using `get_terms` to fetch all IDs and then passing them to an `IN` operator is a massive bottleneck. It creates an N+1 query issue to load the terms, memory overhead to hold them, and generates enormous, slow SQL queries with huge `IN (...)` clauses for large taxonomies.
 **Action:** When querying for the presence of *any* term in a taxonomy, use the `EXISTS` operator in `tax_query` (e.g. `'operator' => 'EXISTS'`). This compiles into an efficient `INNER JOIN` in MySQL, skipping the term-loading completely.
+
+## 2024-05-18 - Redundant get_term_by calls in filter term resolution
+**Learning:** `wm_product_archive_resolve_filter_term` performs multiple `get_term_by` database queries to resolve a string value to a term object (checking by ID, then slug, then name). This function is called repeatedly for the same term across different filter UI components (e.g., rendering active filters, building taxonomy queries), leading to redundant and expensive database lookups.
+**Action:** Implemented a static array cache inside `wm_product_archive_resolve_filter_term` to memoize the results using a `$taxonomy:$value` key. Additionally, refactored `wm_product_archive_filter_value_label` to reuse this memoized helper function instead of re-implementing the same database lookup logic, ensuring O(1) retrieval for repeated term resolutions within a single request.
