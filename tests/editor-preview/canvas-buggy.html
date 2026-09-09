@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Canvas — buggy state: theme styles missing</title>
+<!-- Intentionally loads NONE of the theme stylesheets: reproduces the bug
+     where enqueue_block_editor_assets styles never reached the iframe. -->
+<style>body.editor-styles-wrapper{margin:0;}</style>
+</head>
+<body class="editor-styles-wrapper block-editor-iframe__body">
+<main id="wp-blocks">
+<section class="wm-home-hero wm-section-decor" data-home-hero>
+  <div class="wm-home-hero__track">
+    <article class="wm-home-hero__slide is-active" data-home-hero-slide>
+      <div class="wm-home-hero__content">
+        <span class="wm-home-hero__eyebrow">مجموعه ویژه</span>
+        <h1 class="wm-home-hero__title">محصولات منتخب برای امروز</h1>
+        <div class="wm-home-hero__actions">
+          <a class="wm-home-button wm-home-button--primary" href="#">مشاهده فروشگاه</a>
+        </div>
+      </div>
+      <div class="wm-home-hero__visual"><div class="wm-home-hero__placeholder"></div></div>
+    </article>
+  </div>
+</section>
+<section class="wm-product-carousel wm-home-section">
+  <div class="wm-product-carousel__track" tabindex="0">
+    <article class="wm-product-card wm-product-carousel__item">
+      <div class="wm-product-card__media-wrap"><a class="wm-product-card__media" href="#"><img class="wm-product-card__image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect width='400' height='400' fill='%23E5E0D8'/%3E%3C/svg%3E" alt=""></a></div>
+      <h3 class="wm-product-card__title"><a href="#">محصول نمونه</a></h3>
+    </article>
+  </div>
+</section>
+</main>
+</body>
+</html>
