@@ -21,3 +21,7 @@
 ## 2023-11-09 - WP_Tax_Query EXISTS operator vs fetching all terms
 **Learning:** When using `WP_Tax_Query` to filter by a taxonomy where we want any term in that taxonomy, using `get_terms` to fetch all IDs and then passing them to an `IN` operator is a massive bottleneck. It creates an N+1 query issue to load the terms, memory overhead to hold them, and generates enormous, slow SQL queries with huge `IN (...)` clauses for large taxonomies.
 **Action:** When querying for the presence of *any* term in a taxonomy, use the `EXISTS` operator in `tax_query` (e.g. `'operator' => 'EXISTS'`). This compiles into an efficient `INNER JOIN` in MySQL, skipping the term-loading completely.
+
+## 2023-10-27 - Memoize taxonomy term resolution in product archive filters
+**Learning:** Resolving taxonomy filter terms repeatedly (e.g., converting URL values to term names via `get_term_by` in `wm_product_archive_resolve_filter_term` and `wm_product_archive_filter_value_label`) creates an N+1 query problem, especially on taxonomy landing pages or archives with many active filters.
+**Action:** Memoize the results of `wm_product_archive_resolve_filter_term` using a static cache array, and ensure other functions like `wm_product_archive_filter_value_label` reuse this memoized function rather than duplicating the query logic. Always bypass static caches during tests (e.g., checking `PHPUNIT_COMPOSER_INSTALL`) to avoid test leakage.
