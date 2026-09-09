@@ -5,3 +5,7 @@
 ## 2024-08-09 - Icon-Only Button Accessibility in Product Components
 **Learning:** Icon-only buttons used for expanding/collapsing UI panels (like the mobile purchase bottom bar handle) often lack accessible names, making them difficult for screen reader users to understand their purpose. Specifically, the `wm-mobile-bottom-bar__handle` relied purely on an SVG chevron hidden via `aria-hidden="true"` and `aria-expanded` attributes without an overarching `aria-label`.
 **Action:** Always verify that interactive elements containing only presentational elements (like `aria-hidden` icons) have an explicit `aria-label` or `aria-labelledby` attribute. When implementing custom expandable panels, the toggle button needs a clear, localized name (e.g., `aria-label="<?php esc_attr_e( 'نمایش نوار خرید', 'eshobe-ecommerce' ); ?>"`).
+
+## 2023-10-24 - JS-injected HTML components accessibility
+**Learning:** Even when injecting HTML dynamically via JavaScript string concatenation (e.g., `innerHTML`), accessibility attributes like `aria-expanded` and `aria-controls` must be meticulously added to maintain screen reader functionality.
+**Action:** When adding or modifying custom expand/collapse toggle buttons (which use `aria-expanded`) via JS, always ensure to include an `aria-controls` attribute that matches the ID of the content container being toggled. Ensure the target container actually has the ID.
