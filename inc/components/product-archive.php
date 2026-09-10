@@ -584,9 +584,23 @@ function wm_product_archive_resolve_filter_term( $taxonomy, $value ) {
         return null;
     }
 
+    // ⚡ Bolt: Cache resolved terms to prevent repeated get_term_by queries during filter building.
+    static $cache = array();
+    $cache_key = $taxonomy . '|' . $value;
+
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+    if ( ! $is_test && array_key_exists( $cache_key, $cache ) ) {
+        return $cache[ $cache_key ];
+    }
+
+    $term = null;
     if ( ctype_digit( $value ) ) {
         $term = get_term_by( 'id', (int) $value, $taxonomy );
-        return $term && ! is_wp_error( $term ) ? $term : null;
+        $result = $term && ! is_wp_error( $term ) ? $term : null;
+        if ( ! $is_test ) {
+            $cache[ $cache_key ] = $result;
+        }
+        return $result;
     }
 
     $candidates = array_unique(
@@ -603,6 +617,9 @@ function wm_product_archive_resolve_filter_term( $taxonomy, $value ) {
     foreach ( $candidates as $candidate ) {
         $term = get_term_by( 'slug', $candidate, $taxonomy );
         if ( $term && ! is_wp_error( $term ) ) {
+            if ( ! $is_test ) {
+                $cache[ $cache_key ] = $term;
+            }
             return $term;
         }
     }
@@ -610,10 +627,16 @@ function wm_product_archive_resolve_filter_term( $taxonomy, $value ) {
     foreach ( $candidates as $candidate ) {
         $term = get_term_by( 'name', $candidate, $taxonomy );
         if ( $term && ! is_wp_error( $term ) ) {
+            if ( ! $is_test ) {
+                $cache[ $cache_key ] = $term;
+            }
             return $term;
         }
     }
 
+    if ( ! $is_test ) {
+        $cache[ $cache_key ] = null;
+    }
     return null;
 }
 
@@ -1487,11 +1510,8 @@ function wm_product_archive_filter_value_label( $key, $value ) {
     }
 
     if ( $taxonomy && taxonomy_exists( $taxonomy ) ) {
-        $term = ctype_digit( (string) $value ) ? get_term_by( 'id', (int) $value, $taxonomy ) : get_term_by( 'slug', $value, $taxonomy );
-        if ( ! $term ) {
-            $term = get_term_by( 'name', $value, $taxonomy );
-        }
-        if ( $term && ! is_wp_error( $term ) ) {
+        $term = wm_product_archive_resolve_filter_term( $taxonomy, $value );
+        if ( $term ) {
             return $term->name;
         }
     }
