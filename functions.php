@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.7.8' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.7.9' );
 }
 
 /**
@@ -219,6 +219,7 @@ require get_template_directory() . '/inc/acf/mega-menu-nav-field.php';
 require get_template_directory() . '/inc/acf/mega-menu-migration.php';
 require get_template_directory() . '/inc/components/mega-menu.php';
 require get_template_directory() . '/inc/components/site-header.php';
+require get_template_directory() . '/inc/components/nav-menu-guard.php';
 require get_template_directory() . '/inc/components/mini-cart.php';
 require get_template_directory() . '/inc/components/product-card.php';
 require get_template_directory() . '/inc/components/post-card.php';
