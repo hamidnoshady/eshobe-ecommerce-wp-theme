@@ -24,3 +24,7 @@
 ## 2026-06-25 - State Leakage in Static Caches During Unit Tests
 **Learning:** Adding `static $cache = array();` inside functions (like `wm_get_design_token`) to memoize options is great for request lifecycle performance, but it can cause severe state leakage across unit tests. If a test modifies the mocked return value of `get_field` across multiple calls, the static cache from the first call will persist, causing subsequent assertions to fail unexpectedly.
 **Action:** Always conditionally bypass static caches during tests. Use a check like `$is_test = defined('PHPUNIT_COMPOSER_INSTALL') || defined('WP_TESTS_DOMAIN');` and only read from or write to the static cache when `$is_test` is false.
+
+## 2026-06-25 - Redundant taxonomy term resolution caching
+**Learning:** Functions that frequently resolve string values to taxonomy terms (e.g. converting a URL slug/name/id parameter into a term object via `get_term_by`) can be called repeatedly during archive rendering across various filter builders and label generators, generating redundant and identical database queries. Replacing manual `get_term_by` logic with centralized, memoized resolution functions improves cache hit rates and reduces database queries.
+**Action:** Consolidate term resolution into a single function (like `wm_product_archive_resolve_filter_term`) and apply static array caching to memoize the results of `get_term_by`. Always remember to conditionally bypass this cache during testing to avoid leaked mocked state.
