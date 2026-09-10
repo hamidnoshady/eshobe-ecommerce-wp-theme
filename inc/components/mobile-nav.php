@@ -267,6 +267,10 @@ function wm_mobile_nav_cart_subtotal() {
 
 function wm_mobile_nav_account_links() {
     $account_url = wm_mobile_nav_account_url();
+    $wishlist_link = array(
+        'label' => __( 'علاقه‌مندی‌ها', 'eshobe-ecommerce' ),
+        'url'   => function_exists( 'wm_wishlist_page_url' ) ? wm_wishlist_page_url() : home_url( '/' ),
+    );
 
     if ( ! is_user_logged_in() ) {
         $login_link = array(
@@ -276,10 +280,11 @@ function wm_mobile_nav_account_links() {
             'otp_trigger' => true,
         );
 
-        return array( $login_link );
+        return array( $wishlist_link, $login_link );
     }
 
     return array(
+        $wishlist_link,
         array( 'label' => __( 'کیف پول', 'eshobe-ecommerce' ), 'url' => $account_url ),
         array( 'label' => __( 'سفارش‌ها', 'eshobe-ecommerce' ), 'url' => function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'orders' ) : $account_url ),
         array( 'label' => __( 'آدرس‌ها', 'eshobe-ecommerce' ), 'url' => function_exists( 'wc_get_account_endpoint_url' ) ? wc_get_account_endpoint_url( 'edit-address' ) : $account_url ),
@@ -519,7 +524,7 @@ function wm_render_mobile_nav() {
                     $attrs      = 'class="' . esc_attr( $item_class ) . '"';
                     ?>
                     <?php if ( 'sheet' === $item['type'] ) : ?>
-                        <button type="button" <?php echo $attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> data-mobile-sheet-target="<?php echo esc_attr( $item['key'] ); ?>" aria-expanded="false">
+                        <button type="button" <?php echo $attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> data-mobile-sheet-target="<?php echo esc_attr( $item['key'] ); ?>" aria-expanded="false" aria-controls="wm-mobile-sheet-<?php echo esc_attr( $item['key'] ); ?>">
                             <span class="wm-mobile-nav__icon"><?php echo wm_mobile_nav_icon( $item['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                             <?php if ( isset( $item['badge'] ) ) : ?>
                                 <span class="wm-mobile-nav__badge<?php echo absint( $item['badge'] ) > 0 ? '' : ' wm-mobile-nav__badge--hidden'; ?>"><?php echo esc_html( number_format_i18n( absint( $item['badge'] ) ) ); ?></span>

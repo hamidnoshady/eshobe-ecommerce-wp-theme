@@ -10,6 +10,70 @@ function wm_home_get_option( $key, $default = '' ) {
 }
 
 /**
+ * URL of the first rendered hero slide's desktop image (LCP preload target).
+ *
+ * Mirrors the slide merge order in template-parts/home/hero-slider.php
+ * (content slides, then image slides, then video slides) so the preload link
+ * in <head> points at the same image the first slide actually renders.
+ *
+ * @return string
+ */
+function wm_home_first_hero_image_url() {
+	$content_slides = wm_home_get_valid_items(
+		'home_hero_slides',
+		function( $slide ) {
+			return ! empty( $slide['slide_enabled'] ) && ( ! empty( $slide['slide_title'] ) || ! empty( $slide['slide_image_desktop'] ) );
+		}
+	);
+
+	if ( ! empty( $content_slides[0]['slide_image_desktop'] ) ) {
+		return wm_home_get_image_url( $content_slides[0]['slide_image_desktop'], 'large' );
+	}
+
+	$image_slides = wm_home_get_valid_items(
+		'home_hero_image_slides',
+		function( $slide ) {
+			return ! empty( $slide['image_slide_enabled'] ) && ( ! empty( $slide['image_slide_image_desktop'] ) || ! empty( $slide['image_slide_image_mobile'] ) );
+		}
+	);
+
+	if ( ! empty( $image_slides[0]['image_slide_image_desktop'] ) ) {
+		return wm_home_get_image_url( $image_slides[0]['image_slide_image_desktop'], 'full' );
+	}
+
+	return '';
+}
+
+/**
+ * Transient key for the assembled front-page sections output.
+ *
+ * The front page runs several `wc_get_products` and term queries per request
+ * (bestsellers, recommended, brand/style cards). The rendered sections are
+ * cached here for a short TTL and flushed whenever products or the ACF
+ * options that feed them change.
+ *
+ * @return string
+ */
+function wm_home_cache_key() {
+	return 'wm_home_sections_output_v1';
+}
+
+/**
+ * Flush the front-page sections cache.
+ */
+function wm_home_cache_flush() {
+	delete_transient( wm_home_cache_key() );
+}
+
+// Invalidate on product lifecycle changes (create/update/trash/untrash) and
+// on any ACF save (options pages + product meta) so edits surface promptly.
+add_action( 'save_post_product', 'wm_home_cache_flush' );
+add_action( 'woocommerce_update_product', 'wm_home_cache_flush' );
+add_action( 'trashed_post', 'wm_home_cache_flush' );
+add_action( 'untrashed_post', 'wm_home_cache_flush' );
+add_action( 'acf/save_post', 'wm_home_cache_flush' );
+
+/**
  * Gets a home option and filters its items using a callback.
  *
  * @param string   $key      The option key.
@@ -79,6 +143,40 @@ function wm_home_get_image_html( $image, $size = 'large', $attrs = array() ) {
     $alt     = isset( $attrs['alt'] ) ? $attrs['alt'] : '';
     $loading = isset( $attrs['loading'] ) ? $attrs['loading'] : 'lazy';
     return '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $alt ) . '" loading="' . esc_attr( $loading ) . '" decoding="async">';
+}
+
+function wm_home_get_video_url( $video ) {
+    if ( empty( $video ) ) {
+        return '';
+    }
+
+    if ( is_array( $video ) ) {
+        return ! empty( $video['url'] ) ? $video['url'] : '';
+    }
+
+    if ( is_numeric( $video ) ) {
+        return wp_get_attachment_url( absint( $video ) );
+    }
+
+    return is_string( $video ) ? $video : '';
+}
+
+function wm_home_get_video_type( $video ) {
+    if ( is_array( $video ) && ! empty( $video['mime_type'] ) ) {
+        return $video['mime_type'];
+    }
+
+    $url = wm_home_get_video_url( $video );
+    $ext = strtolower( pathinfo( (string) wp_parse_url( $url, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
+
+    $types = array(
+        'mp4'  => 'video/mp4',
+        'webm' => 'video/webm',
+        'ogv'  => 'video/ogg',
+        'ogg'  => 'video/ogg',
+    );
+
+    return isset( $types[ $ext ] ) ? $types[ $ext ] : '';
 }
 
 function wm_home_default_sections() {
@@ -355,6 +453,16 @@ function wm_build_filter_box_url( $item ) {
      */
     $query = apply_filters( 'wm_filter_box_query_args', $query, $item );
 
+    // Map to YITH filter URL format if custom filters are disabled.
+    if ( ! empty( $query ) && function_exists( 'wm_product_archive_bool_option' ) && ! wm_product_archive_bool_option( 'wm_archive_custom_filters_enabled', true ) ) {
+        $yith_query = array( 'yith_wcan' => '1' );
+        foreach ( $query as $key => $val ) {
+            $yith_query[ $key ] = $val;
+        }
+
+        $query = $yith_query;
+    }
+
     return esc_url_raw( add_query_arg( $query, $base_url ) );
 }
 
@@ -365,9 +473,11 @@ function wm_home_normalize_filter_item( $item ) {
             'filter_enabled'     => true,
             'filter_title'       => '',
             'filter_subtitle'    => '',
-            'filter_image'       => '',
-            'filter_style'       => 'dark_card',
-            'filter_badge_text'  => '',
+            'filter_image'          => '',
+            'filter_style'          => 'dark_card',
+            'filter_cover_enabled'  => true,
+            'filter_cover_color'    => '',
+            'filter_badge_text'     => '',
             'filter_button_text' => __( 'مشاهده', 'eshobe-ecommerce' ),
             'filter_link_mode'   => ! empty( $item['filter_url'] ) ? 'manual_url' : 'taxonomy_and_price',
         )
@@ -465,11 +575,25 @@ function wm_home_get_filter_sections() {
 function wm_render_filter_card( $item ) {
     $style       = ! empty( $item['filter_style'] ) ? sanitize_html_class( $item['filter_style'] ) : 'dark_card';
     $button_text = ! empty( $item['filter_button_text'] ) ? $item['filter_button_text'] : __( 'مشاهده', 'eshobe-ecommerce' );
-    $style_attr  = ! empty( $item['filter_color_value'] ) ? ' style="--wm-filter-accent:' . esc_attr( sanitize_hex_color( $item['filter_color_value'] ) ) . '"' : '';
+
+    // Optional per-card cover control: --wm-filter-cover recolors the overlay
+    // layer over the card image; --no-cover removes it entirely.
+    $card_style = array();
+    foreach ( array( '--wm-filter-accent' => 'filter_color_value', '--wm-filter-cover' => 'filter_cover_color' ) as $css_var => $field ) {
+        if ( empty( $item[ $field ] ) ) {
+            continue;
+        }
+        $color = sanitize_hex_color( $item[ $field ] );
+        if ( $color ) {
+            $card_style[] = $css_var . ':' . $color;
+        }
+    }
+    $style_attr  = $card_style ? ' style="' . esc_attr( implode( ';', $card_style ) ) . '"' : '';
+    $cover_class = empty( $item['filter_cover_enabled'] ) ? ' wm-home-filter-card--no-cover' : '';
 
     ob_start();
     ?>
-    <a class="wm-home-filter-card wm-home-filter-card--<?php echo esc_attr( $style ); ?>" href="<?php echo esc_url( wm_build_filter_box_url( $item ) ); ?>"<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+    <a class="wm-home-filter-card wm-home-filter-card--<?php echo esc_attr( $style ); ?><?php echo esc_attr( $cover_class ); ?>" href="<?php echo esc_url( wm_build_filter_box_url( $item ) ); ?>"<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
         <span class="wm-home-filter-card__media">
             <?php echo wm_home_get_image_html( ! empty( $item['filter_image'] ) ? $item['filter_image'] : '', 'medium', array( 'alt' => $item['filter_title'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         </span>
@@ -521,6 +645,18 @@ function wm_render_home_filter_sections() {
     foreach ( wm_home_get_filter_sections() as $section ) {
         wm_render_home_filter_section( $section );
     }
+}
+
+/**
+ * Builds the inline style for the optional card cover color.
+ *
+ * @param array  $item   Card item data (ACF repeater row).
+ * @param string $prefix Field prefix, e.g. 'brand_' or 'style_'.
+ * @return string Style attribute string (may be empty).
+ */
+function wm_home_card_cover_style_attr( $item, $prefix ) {
+    $color = ! empty( $item[ $prefix . 'cover_color' ] ) ? sanitize_hex_color( $item[ $prefix . 'cover_color' ] ) : '';
+    return $color ? ' style="--wm-filter-cover:' . $color . '"' : '';
 }
 
 function wm_render_home_quick_filters_section( $items, $args = array() ) {

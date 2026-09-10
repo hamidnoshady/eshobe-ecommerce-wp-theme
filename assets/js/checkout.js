@@ -32,6 +32,62 @@
     });
   }
 
+  function normalizeDigits(value) {
+    return String(value || '')
+      .replace(/[۰-۹]/g, function (d) { return String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)); })
+      .replace(/[٠-٩]/g, function (d) { return String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)); });
+  }
+
+  // Light client-side gate before advancing: required fields, email and
+  // phone formats for the *current* step. WooCommerce's own validation on
+  // submit stays the source of truth.
+  function validateCurrentStep() {
+    var activePanel = null;
+    panels.forEach(function (panel) {
+      if (panel.classList.contains('is-active')) {
+        activePanel = panel;
+      }
+    });
+    if (!activePanel) {
+      return true;
+    }
+
+    var fields = activePanel.querySelectorAll('input, select, textarea');
+    var firstInvalid = null;
+
+    fields.forEach(function (field) {
+      var ok = true;
+      if (field.disabled) {
+        return;
+      }
+      if (field.required && !String(field.value || '').trim()) {
+        ok = false;
+      }
+      if (ok && field.type === 'email' && field.value && !/^\S+@\S+\.\S+$/.test(field.value)) {
+        ok = false;
+      }
+      if (ok && field.type === 'tel' && field.value && field.value.replace(/\D/g, '').length < 10) {
+        ok = false;
+      }
+
+      field.classList.toggle('is-invalid', !ok);
+      if (!ok && !firstInvalid) {
+        firstInvalid = field;
+      }
+    });
+
+    if (firstInvalid) {
+      firstInvalid.focus();
+      firstInvalid.addEventListener('input', function clearInvalid() {
+        firstInvalid.classList.remove('is-invalid');
+        firstInvalid.removeEventListener('input', clearInvalid);
+      });
+      return false;
+    }
+
+    return true;
+  }
+
   root.addEventListener('click', function (event) {
     var target = event.target.closest('[data-checkout-step-target], [data-checkout-next], [data-checkout-prev]');
 
@@ -41,6 +97,15 @@
 
     event.preventDefault();
     var step = target.getAttribute('data-checkout-step-target') || target.getAttribute('data-checkout-next') || target.getAttribute('data-checkout-prev');
+
+    var nextIndex = stepOrder.indexOf(step);
+    var currentIndex = stepOrder.indexOf(root.getAttribute('data-current-step') || 'address');
+
+    // Only gate forward navigation; going back is always allowed.
+    if (nextIndex > currentIndex && !validateCurrentStep()) {
+      return;
+    }
+
     setStep(step);
     markDone(step);
   });
@@ -57,7 +122,7 @@
     couponBlock.innerHTML =
       '<button type="button" class="wm-coupon-toggle-btn" aria-expanded="false">کد تخفیف دارید؟</button>' +
       '<div class="wm-coupon-input-row" style="display:none;">' +
-      '<input type="text" id="wm_coupon_code" placeholder="کد تخفیف را وارد کنید" dir="rtl" />' +
+      '<input type="text" id="wm_coupon_code" aria-label="کد تخفیف" placeholder="کد تخفیف را وارد کنید" dir="rtl" />' +
       '<button type="button" id="wm_apply_coupon">اعمال</button>' +
       '</div>' +
       '<div class="wm-coupon-success" id="wm_coupon_success" style="display:none;"></div>';
@@ -70,6 +135,11 @@
       var isOpen = inputRow.style.display !== 'none';
       inputRow.style.display = isOpen ? 'none' : 'flex';
       toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    });
+
+    var couponInput = couponBlock.querySelector('#wm_coupon_code');
+    couponInput.addEventListener('input', function () {
+      couponInput.value = normalizeDigits(couponInput.value);
     });
 
     couponBlock.querySelector('#wm_apply_coupon').addEventListener('click', function () {

@@ -180,7 +180,7 @@ do_action( 'woocommerce_before_cart' );
 					<section class="wm-cart-coupon coupon" aria-label="<?php echo esc_attr__( 'کد تخفیف', 'eshobe-ecommerce' ); ?>">
 						<label for="coupon_code"><?php echo esc_html__( 'کد تخفیف', 'eshobe-ecommerce' ); ?></label>
 						<div class="wm-cart-coupon__row">
-							<input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php echo esc_attr__( 'کد تخفیف را وارد کنید', 'eshobe-ecommerce' ); ?>">
+							<input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" aria-label="<?php echo esc_attr__( 'کد تخفیف', 'eshobe-ecommerce' ); ?>" placeholder="<?php echo esc_attr__( 'کد تخفیف را وارد کنید', 'eshobe-ecommerce' ); ?>">
 							<button type="submit" class="button wm-cart-coupon__button" name="apply_coupon" value="<?php echo esc_attr__( 'اعمال کد', 'eshobe-ecommerce' ); ?>" data-wm-coupon-submit><?php echo esc_html__( 'اعمال', 'eshobe-ecommerce' ); ?></button>
 						</div>
 						<p class="wm-cart-coupon__feedback" data-wm-coupon-feedback hidden></p>

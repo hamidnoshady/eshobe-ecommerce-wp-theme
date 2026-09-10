@@ -1,0 +1,249 @@
+:root {
+    --wm-decor-color: var(--wm-color-accent, #c89b3c);
+    --wm-decor-opacity: 0.16;
+    --wm-decor-intensity-factor: 1;
+}
+
+body.wm-decor-intensity-low {
+    --wm-decor-intensity-factor: 0.5;
+}
+
+body.wm-decor-intensity-medium {
+    --wm-decor-intensity-factor: 1;
+}
+
+body.wm-decor-intensity-high {
+    --wm-decor-intensity-factor: 1.625;
+}
+
+body.wm-decor-current-low {
+    --wm-decor-intensity-factor: 0.5;
+}
+
+body.wm-decor-current-medium {
+    --wm-decor-intensity-factor: 1;
+}
+
+body.wm-decor-current-high {
+    --wm-decor-intensity-factor: 1.625;
+}
+
+.wm-decor,
+.wm-section-decor {
+    position: relative;
+}
+
+.wm-section-decor {
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.wm-section-decor > * {
+    position: relative;
+    z-index: 2;
+}
+
+.wm-section-decor::before,
+.wm-section-decor::after,
+.wm-decor::before,
+.wm-decor::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+}
+
+.wm-section-decor--dots::before,
+.wm-decor--dots::before {
+    width: 180px;
+    height: 180px;
+    background-image: radial-gradient(
+        circle,
+        color-mix(in srgb, var(--wm-decor-color) 44%, transparent) 1px,
+        transparent 1.8px
+    );
+    background-size: 14px 14px;
+    opacity: calc(var(--wm-decor-dots-opacity, var(--wm-decor-opacity)) * var(--wm-decor-intensity-factor));
+}
+
+.wm-section-decor--ring::after,
+.wm-decor--ring::after {
+    width: 220px;
+    height: 220px;
+    border: 1px solid color-mix(in srgb, var(--wm-decor-color) 36%, transparent);
+    border-radius: 999px;
+    opacity: calc(var(--wm-decor-ring-opacity, var(--wm-decor-opacity)) * var(--wm-decor-intensity-factor));
+}
+
+.wm-decor--line::before {
+    width: 150px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--wm-decor-color), transparent);
+    opacity: calc(var(--wm-decor-opacity) * var(--wm-decor-intensity-factor));
+}
+
+.wm-decor--arc::before {
+    width: 140px;
+    height: 140px;
+    border-top: 1px solid color-mix(in srgb, var(--wm-decor-color) 40%, transparent);
+    border-right: 1px solid color-mix(in srgb, var(--wm-decor-color) 34%, transparent);
+    border-radius: 999px;
+    opacity: calc(var(--wm-decor-opacity) * var(--wm-decor-intensity-factor) * 0.88);
+}
+
+.wm-section-decor--soft-grid::before,
+.wm-decor--soft-grid::before {
+    width: 260px;
+    height: 200px;
+    background-image:
+        linear-gradient(color-mix(in srgb, var(--wm-decor-color) 18%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--wm-decor-color) 18%, transparent) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: calc(var(--wm-decor-grid-opacity, var(--wm-decor-opacity)) * var(--wm-decor-intensity-factor));
+    mask-image: radial-gradient(circle, #000 0%, transparent 72%);
+}
+
+.wm-section-decor--hero {
+    --wm-decor-dots-opacity: calc(var(--wm-decor-opacity) * 1.12);
+    --wm-decor-ring-opacity: calc(var(--wm-decor-opacity) * 1.75);
+}
+
+.wm-section-decor--hero::before {
+    top: 36px;
+    right: 44px;
+}
+
+.wm-section-decor--hero::after {
+    bottom: -88px;
+    left: -78px;
+}
+
+.wm-section-decor--brands {
+    --wm-decor-dots-opacity: var(--wm-decor-opacity);
+}
+
+.wm-section-decor--brands::before {
+    top: 12px;
+    left: 28px;
+}
+
+.wm-section-decor--filters {
+    --wm-decor-ring-opacity: calc(var(--wm-decor-opacity) * 1.5);
+}
+
+.wm-section-decor--filters::after {
+    top: 18px;
+    right: -76px;
+}
+
+.wm-section-decor--styles {
+    --wm-decor-grid-opacity: calc(var(--wm-decor-opacity) * 0.82);
+}
+
+.wm-section-decor--styles::before {
+    top: 0;
+    right: 22px;
+}
+
+.wm-section-decor--footer::before {
+    top: 26px;
+    right: 34px;
+    width: 190px;
+    height: 190px;
+    background-image: radial-gradient(
+        circle,
+        color-mix(in srgb, var(--wm-decor-color) 36%, transparent) 1px,
+        transparent 1.8px
+    );
+    background-size: 16px 16px;
+    opacity: calc(var(--wm-decor-opacity) * var(--wm-decor-intensity-factor) * 0.75);
+}
+
+.wm-section-decor--footer::after {
+    bottom: -92px;
+    left: -64px;
+    width: 210px;
+    height: 210px;
+    border: 1px solid color-mix(in srgb, var(--wm-decor-color) 16%, transparent);
+    border-radius: 999px;
+    opacity: calc(var(--wm-decor-opacity) * var(--wm-decor-intensity-factor));
+}
+
+.wm-decor-disabled .wm-section-decor::before,
+.wm-decor-disabled .wm-section-decor::after,
+.wm-decor-disabled .wm-decor::before,
+.wm-decor-disabled .wm-decor::after,
+.wm-decor-current-off .wm-section-decor::before,
+.wm-decor-current-off .wm-section-decor::after,
+.wm-decor-current-off .wm-decor::before,
+.wm-decor-current-off .wm-decor::after {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    .wm-section-decor--dots::before,
+    .wm-decor--dots::before {
+        width: 130px;
+        height: 130px;
+        background-size: 12px 12px;
+        opacity: calc(var(--wm-decor-opacity) * var(--wm-decor-intensity-factor) * 0.65);
+    }
+
+    .wm-section-decor--ring::after,
+    .wm-decor--ring::after {
+        width: 150px;
+        height: 150px;
+        opacity: calc(var(--wm-decor-opacity) * var(--wm-decor-intensity-factor) * 0.75);
+    }
+
+    .wm-section-decor--soft-grid::before,
+    .wm-decor--soft-grid::before {
+        width: 180px;
+        height: 150px;
+        background-size: 24px 24px;
+        opacity: calc(var(--wm-decor-opacity) * var(--wm-decor-intensity-factor) * 0.5);
+    }
+
+    .wm-section-decor--hero::before {
+        top: 20px;
+        right: 18px;
+    }
+
+    .wm-section-decor--hero::after {
+        bottom: -66px;
+        left: -58px;
+    }
+
+    .wm-section-decor--brands::before {
+        top: 4px;
+        left: 12px;
+    }
+
+    .wm-section-decor--filters::after {
+        top: 8px;
+        right: -58px;
+    }
+
+    .wm-section-decor--styles::before {
+        top: 0;
+        right: 8px;
+    }
+
+    .wm-section-decor--footer::before {
+        top: 18px;
+        right: 18px;
+        width: 130px;
+        height: 130px;
+        background-size: 14px 14px;
+        opacity: calc(var(--wm-decor-opacity) * var(--wm-decor-intensity-factor) * 0.5);
+    }
+
+    .wm-section-decor--footer::after {
+        bottom: -70px;
+        left: -54px;
+        width: 150px;
+        height: 150px;
+        opacity: calc(var(--wm-decor-opacity) * var(--wm-decor-intensity-factor) * 0.65);
+    }
+}

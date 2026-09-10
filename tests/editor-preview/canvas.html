@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor canvas document — emulates WP iframe canvas</title>
+<!--
+  Simulates the WordPress block editor canvas (iframed editor, WP 6.2+ / 7.1).
+  The canvas document only receives styles core decides to collect for it:
+  - NEW behavior: enqueue_block_assets styles ARE collected into the iframe
+    (font/tokens/theme/home/motifs) + the .wm-home custom-property shim.
+  - OLD behavior (the bug): none of those print here; only core editor styles.
+-->
+<link rel="stylesheet" href="../../assets/css/fonts.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/theme.css">
+<link rel="stylesheet" href="../../assets/css/components/decorative-motifs.css">
+<link rel="stylesheet" href="../../assets/css/components/product-components.css">
+<link rel="stylesheet" href="../../assets/css/pages/home.css">
+<link rel="stylesheet" href="../../assets/css/pages/blog.css">
+<style id="wm-editor-canvas-shim">
+/* Mirrors the inline style wm_enqueue_block_editor_preview_styles() adds. */
+.editor-styles-wrapper{--wm-home-shadow-sm:0 10px 26px rgba(17,24,39,0.045);--wm-home-shadow-md:0 16px 36px rgba(17,24,39,0.07);--wm-home-shadow-accent:0 16px 34px rgba(200,155,60,0.13);--wm-home-hover-border:rgba(200,155,60,0.5);--wm-home-motion:260ms cubic-bezier(0.22,1,0.36,1);}
+/* The iframe canvas is a bare document: no .wm-home ancestor exists, so core
+   admin/base styles like default body margins behave differently. WordPress
+   adds .editor-styles-wrapper on the canvas body. */
+body.editor-styles-wrapper{margin:0;}
+</style>
+</head>
+<body class="editor-styles-wrapper block-editor-iframe__body">
+<main id="wp-blocks" style="display:block">
+<!-- Real ServerSideRender-style markup, copied from the theme components -->
+<section class="wm-home-hero wm-section-decor wm-section-decor--hero wm-section-decor--dots wm-section-decor--ring" data-home-hero>
+  <div class="wm-home-hero__track">
+    <article class="wm-home-hero__slide is-active" data-home-hero-slide>
+      <div class="wm-home-hero__content">
+        <span class="wm-home-hero__eyebrow">مجموعه ویژه</span>
+        <h1 class="wm-home-hero__title">محصولات منتخب برای امروز</h1>
+        <p class="wm-home-hero__subtitle">مجموعه‌ای منتخب با تجربه خرید تمیز و سریع.</p>
+        <div class="wm-home-hero__actions">
+          <a class="wm-home-button wm-home-button--primary" href="#">مشاهده فروشگاه</a>
+          <a class="wm-home-button wm-home-button--outline" href="#">پرفروش‌ها</a>
+        </div>
+      </div>
+      <div class="wm-home-hero__visual">
+        <div class="wm-home-hero__placeholder" aria-hidden="true"></div>
+      </div>
+    </article>
+  </div>
+</section>
+<section class="wm-product-carousel wm-home-section wm-home-products" data-product-carousel>
+  <div class="wm-home-section__header">
+    <div>
+      <div class="wm-home-section__title-wrap">
+        <h2 class="wm-home-section__title">پرفروش‌ها</h2>
+        <a href="#" class="wm-home-button wm-home-button--outline wm-home-button--sm">مشاهده همه
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+        </a>
+      </div>
+      <p class="wm-home-section__subtitle">محصولاتی که بیشتر انتخاب شده‌اند.</p>
+    </div>
+    <div class="wm-product-carousel__controls">
+      <button class="wm-product-carousel__arrow" type="button"><span aria-hidden="true">‹</span></button>
+      <button class="wm-product-carousel__arrow" type="button"><span aria-hidden="true">›</span></button>
+    </div>
+  </div>
+  <div class="wm-product-carousel__viewport">
+    <div class="wm-product-carousel__track" tabindex="0">
+      <article class="wm-product-card wm-product-carousel__item">
+        <div class="wm-product-card__media-wrap">
+          <a class="wm-product-card__media" href="#" aria-label="محصول نمونه">
+            <img class="wm-product-card__image wm-product-card__image-main" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect width='400' height='400' fill='%23E5E0D8'/%3E%3C/svg%3E" alt="محصول نمونه">
+          </a>
+        </div>
+        <h3 class="wm-product-card__title"><a href="#">محصول نمونه</a></h3>
+        <div class="wm-product-card__price">
+          <span class="woocommerce-Price-amount amount">۲۵۰٬۰۰۰&nbsp;<span class="woocommerce-Price-currencySymbol">تومان</span></span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+</main>
+</body>
+</html>

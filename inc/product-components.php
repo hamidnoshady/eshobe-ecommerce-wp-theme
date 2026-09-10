@@ -10,13 +10,7 @@ function wm_get_current_product() {
         return null;
     }
 
-    global $product;
-    if ( $product instanceof WC_Product ) {
-        return $product;
-    }
-
-    $product_id = get_the_ID();
-    return $product_id ? wc_get_product( $product_id ) : null;
+    return wc_get_product();
 }
 
 function wm_get_terms_for_product( $product_id, $taxonomy ) {
@@ -181,8 +175,8 @@ function wm_render_product_gallery() {
         return '';
     }
 
-    $image_count = count( wm_get_product_gallery_ids( $product ) );
     $image_ids   = wm_get_product_gallery_ids( $product );
+    $image_count = count( $image_ids );
     $main_id     = ! empty( $image_ids ) ? $image_ids[0] : 0;
 
     if ( ! empty( $image_ids ) && function_exists( 'update_meta_cache' ) ) {
@@ -380,7 +374,7 @@ function wm_render_product_specs() {
     ob_start();
     ?>
     <section class="<?php echo esc_attr( $class ); ?>" aria-label="<?php esc_attr_e( 'Product specifications', 'eshobe-ecommerce' ); ?>">
-        <div class="wm-product-specs__grid">
+        <div class="wm-product-specs__grid" id="wm-product-specs-grid">
             <?php foreach ( $items as $item ) : ?>
                 <div class="wm-product-specs__item">
                     <span class="wm-product-specs__dot" aria-hidden="true"></span>
@@ -392,10 +386,10 @@ function wm_render_product_specs() {
         <?php if ( $has_mobile_toggle ) : ?>
             <div class="wm-product-specs__fade" aria-hidden="true"></div>
             <div class="wm-product-specs__toggle-wrap">
-            <button class="wm-product-specs__toggle wm-product-specs__toggle--more" type="button" data-specs-toggle aria-expanded="false">
+            <button class="wm-product-specs__toggle wm-product-specs__toggle--more" type="button" data-specs-toggle aria-expanded="false" aria-controls="wm-product-specs-grid">
                 <?php echo esc_html__( 'مشاهده بیشتر', 'eshobe-ecommerce' ); ?>
             </button>
-            <button class="wm-product-specs__toggle wm-product-specs__toggle--less" type="button" data-specs-toggle aria-expanded="true">
+            <button class="wm-product-specs__toggle wm-product-specs__toggle--less" type="button" data-specs-toggle aria-expanded="true" aria-controls="wm-product-specs-grid">
                 <?php echo esc_html__( 'مشاهده کمتر', 'eshobe-ecommerce' ); ?>
             </button>
             </div>
@@ -486,17 +480,11 @@ function wm_render_mobile_product_bottom_bar() {
         return '';
     }
 
-    $stock           = wm_get_product_stock_data( $product );
-    $starts_expanded = $product->is_type( 'variable' );
-    $state_class     = $starts_expanded ? 'wm-mobile-bottom-bar--expanded' : 'wm-mobile-bottom-bar--collapsed';
+    $stock       = wm_get_product_stock_data( $product );
 
     ob_start();
     ?>
-    <section class="wm-mobile-bottom-bar <?php echo esc_attr( $state_class ); ?>" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'eshobe-ecommerce' ); ?>">
-        <button class="wm-mobile-bottom-bar__handle" type="button" aria-expanded="<?php echo $starts_expanded ? 'true' : 'false'; ?>" aria-controls="wm-mobile-bottom-bar-content">
-            <span class="wm-mobile-bottom-bar__chevron" aria-hidden="true"></span>
-        </button>
-
+    <section class="wm-mobile-bottom-bar" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'eshobe-ecommerce' ); ?>">
         <div class="wm-mobile-bottom-bar__summary">
             <?php if ( $product->get_price_html() ) : ?>
                 <div class="wm-mobile-bottom-bar__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
@@ -512,9 +500,6 @@ function wm_render_mobile_product_bottom_bar() {
                 <?php woocommerce_template_single_add_to_cart(); ?>
             </div>
         </div>
-
-        <?php /* SKU/guarantee + trust badges now live in .wm-product-purchase (visible on mobile); this div stays only so the handle's expand/collapse JS has a target. */ ?>
-        <div class="wm-mobile-bottom-bar__content" id="wm-mobile-bottom-bar-content" <?php echo $starts_expanded ? '' : 'hidden'; ?>></div>
     </section>
     <?php
     return ob_get_clean();
@@ -534,15 +519,15 @@ function wm_get_mobile_collapsible_description( $html ) {
     ob_start();
     ?>
     <div class="wm-product-description wm-product-description--collapsed" data-mobile-description>
-        <div class="wm-product-description__content">
+        <div class="wm-product-description__content" id="wm-product-description-content">
             <?php echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         </div>
         <div class="wm-product-description__fade" aria-hidden="true"></div>
         <div class="wm-product-description__toggle-wrap">
-            <button class="wm-product-description__toggle wm-product-description__toggle--more" type="button" data-description-toggle aria-expanded="false">
+            <button class="wm-product-description__toggle wm-product-description__toggle--more" type="button" data-description-toggle aria-expanded="false" aria-controls="wm-product-description-content">
                 <?php echo esc_html__( 'مشاهده بیشتر', 'eshobe-ecommerce' ); ?>
             </button>
-            <button class="wm-product-description__toggle wm-product-description__toggle--less" type="button" data-description-toggle aria-expanded="true">
+            <button class="wm-product-description__toggle wm-product-description__toggle--less" type="button" data-description-toggle aria-expanded="true" aria-controls="wm-product-description-content">
                 <?php echo esc_html__( 'مشاهده کمتر', 'eshobe-ecommerce' ); ?>
             </button>
         </div>
@@ -742,6 +727,81 @@ function wm_render_related_products() {
     <?php
     return ob_get_clean();
 }
+
+/**
+ * Wishlist page URL (auto-created on activation if missing).
+ *
+ * @return string
+ */
+function wm_wishlist_page_url() {
+	$page_id = (int) get_option( 'wm_wishlist_page_id' );
+	if ( $page_id && 'publish' === get_post_status( $page_id ) ) {
+		return get_permalink( $page_id );
+	}
+
+	$page = get_page_by_path( 'wishlist' );
+	if ( $page ) {
+		update_option( 'wm_wishlist_page_id', $page->ID );
+		return get_permalink( $page->ID );
+	}
+
+	return home_url( '/' );
+}
+
+/**
+ * Create the wishlist page once (idempotent; runs on init but is a no-op
+ * after the option is set).
+ */
+function wm_wishlist_maybe_create_page() {
+	if ( get_option( 'wm_wishlist_page_id' ) ) {
+		return;
+	}
+
+	$page = get_page_by_path( 'wishlist' );
+	if ( $page ) {
+		update_option( 'wm_wishlist_page_id', $page->ID );
+		return;
+	}
+
+	$page_id = wp_insert_post(
+		array(
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_title'   => 'علاقه‌مندی‌ها',
+			'post_name'    => 'wishlist',
+			'post_content' => '[wm_wishlist]',
+		)
+	);
+
+	if ( $page_id && ! is_wp_error( $page_id ) ) {
+		update_option( 'wm_wishlist_page_id', $page_id );
+	}
+}
+add_action( 'init', 'wm_wishlist_maybe_create_page' );
+add_action( 'after_switch_theme', 'wm_wishlist_maybe_create_page' );
+
+/**
+ * Wishlist page shortcode: renders the client-driven grid (localStorage IDs
+ * + the wm_wishlist_products AJAX endpoint).
+ *
+ * @return string
+ */
+function wm_render_wishlist_shortcode() {
+	wp_enqueue_script( 'eshobe-ecommerce-wishlist' );
+
+	ob_start();
+	?>
+	<div class="wm-wishlist-page" data-wm-wishlist-page>
+		<div class="wm-wishlist-page__grid" data-wm-wishlist-grid></div>
+		<div class="wm-wishlist-page__empty" data-wm-wishlist-empty hidden>
+			<p><?php echo esc_html__( 'هنوز محصولی به علاقه‌مندی‌ها اضافه نکرده‌اید.', 'eshobe-ecommerce' ); ?></p>
+			<a class="button" href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' ) ); ?>"><?php echo esc_html__( 'مشاهده فروشگاه', 'eshobe-ecommerce' ); ?></a>
+		</div>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+add_shortcode( 'wm_wishlist', 'wm_render_wishlist_shortcode' );
 
 add_shortcode( 'product_gallery_block', 'wm_render_product_gallery' );
 add_shortcode( 'product_intro_block', 'wm_render_product_intro' );

@@ -13,10 +13,16 @@ do_action( 'woocommerce_before_checkout_form', $checkout );
 $wm_checkout_locked = ! is_user_logged_in();
 
 $customer      = WC()->customer;
-$billing_city  = $customer ? $customer->get_billing_city() : '';
-$billing_state = $customer ? $customer->get_billing_state() : '';
-$billing_addr  = $customer ? trim( $customer->get_billing_address_1() . ' ' . $customer->get_billing_address_2() ) : '';
-$has_address   = ! $wm_checkout_locked && ( $billing_city || $billing_state || $billing_addr );
+$shipping_city  = $customer ? $customer->get_shipping_city() : '';
+$shipping_state = $customer ? $customer->get_shipping_state() : '';
+$shipping_addr  = $customer ? trim( $customer->get_shipping_address_1() . ' ' . $customer->get_shipping_address_2() ) : '';
+$billing_city   = $customer ? $customer->get_billing_city() : '';
+$billing_state  = $customer ? $customer->get_billing_state() : '';
+$billing_addr   = $customer ? trim( $customer->get_billing_address_1() . ' ' . $customer->get_billing_address_2() ) : '';
+$display_city   = $shipping_city ?: $billing_city;
+$display_state  = $shipping_state ?: $billing_state;
+$display_addr   = $shipping_addr ?: $billing_addr;
+$has_address    = ! $wm_checkout_locked && ( $display_city || $display_state || $display_addr );
 $item_count    = WC()->cart ? WC()->cart->get_cart_contents_count() : 0;
 ?>
 
@@ -72,9 +78,9 @@ $item_count    = WC()->cart ? WC()->cart->get_cart_contents_count() : 0;
 												'، ',
 												array_filter(
 													array(
-														$billing_state,
-														$billing_city,
-														$billing_addr,
+														$display_state,
+														$display_city,
+														$display_addr,
 													)
 												)
 											)

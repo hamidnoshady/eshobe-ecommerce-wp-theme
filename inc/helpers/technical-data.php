@@ -142,6 +142,15 @@ function wm_technical_render_analytics_scripts() {
 	$ga4_id   = wm_technical_get_option( 'wm_technical_ga4_id' );
 	$pixel_id = wm_technical_get_option( 'wm_technical_pixel_id' );
 
+	// Strict ID validation: only well-formed GA4 (G-/GT-/AW-) and numeric
+	// Meta Pixel IDs are ever emitted into the page.
+	if ( $ga4_id && ! preg_match( '/^(G|GT|AW)-[A-Z0-9-]{4,}$/', $ga4_id ) ) {
+		$ga4_id = '';
+	}
+	if ( $pixel_id && ! preg_match( '/^\d{10,20}$/', $pixel_id ) ) {
+		$pixel_id = '';
+	}
+
 	if ( $ga4_id ) {
 		printf(
 			"<script async src=\"https://www.googletagmanager.com/gtag/js?id=%1\$s\"></script>\n<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','%1\$s');</script>\n",

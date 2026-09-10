@@ -12,7 +12,7 @@
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.innerHTML =
-      '<button type="button" class="wm-lightbox__close" aria-label="Close">&times;</button>' +
+      '<button type="button" class="wm-lightbox__close" aria-label="بستن">&times;</button>' +
       '<div class="wm-lightbox__stage"><img class="wm-lightbox__img" src="" alt=""></div>';
 
     document.body.appendChild(overlay);

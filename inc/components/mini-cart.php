@@ -19,9 +19,33 @@ function wm_get_mini_cart_body_html() {
     ob_start();
 
     if ( WC()->cart->is_empty() ) {
+        $empty_cats = array();
+        if ( taxonomy_exists( 'product_cat' ) ) {
+            $terms = get_terms(
+                array(
+                    'taxonomy'   => 'product_cat',
+                    'hide_empty' => true,
+                    'number'     => 4,
+                )
+            );
+            if ( ! is_wp_error( $terms ) ) {
+                $empty_cats = $terms;
+            }
+        }
         ?>
         <div class="wm-cart-drawer__empty">
+            <span class="wm-cart-drawer__empty-icon" aria-hidden="true">🛒</span>
             <p class="wm-cart-drawer__empty-text"><?php echo esc_html__( 'سبد خرید شما خالی است.', 'eshobe-ecommerce' ); ?></p>
+            <?php if ( ! empty( $empty_cats ) ) : ?>
+                <div class="wm-cart-drawer__empty-chips">
+                    <?php foreach ( $empty_cats as $term ) : ?>
+                        <?php $term_link = get_term_link( $term ); ?>
+                        <?php if ( ! is_wp_error( $term_link ) ) : ?>
+                            <a class="wm-cart-drawer__empty-chip" href="<?php echo esc_url( $term_link ); ?>"><?php echo esc_html( $term->name ); ?></a>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
             <a class="wm-cart-drawer__btn wm-cart-drawer__btn--primary" href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"><?php echo esc_html__( 'مشاهده محصولات', 'eshobe-ecommerce' ); ?></a>
         </div>
         <?php

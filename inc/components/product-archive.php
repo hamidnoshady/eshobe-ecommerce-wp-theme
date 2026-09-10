@@ -104,6 +104,11 @@ function wm_product_archive_register_sidebar() {
 add_action( 'widgets_init', 'wm_product_archive_register_sidebar' );
 
 function wm_product_archive_filter_config() {
+    static $cache = null;
+    if ( null !== $cache ) {
+        return $cache;
+    }
+
     $taxonomies = array();
     $selected   = (array) wm_product_archive_get_option( 'wm_archive_filter_taxonomies', array() );
     $selected   = array_values( array_filter( array_map( 'sanitize_key', $selected ) ) );
@@ -190,7 +195,7 @@ function wm_product_archive_filter_config() {
         );
     }
 
-    return array(
+    $cache = array(
         'enabled'        => wm_product_archive_bool_option( 'wm_archive_custom_filters_enabled', true ),
         'ajax_enabled'   => wm_product_archive_bool_option( 'wm_archive_filter_ajax_enabled', true ),
         'show_price'     => wm_product_archive_bool_option( 'wm_archive_filter_price_enabled', true ),
@@ -205,6 +210,8 @@ function wm_product_archive_filter_config() {
         'hierarchy_depth' => wm_product_archive_int_option( 'wm_archive_filter_hierarchy_depth', 4, 1, 8 ),
         'taxonomies'    => apply_filters( 'wm_product_archive_filter_taxonomies', $taxonomies ),
     );
+
+    return $cache;
 }
 
 function wm_product_archive_get_filter_values( $key ) {
@@ -342,16 +349,51 @@ function wm_product_archive_render_tax_filter( $filter ) {
 }
 
 function wm_product_archive_term_has_selected_descendant( $terms, $term_id, $selected ) {
-    foreach ( $terms as $term ) {
-        if ( (int) $term->parent !== (int) $term_id ) {
-            continue;
-        }
+    static $hierarchy = array();
+    static $last_terms = null;
+    static $selected_map = array();
+    static $last_selected = null;
+    static $cache = array();
 
-        if ( in_array( $term->slug, $selected, true ) || wm_product_archive_term_has_selected_descendant( $terms, (int) $term->term_id, $selected ) ) {
+    if ( $last_terms !== $terms ) {
+        $hierarchy = array();
+        foreach ( $terms as $term ) {
+            $term_parent = (int) $term->parent;
+            if ( ! isset( $hierarchy[ $term_parent ] ) ) {
+                $hierarchy[ $term_parent ] = array();
+            }
+            $hierarchy[ $term_parent ][] = $term;
+        }
+        $last_terms = $terms;
+        $cache = array();
+    }
+
+    if ( $last_selected !== $selected ) {
+        $selected_map  = array_flip( $selected );
+        $last_selected = $selected;
+        $cache = array();
+    }
+
+    // ⚡ Bolt Optimization:
+    // Caching recursive descendant lookups prevents O(N²) traversal when rendering
+    // large filter trees, reducing evaluation time drastically for deep/large taxonomies.
+    if ( isset( $cache[ $term_id ] ) ) {
+        return $cache[ $term_id ];
+    }
+
+    if ( empty( $hierarchy[ $term_id ] ) ) {
+        $cache[ $term_id ] = false;
+        return false;
+    }
+
+    foreach ( $hierarchy[ $term_id ] as $term ) {
+        if ( isset( $selected_map[ $term->slug ] ) || wm_product_archive_term_has_selected_descendant( $terms, (int) $term->term_id, $selected ) ) {
+            $cache[ $term_id ] = true;
             return true;
         }
     }
 
+    $cache[ $term_id ] = false;
     return false;
 }
 
@@ -360,28 +402,43 @@ function wm_product_archive_render_term_tree( $terms, $key, $selected, $parent =
         return;
     }
 
-    $children = array_filter(
-        $terms,
-        function( $term ) use ( $parent ) {
-            return null === $parent || (int) $term->parent === (int) $parent;
+    static $hierarchy = array();
+    static $last_terms = null;
+    static $selected_map = array();
+    static $last_selected = null;
+
+    if ( $last_terms !== $terms ) {
+        $hierarchy = array();
+        foreach ( $terms as $term ) {
+            $term_parent = (int) $term->parent;
+            if ( ! isset( $hierarchy[ $term_parent ] ) ) {
+                $hierarchy[ $term_parent ] = array();
+            }
+            $hierarchy[ $term_parent ][] = $term;
         }
-    );
+        $last_terms = $terms;
+    }
+
+    if ( $last_selected !== $selected ) {
+        $selected_map  = array_flip( $selected );
+        $last_selected = $selected;
+    }
+
+    if ( null === $parent ) {
+        $children = $terms;
+    } else {
+        $children = isset( $hierarchy[ (int) $parent ] ) ? $hierarchy[ (int) $parent ] : array();
+    }
 
     if ( empty( $children ) ) {
         return;
     }
     ?>
-    <ul class="wm-custom-filter__options<?php echo 0 < $depth ? ' wm-custom-filter__options--child' : ''; ?>">
+    <ul class="wm-custom-filter__options<?php echo 0 < $depth ? ' wm-custom-filter__options--child' : ''; ?>" <?php echo null !== $parent ? 'id="wm-filter-tree-' . esc_attr( $key . '-' . $parent ) . '"' : ''; ?>>
         <?php foreach ( $children as $term ) : ?>
             <?php
-            $checked       = in_array( $term->slug, $selected, true );
-            $term_children = array_filter(
-                $terms,
-                function( $child ) use ( $term ) {
-                    return (int) $child->parent === (int) $term->term_id;
-                }
-            );
-            $has_children  = ! empty( $term_children );
+            $checked       = isset( $selected_map[ $term->slug ] );
+            $has_children  = ! empty( $hierarchy[ (int) $term->term_id ] );
             $tree_open     = $checked || ( $has_children && wm_product_archive_term_has_selected_descendant( $terms, (int) $term->term_id, $selected ) );
             $unavailable   = ! empty( $term->wm_unavailable );
             ?>
@@ -394,7 +451,7 @@ function wm_product_archive_render_term_tree( $terms, $key, $selected, $parent =
                     <?php endif; ?>
                 </label>
                 <?php if ( $has_children && ! empty( $config['hierarchy_toggle'] ) ) : ?>
-                    <button class="wm-custom-filter__tree-toggle" type="button" aria-expanded="<?php echo esc_attr( $tree_open ? 'true' : 'false' ); ?>" aria-label="<?php echo esc_attr__( 'نمایش زیرمجموعه‌ها', 'eshobe-ecommerce' ); ?>"></button>
+                    <button class="wm-custom-filter__tree-toggle" type="button" aria-expanded="<?php echo esc_attr( $tree_open ? 'true' : 'false' ); ?>" aria-controls="wm-filter-tree-<?php echo esc_attr( $key . '-' . $term->term_id ); ?>" aria-label="<?php echo esc_attr__( 'نمایش زیرمجموعه‌ها', 'eshobe-ecommerce' ); ?>"></button>
                 <?php endif; ?>
                 <?php wm_product_archive_render_term_tree( $terms, $key, $selected, (int) $term->term_id, $depth + 1, $config ); ?>
             </li>
@@ -637,11 +694,20 @@ function wm_product_archive_scope_product_ids() {
         return $cached;
     }
 
+    // Single-flight guard: if another request is already building this set,
+    // skip the expensive query for this request (availability filtering is
+    // skipped for one request rather than stampeding the cache).
+    $lock_key = $cache_key . '_lock';
+    if ( get_transient( $lock_key ) ) {
+        return null;
+    }
+    set_transient( $lock_key, 1, 30 );
+
     $query_args = array(
         'post_type'              => 'product',
         'post_status'            => 'publish',
         'fields'                 => 'ids',
-        'posts_per_page'         => -1,
+        'posts_per_page'         => apply_filters( 'wm_archive_scope_max_ids', 10000 ),
         'no_found_rows'          => true,
         'update_post_meta_cache' => false,
         'update_post_term_cache' => false,
@@ -691,6 +757,7 @@ function wm_product_archive_scope_product_ids() {
     $product_ids = get_posts( $query_args );
     $product_ids = array_map( 'intval', $product_ids );
 
+    delete_transient( $lock_key );
     set_transient( $cache_key, $product_ids, 15 * MINUTE_IN_SECONDS );
 
     return $product_ids;
@@ -751,11 +818,18 @@ function wm_product_archive_category_scope_product_ids() {
         return $cached;
     }
 
+    // Single-flight guard (see wm_product_archive_scope_product_ids).
+    $lock_key = $cache_key . '_lock';
+    if ( get_transient( $lock_key ) ) {
+        return null;
+    }
+    set_transient( $lock_key, 1, 30 );
+
     $query_args = array(
         'post_type'              => 'product',
         'post_status'            => 'publish',
         'fields'                 => 'ids',
-        'posts_per_page'         => -1,
+        'posts_per_page'         => apply_filters( 'wm_archive_scope_max_ids', 10000 ),
         'no_found_rows'          => true,
         'update_post_meta_cache' => false,
         'update_post_term_cache' => false,
@@ -805,6 +879,7 @@ function wm_product_archive_category_scope_product_ids() {
     $product_ids = get_posts( $query_args );
     $product_ids = array_map( 'intval', $product_ids );
 
+    delete_transient( $lock_key );
     set_transient( $cache_key, $product_ids, 15 * MINUTE_IN_SECONDS );
 
     return $product_ids;
@@ -866,9 +941,12 @@ function wm_product_archive_filter_terms_by_availability( $terms, $available_ids
         }
     };
 
+    // ⚡ Bolt: Use a hash map (O(1) lookups) for selected slugs to prevent an O(n^2) bottleneck when filtering large term lists.
+    $selected_map = array_flip( $selected_slugs );
+
     foreach ( $terms as $term ) {
         $term_id = (int) $term->term_id;
-        if ( isset( $available_ids[ $term_id ] ) || in_array( $term->slug, $selected_slugs, true ) ) {
+        if ( isset( $available_ids[ $term_id ] ) || isset( $selected_map[ $term->slug ] ) ) {
             $mark_with_ancestors( $term_id );
         }
     }
@@ -1011,21 +1089,21 @@ function wm_product_archive_render_price_filter() {
         <h3 class="wm-archive-filter-widget__title"><?php echo esc_html__( 'محدوده قیمت', 'eshobe-ecommerce' ); ?></h3>
         <div class="wm-custom-filter__price-range" data-price-filter data-price-step="<?php echo esc_attr( (string) $step ); ?>">
             <div class="wm-custom-filter__price-track" aria-hidden="true"></div>
-            <input type="range" min="<?php echo esc_attr( (string) $min_bound ); ?>" max="<?php echo esc_attr( (string) $max_bound ); ?>" step="<?php echo esc_attr( (string) $step ); ?>" value="<?php echo esc_attr( (string) $min_value ); ?>" data-price-min-range>
-            <input type="range" min="<?php echo esc_attr( (string) $min_bound ); ?>" max="<?php echo esc_attr( (string) $max_bound ); ?>" step="<?php echo esc_attr( (string) $step ); ?>" value="<?php echo esc_attr( (string) $max_value ); ?>" data-price-max-range>
+            <input type="range" min="<?php echo esc_attr( (string) $min_bound ); ?>" max="<?php echo esc_attr( (string) $max_bound ); ?>" step="<?php echo esc_attr( (string) $step ); ?>" value="<?php echo esc_attr( (string) $min_value ); ?>" aria-label="<?php echo esc_attr__( 'حداقل قیمت', 'eshobe-ecommerce' ); ?>" data-price-min-range>
+            <input type="range" min="<?php echo esc_attr( (string) $min_bound ); ?>" max="<?php echo esc_attr( (string) $max_bound ); ?>" step="<?php echo esc_attr( (string) $step ); ?>" value="<?php echo esc_attr( (string) $max_value ); ?>" aria-label="<?php echo esc_attr__( 'حداکثر قیمت', 'eshobe-ecommerce' ); ?>" data-price-max-range>
         </div>
         <div class="wm-custom-filter__price-fields">
             <label>
                 <span><?php echo esc_html__( 'از', 'eshobe-ecommerce' ); ?></span>
                 <span class="wm-custom-filter__price-control">
-                    <input type="text" inputmode="numeric" name="min_price" value="<?php echo esc_attr( '' !== $min_price ? number_format( $min_value ) : '' ); ?>" placeholder="<?php echo esc_attr( number_format( $min_bound ) ); ?>" data-price-min-input>
+                    <input type="text" inputmode="numeric" name="min_price" value="<?php echo esc_attr( '' !== $min_price ? number_format( $min_value ) : '' ); ?>" placeholder="<?php echo esc_attr( number_format( $min_bound ) ); ?>" aria-label="<?php echo esc_attr__( 'حداقل قیمت', 'eshobe-ecommerce' ); ?>" data-price-min-input>
                     <small><?php echo esc_html__( 'تومان', 'eshobe-ecommerce' ); ?></small>
                 </span>
             </label>
             <label>
                 <span><?php echo esc_html__( 'تا', 'eshobe-ecommerce' ); ?></span>
                 <span class="wm-custom-filter__price-control">
-                    <input type="text" inputmode="numeric" name="max_price" value="<?php echo esc_attr( '' !== $max_price ? number_format( $max_value ) : '' ); ?>" placeholder="<?php echo esc_attr( number_format( $max_bound ) ); ?>" data-price-max-input>
+                    <input type="text" inputmode="numeric" name="max_price" value="<?php echo esc_attr( '' !== $max_price ? number_format( $max_value ) : '' ); ?>" placeholder="<?php echo esc_attr( number_format( $max_bound ) ); ?>" aria-label="<?php echo esc_attr__( 'حداکثر قیمت', 'eshobe-ecommerce' ); ?>" data-price-max-input>
                     <small><?php echo esc_html__( 'تومان', 'eshobe-ecommerce' ); ?></small>
                 </span>
             </label>
@@ -1672,7 +1750,7 @@ function wm_product_archive_render_sidebar() {
         return;
     }
     ?>
-    <aside class="wm-product-archive__sidebar" data-product-archive-sidebar>
+    <aside class="wm-product-archive__sidebar" id="wm-product-archive-sidebar" data-product-archive-sidebar>
         <div class="wm-product-archive__sidebar-panel">
             <div class="wm-product-archive__sidebar-header">
                 <strong><?php echo esc_html__( 'فیلترها', 'eshobe-ecommerce' ); ?></strong>
@@ -1750,7 +1828,7 @@ function wm_product_archive_render_toolbar() {
     ?>
     <?php if ( wm_product_archive_sidebar_enabled() ) : ?>
         <div class="wm-product-archive__mobile-actions">
-            <button class="wm-product-archive__filter-button" type="button" data-archive-filter-toggle aria-expanded="true">
+            <button class="wm-product-archive__filter-button" type="button" data-archive-filter-toggle aria-expanded="true" aria-controls="wm-product-archive-sidebar">
                 <span aria-hidden="true">☰</span>
                 <?php echo esc_html__( 'فیلترها', 'eshobe-ecommerce' ); ?>
             </button>
@@ -1769,6 +1847,9 @@ function wm_product_archive_render_toolbar() {
 }
 
 function wm_product_archive_render_loop() {
+    // Above-the-fold row gets fetchpriority=high; everything below stays lazy.
+    $first_row = wm_product_archive_int_option( 'wm_archive_columns_desktop', 3, 1, 4 );
+    $index     = 0;
     ?>
     <div class="wm-product-archive__grid wm-products-loop">
         <?php while ( have_posts() ) : ?>
@@ -1779,7 +1860,8 @@ function wm_product_archive_render_loop() {
                 $product = wc_get_product( get_the_ID() );
             }
             if ( $product instanceof WC_Product ) {
-                echo wm_render_archive_product_card( $product ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo wm_render_archive_product_card( $product, $index < $first_row ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                $index++;
             }
             ?>
         <?php endwhile; ?>
@@ -1787,15 +1869,18 @@ function wm_product_archive_render_loop() {
     <?php
 }
 
-function wm_render_archive_product_card( WC_Product $product ) {
-    return wm_render_product_card(
-        $product,
-        array(
-            'class'              => 'wm-product-carousel__item',
-            'enable_hover_image' => wm_product_archive_bool_option( 'wm_archive_enable_card_hover_image', true ),
-            'ajax_add_to_cart'   => wm_product_archive_bool_option( 'wm_archive_enable_ajax_add_to_cart', true ),
-        )
+function wm_render_archive_product_card( WC_Product $product, $high_priority = false ) {
+    $args = array(
+        'class'              => 'wm-product-carousel__item',
+        'enable_hover_image' => wm_product_archive_bool_option( 'wm_archive_enable_card_hover_image', true ),
+        'ajax_add_to_cart'   => wm_product_archive_bool_option( 'wm_archive_enable_ajax_add_to_cart', true ),
     );
+
+    if ( $high_priority ) {
+        $args['fetchpriority'] = 'high';
+    }
+
+    return wm_render_product_card( $product, $args );
 }
 
 function wm_product_archive_render_pagination() {

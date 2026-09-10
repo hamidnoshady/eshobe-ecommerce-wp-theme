@@ -5,7 +5,8 @@
     return;
   }
 
-  const mobileQuery = window.matchMedia('(max-width: 767px)');
+  // The filter drawer is used up to tablet widths; desktop keeps the inline sidebar.
+  const mobileQuery = window.matchMedia('(max-width: 1023px)');
   let activeRequest = null;
   let changeTimer = null;
 
@@ -20,6 +21,13 @@
     }
   }
 
+  // Lock/unlock the page scroll while the mobile drawer is open. The body class
+  // matches the theme's overlay convention (search modal, mini-cart, OTP modal);
+  // keeping scroll on the body means the position is naturally restored on close.
+  function setBodyScrollLock(locked) {
+    document.body.classList.toggle('wm-archive-filter-open', locked);
+  }
+
   function openFilters() {
     if (!archive) {
       return;
@@ -27,6 +35,7 @@
 
     if (mobileQuery.matches) {
       archive.classList.add('is-filter-open');
+      setBodyScrollLock(true);
       setExpanded(true);
       return;
     }
@@ -42,6 +51,7 @@
 
     if (mobileQuery.matches) {
       archive.classList.remove('is-filter-open');
+      setBodyScrollLock(false);
       setExpanded(false);
       return;
     }
@@ -56,6 +66,7 @@
     }
 
     archive.classList.remove('is-filter-open');
+    setBodyScrollLock(false);
     setExpanded(false);
   }
 
@@ -697,6 +708,19 @@
     if (event.key === 'Escape') {
       closeFilters();
     }
+  });
+
+  // Close the drawer when the viewport grows past the tablet breakpoint
+  // (rotating a tablet, widening the window, etc.) so a half-open filter
+  // panel never lingers over the desktop layout.
+  mobileQuery.addEventListener('change', function(event) {
+    if (event.matches || !archive) {
+      return;
+    }
+
+    archive.classList.remove('is-filter-open');
+    setBodyScrollLock(false);
+    setExpanded(false);
   });
 
   initFilterWidgets(archive);

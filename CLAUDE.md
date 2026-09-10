@@ -56,7 +56,7 @@ The site works with plain source CSS/JS at all times — `wm_asset_uri()`/`wm_as
 
 ### `inc/` module map
 
-- `template-functions.php`, `template-tags.php` — general template helpers (Underscores defaults).
+- `template-functions.php` — general template helpers (Underscores defaults: body classes, customizer-driven design CSS).
 - `helpers/options.php` — `wm_get_option()`, the base ACF-options-with-fallback accessor other helper modules build on.
 - `helpers/home-data.php` — `wm_home_*` helpers for reading ACF "option" fields (front page content blocks), image URL/HTML resolution, section ordering, and feature toggles.
 - `helpers/marketing-data.php`, `helpers/technical-data.php` — same ACF-option-with-fallback pattern for marketing settings and "Technical Settings" (تنظیمات فنی) — e.g. theme update channel, OTP security settings.
@@ -87,7 +87,7 @@ The site works with plain source CSS/JS at all times — `wm_asset_uri()`/`wm_as
 
 ### Templates
 
-- `front-page.php` assembles the home page from `template-parts/home/*.php` (hero slider, bestsellers, brand categories, quick filters, popular styles, recommended products, trust section, filter boxes) — each gated by `wm_home_enabled()`.
+- `front-page.php` assembles the home page from `template-parts/home/*.php` (hero slider, bestsellers, brand categories, popular styles, recommended products, trust section, filter boxes) — each gated by `wm_home_enabled()`.
 - `woocommerce/` overrides core WooCommerce templates: `single-product.php` (uses the product shortcodes/components directly), `archive-product.php`, cart (`cart/`), checkout (`checkout/`), my-account (`myaccount/`) templates.
 - `taxonomy-product_cat.php` / `taxonomy-product_brand.php` — product taxonomy archives; `page-templates/brand-archive.php` is a selectable page template variant.
 

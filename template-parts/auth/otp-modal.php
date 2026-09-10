@@ -43,7 +43,7 @@ if ( is_user_logged_in() ) {
 			</div>
 			<form data-otp-phone-form>
 				<label class="screen-reader-text" for="wm-otp-phone"><?php echo esc_html__( 'شماره موبایل', 'eshobe-ecommerce' ); ?></label>
-				<input type="tel" id="wm-otp-phone" class="wm-otp-modal__input" name="phone" inputmode="numeric" autocomplete="tel" placeholder="09xxxxxxxxx" required>
+				<input type="tel" id="wm-otp-phone" class="wm-otp-modal__input wm-otp-modal__input--ltr" name="phone" inputmode="tel" autocomplete="tel" placeholder="09xxxxxxxxx" required dir="ltr">
 				<button type="submit" class="wm-otp-modal__submit"><?php echo esc_html__( 'ادامه', 'eshobe-ecommerce' ); ?></button>
 			</form>
 			<p class="wm-otp-modal__error" data-otp-error hidden></p>
@@ -58,8 +58,13 @@ if ( is_user_logged_in() ) {
 				<?php echo esc_html__( 'را وارد کنید.', 'eshobe-ecommerce' ); ?>
 			</p>
 			<form data-otp-existing-password-form>
-				<label class="screen-reader-text" for="wm-otp-existing-password"><?php echo esc_html__( 'رمز عبور', 'eshobe-ecommerce' ); ?></label>
-				<input type="password" id="wm-otp-existing-password" class="wm-otp-modal__input" name="password" autocomplete="current-password" placeholder="<?php echo esc_attr__( 'رمز عبور', 'eshobe-ecommerce' ); ?>" required>
+				<div class="wm-otp-modal__pw-wrap">
+					<label class="screen-reader-text" for="wm-otp-existing-password"><?php echo esc_html__( 'رمز عبور', 'eshobe-ecommerce' ); ?></label>
+					<input type="password" id="wm-otp-existing-password" class="wm-otp-modal__input" name="password" autocomplete="current-password" placeholder="<?php echo esc_attr__( 'رمز عبور', 'eshobe-ecommerce' ); ?>" required>
+					<button type="button" class="wm-otp-modal__pw-toggle" data-otp-password-toggle="wm-otp-existing-password" aria-label="<?php echo esc_attr__( 'نمایش رمز عبور', 'eshobe-ecommerce' ); ?>">
+						<span class="wm-otp-modal__pw-toggle-icon" aria-hidden="true"></span>
+					</button>
+				</div>
 				<button type="submit" class="wm-otp-modal__submit"><?php echo esc_html__( 'ورود', 'eshobe-ecommerce' ); ?></button>
 			</form>
 			<div class="wm-otp-modal__actions">
@@ -97,10 +102,18 @@ if ( is_user_logged_in() ) {
 			<h3 class="wm-otp-modal__subtitle"><?php echo esc_html__( 'تعیین رمز عبور', 'eshobe-ecommerce' ); ?></h3>
 			<p class="wm-otp-modal__desc"><?php echo esc_html__( 'برای دفعات بعدی یک رمز عبور برای حساب خود تعیین کنید.', 'eshobe-ecommerce' ); ?></p>
 			<form data-otp-password-form>
-				<label class="screen-reader-text" for="wm-otp-new-password"><?php echo esc_html__( 'رمز عبور جدید', 'eshobe-ecommerce' ); ?></label>
-				<input type="password" id="wm-otp-new-password" class="wm-otp-modal__input" name="password" autocomplete="new-password" minlength="6" placeholder="<?php echo esc_attr__( 'رمز عبور (حداقل ۶ کاراکتر)', 'eshobe-ecommerce' ); ?>" required>
+				<div class="wm-otp-modal__pw-wrap">
+					<label class="screen-reader-text" for="wm-otp-new-password"><?php echo esc_html__( 'رمز عبور جدید', 'eshobe-ecommerce' ); ?></label>
+					<input type="password" id="wm-otp-new-password" class="wm-otp-modal__input" name="password" autocomplete="new-password" minlength="8" placeholder="<?php echo esc_attr__( 'رمز عبور (حداقل ۸ کاراکتر)', 'eshobe-ecommerce' ); ?>" required>
+					<button type="button" class="wm-otp-modal__pw-toggle" data-otp-password-toggle="wm-otp-new-password" aria-label="<?php echo esc_attr__( 'نمایش رمز عبور', 'eshobe-ecommerce' ); ?>">
+						<span class="wm-otp-modal__pw-toggle-icon" aria-hidden="true"></span>
+					</button>
+				</div>
 				<button type="submit" class="wm-otp-modal__submit"><?php echo esc_html__( 'ثبت و ورود', 'eshobe-ecommerce' ); ?></button>
 			</form>
+			<div class="wm-otp-modal__strength" data-otp-strength hidden>
+				<span></span><span></span><span></span>
+			</div>
 			<p class="wm-otp-modal__error" data-otp-error hidden></p>
 		</div>
 

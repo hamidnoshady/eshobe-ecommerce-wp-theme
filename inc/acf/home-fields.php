@@ -28,7 +28,7 @@ function wm_register_home_acf_options() {
         array( 'page_title' => 'آرشیوها / فروشگاه', 'menu_title' => 'آرشیوها / فروشگاه', 'menu_slug' => 'eshobe-ecommerce-archive-settings' ),
         array( 'page_title' => 'هدر و فوتر', 'menu_title' => 'هدر و فوتر', 'menu_slug' => 'eshobe-ecommerce-header-footer-settings' ),
         array( 'page_title' => 'بازاریابی و فروش', 'menu_title' => 'بازاریابی و فروش', 'menu_slug' => 'eshobe-ecommerce-marketing-settings' ),
-        array( 'page_title' => 'تنظیمات فنی', 'menu_title' => 'تنظیمات فنی', 'menu_slug' => 'eshobe-ecommerce-technical-settings' ),
+        array( 'page_title' => 'تنظیمات فنی', 'menu_title' => 'تنظیمات فنی', 'menu_slug' => 'eshobe-ecommerce-technical-settings', 'capability' => 'manage_options' ),
     );
 
     foreach ( $pages as $page ) {
@@ -38,7 +38,7 @@ function wm_register_home_acf_options() {
                 'menu_title'  => $page['menu_title'],
                 'menu_slug'   => $page['menu_slug'],
                 'parent_slug' => 'eshobe-ecommerce',
-                'capability'  => 'edit_posts',
+                'capability'  => isset( $page['capability'] ) ? $page['capability'] : 'edit_posts',
                 'post_id'     => 'option',
             )
         );
@@ -258,6 +258,14 @@ function wm_site_settings_header_footer_fields() {
             'ui'            => 1,
         ),
         array(
+            'key'           => 'field_wm_header_show_wishlist',
+            'label'         => 'نمایش علاقه‌مندی‌ها',
+            'name'          => 'wm_header_show_wishlist',
+            'type'          => 'true_false',
+            'default_value' => 1,
+            'ui'            => 1,
+        ),
+        array(
             'key'           => 'field_wm_header_logo',
             'label'         => 'لوگوی هدر (دسکتاپ)',
             'name'          => 'wm_header_logo',
@@ -380,6 +388,16 @@ function wm_site_settings_marketing_fields() {
             'default_value' => 6,
             'min'           => 1,
             'max'           => 20,
+        ),
+        array(
+            'key'           => 'field_wm_search_max_per_ip',
+            'label'         => 'حداکثر درخواست جستجو از هر IP (در دقیقه)',
+            'name'          => 'wm_search_max_per_ip',
+            'type'          => 'number',
+            'default_value' => 30,
+            'min'           => 5,
+            'max'           => 500,
+            'instructions'  => 'محدودیت نرخ درخواست‌های جستجوی زنده برای جلوگیری از بارگذاری بیش از حد پایگاه‌داده.',
         ),
         array(
             'key'          => 'field_wm_search_suggested_products',
@@ -533,6 +551,12 @@ function wm_site_settings_design_fields() {
         array( 'key' => 'field_wm_decor_archive_intensity', 'label' => 'شدت در صفحات آرشیو / فروشگاه', 'name' => 'wm_decor_archive_intensity', 'type' => 'select', 'choices' => array( 'inherit' => 'پیروی از تنظیم کلی', 'off' => 'خاموش', 'low' => 'کم', 'medium' => 'متوسط', 'high' => 'زیاد' ), 'default_value' => 'inherit' ),
         array( 'key' => 'field_wm_decor_page_intensity', 'label' => 'شدت در صفحات معمولی', 'name' => 'wm_decor_page_intensity', 'type' => 'select', 'choices' => array( 'inherit' => 'پیروی از تنظیم کلی', 'off' => 'خاموش', 'low' => 'کم', 'medium' => 'متوسط', 'high' => 'زیاد' ), 'default_value' => 'inherit' ),
         wm_site_settings_accordion( 'field_wm_design_decorative_motifs_end', '', 1 ),
+
+        wm_site_settings_tab( 'field_wm_design_tab_hero_progress', 'نوار پیشرفت اسلایدر' ),
+        wm_site_settings_accordion( 'field_wm_design_hero_progress_accordion', 'نوار پیشرفت پخش خودکار' ),
+        array( 'key' => 'field_wm_hero_progress_color', 'label' => 'رنگ نوار پیشرفت', 'name' => 'wm_hero_progress_color', 'type' => 'color_picker', 'default_value' => '#C89B3C', 'instructions' => 'رنگ نوار پیشرفت پخش خودکار اسلایدر Hero. پیش‌فرض: رنگ Accent سایت.' ),
+        array( 'key' => 'field_wm_hero_progress_direction', 'label' => 'جهت پر شدن نوار', 'name' => 'wm_hero_progress_direction', 'type' => 'select', 'choices' => array( 'right' => 'راست به چپ', 'left' => 'چپ به راست' ), 'default_value' => 'right', 'instructions' => 'جهت رشد نوار پیشرفت؛ پیش‌فرض راست به چپ متناسب با چیدمان RTL.' ),
+        wm_site_settings_accordion( 'field_wm_design_hero_progress_end', '', 1 ),
     );
 }
 
@@ -771,6 +795,22 @@ function wm_home_acf_dynamic_filter_sub_fields() {
         array( 'key' => 'field_filter_box_min_price', 'label' => 'حداقل قیمت', 'name' => 'filter_min_price', 'type' => 'number' ),
         array( 'key' => 'field_filter_box_max_price', 'label' => 'حداکثر قیمت', 'name' => 'filter_max_price', 'type' => 'number' ),
         array( 'key' => 'field_filter_box_color_value', 'label' => 'رنگ تاکیدی کارت', 'name' => 'filter_color_value', 'type' => 'color_picker' ),
+        array(
+            'key'           => 'field_filter_box_cover_enabled',
+            'label'         => 'نمایش پوشش روی تصویر',
+            'name'          => 'filter_cover_enabled',
+            'type'          => 'true_false',
+            'default_value' => 1,
+            'ui'            => 1,
+            'instructions'  => 'لایه رنگی روی تصویر کارت؛ برای حذف کامل آن این گزینه را غیرفعال کنید.',
+        ),
+        array(
+            'key'           => 'field_filter_box_cover_color',
+            'label'         => 'رنگ پوشش کارت',
+            'name'          => 'filter_cover_color',
+            'type'          => 'color_picker',
+            'instructions'  => 'رنگ لایه پوشش روی تصویر کارت؛ اگر خالی بماند از رنگ پیش‌فرض استایل (تیره/روشن) استفاده می‌شود.',
+        ),
         array( 'key' => 'field_filter_box_extra_query_args', 'label' => 'Query اضافه', 'name' => 'filter_extra_query_args', 'type' => 'textarea', 'rows' => 3, 'instructions' => 'هر خط به شکل key=value. فقط کلید و مقدار sanitize شده به URL اضافه می‌شود.' ),
     );
 }
@@ -806,7 +846,65 @@ function wm_site_settings_home_fields() {
                 array( 'key' => 'field_slide_product', 'label' => 'محصول اختیاری', 'name' => 'slide_product', 'type' => 'post_object', 'post_type' => array( 'product' ), 'return_format' => 'object', 'allow_null' => 1 ),
             ),
         ),
+        array(
+            'key'          => 'field_home_hero_image_slides',
+            'label'        => 'اسلایدهای تمام‌تصویر',
+            'name'         => 'home_hero_image_slides',
+            'type'         => 'repeater',
+            'layout'       => 'block',
+            'button_label' => 'افزودن اسلاید تمام‌تصویر',
+            'instructions' => 'این نوع اسلاید فقط تصویر (بدون متن یا دکمه) با یک لینک است و ارتفاع اسلایدر با ارتفاع تصویر تنظیم می‌شود.',
+            'sub_fields'   => array(
+                array( 'key' => 'field_image_slide_enabled', 'label' => 'فعال', 'name' => 'image_slide_enabled', 'type' => 'true_false', 'default_value' => 1, 'ui' => 1 ),
+                array( 'key' => 'field_image_slide_image_desktop', 'label' => 'تصویر دسکتاپ', 'name' => 'image_slide_image_desktop', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'medium' ),
+                array( 'key' => 'field_image_slide_image_mobile', 'label' => 'تصویر موبایل', 'name' => 'image_slide_image_mobile', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'medium' ),
+                array( 'key' => 'field_image_slide_url', 'label' => 'لینک اسلاید', 'name' => 'image_slide_url', 'type' => 'url', 'instructions' => 'کل تصویر به این لینک متصل می‌شود.' ),
+            ),
+        ),
+        array(
+            'key'          => 'field_home_hero_video_slides',
+            'label'        => 'اسلایدهای ویدیویی',
+            'name'         => 'home_hero_video_slides',
+            'type'         => 'repeater',
+            'layout'       => 'block',
+            'button_label' => 'افزودن اسلاید ویدیویی',
+            'instructions' => 'ویدیو به‌صورت تمام‌عرض و بدون کنترل‌ها (نه پلیر) پخش و حلقه می‌شود؛ بی‌صدا و خودکار. کل ویدیو به لینک اسلاید متصل می‌شود.',
+            'sub_fields'   => array(
+                array( 'key' => 'field_video_slide_enabled', 'label' => 'فعال', 'name' => 'video_slide_enabled', 'type' => 'true_false', 'default_value' => 1, 'ui' => 1 ),
+                array(
+                    'key'           => 'field_video_slide_video_desktop',
+                    'label'         => 'ویدیو دسکتاپ',
+                    'name'          => 'video_slide_video_desktop',
+                    'type'          => 'file',
+                    'return_format' => 'array',
+                    'mime_types'    => 'mp4,webm,ogv',
+                    'instructions'  => 'فایل MP4 / WebM. بدون دکمه‌های پخش، بی‌صدا و با حلقه پخش می‌شود.',
+                ),
+                array(
+                    'key'           => 'field_video_slide_video_mobile',
+                    'label'         => 'ویدیو موبایل',
+                    'name'          => 'video_slide_video_mobile',
+                    'type'          => 'file',
+                    'return_format' => 'array',
+                    'mime_types'    => 'mp4,webm,ogv',
+                    'instructions'  => 'اختیاری؛ اگر خالی باشد همان ویدیو دسکتاپ استفاده می‌شود.',
+                ),
+                array(
+                    'key'          => 'field_video_slide_url',
+                    'label'        => 'لینک اسلاید',
+                    'name'         => 'video_slide_url',
+                    'type'         => 'url',
+                    'instructions' => 'کل ویدیو به این لینک متصل می‌شود.',
+                ),
+            ),
+        ),
         wm_site_settings_accordion( 'field_wm_home_hero_end', '', 1 ),
+
+        wm_site_settings_accordion( 'field_wm_home_hero_autoplay_accordion', 'پخش خودکار' ),
+        array( 'key' => 'field_home_hero_autoplay', 'label' => 'پخش خودکار اسلایدها', 'name' => 'home_hero_autoplay', 'type' => 'true_false', 'default_value' => 0, 'ui' => 1, 'instructions' => 'اسلایدها به‌صورت خودکار و با فاصله زمانی مشخص جابه‌جا می‌شوند.' ),
+        array( 'key' => 'field_home_hero_autoplay_interval', 'label' => 'فاصله زمانی (میلی‌ثانیه)', 'name' => 'home_hero_autoplay_interval', 'type' => 'number', 'default_value' => 5000, 'min' => 1500, 'max' => 30000, 'step' => 500, 'instructions' => 'هر اسلاید چند میلی‌ثانیه نمایش داده شود (5000 = ۵ ثانیه).', 'conditional_logic' => array( array( array( 'field' => 'field_home_hero_autoplay', 'operator' => '==', 'value' => '1' ) ) ) ),
+        array( 'key' => 'field_home_hero_autoplay_pause_hover', 'label' => 'توقف هنگام hover', 'name' => 'home_hero_autoplay_pause_hover', 'type' => 'true_false', 'default_value' => 1, 'ui' => 1, 'instructions' => 'با قرار دادن نشانگر روی اسلایدر، پخش خودکار متوقف شود.', 'conditional_logic' => array( array( array( 'field' => 'field_home_hero_autoplay', 'operator' => '==', 'value' => '1' ) ) ) ),
+        wm_site_settings_accordion( 'field_wm_home_hero_autoplay_end', '', 1 ),
 
         wm_site_settings_tab( 'field_wm_home_tab_brands', 'برندها' ),
         array(
@@ -821,6 +919,8 @@ function wm_site_settings_home_fields() {
                 array( 'key' => 'field_brand_term', 'label' => 'برند', 'name' => 'brand_term', 'type' => 'taxonomy', 'taxonomy' => 'product_brand', 'field_type' => 'select', 'return_format' => 'object', 'allow_null' => 1 ),
                 array( 'key' => 'field_brand_image', 'label' => 'تصویر', 'name' => 'brand_image', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'thumbnail' ),
                 array( 'key' => 'field_brand_subtitle', 'label' => 'زیرعنوان', 'name' => 'brand_subtitle', 'type' => 'text' ),
+                array( 'key' => 'field_brand_cover_enabled', 'label' => 'نمایش پوشش کارت', 'name' => 'brand_cover_enabled', 'type' => 'true_false', 'default_value' => 1, 'ui' => 1, 'instructions' => 'اگر غیرفعال شود، پس‌زمینه روشن کارت حذف می‌شود.' ),
+                array( 'key' => 'field_brand_cover_color', 'label' => 'رنگ پوشش کارت', 'name' => 'brand_cover_color', 'type' => 'color_picker', 'instructions' => 'رنگ پس‌زمینه کارت؛ اگر خالی بماند از سفید/روشن پیش‌فرض استفاده می‌شود.' ),
             ),
         ),
 
@@ -856,6 +956,8 @@ function wm_site_settings_home_fields() {
                 array( 'key' => 'field_style_term', 'label' => 'ترم', 'name' => 'style_term', 'type' => 'taxonomy', 'taxonomy' => 'style', 'field_type' => 'select', 'return_format' => 'object', 'allow_null' => 1 ),
                 array( 'key' => 'field_style_image', 'label' => 'تصویر', 'name' => 'style_image', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'medium' ),
                 array( 'key' => 'field_style_url', 'label' => 'لینک دستی', 'name' => 'style_url', 'type' => 'url' ),
+                array( 'key' => 'field_style_cover_enabled', 'label' => 'نمایش پوشش کارت', 'name' => 'style_cover_enabled', 'type' => 'true_false', 'default_value' => 1, 'ui' => 1, 'instructions' => 'اگر غیرفعال شود، پس‌زمینه روشن کارت حذف می‌شود.' ),
+                array( 'key' => 'field_style_cover_color', 'label' => 'رنگ پوشش کارت', 'name' => 'style_cover_color', 'type' => 'color_picker', 'instructions' => 'رنگ پس‌زمینه کارت؛ اگر خالی بماند از سفید/روشن پیش‌فرض استفاده می‌شود.' ),
             ),
         ),
 

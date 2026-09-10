@@ -69,8 +69,10 @@ if ( empty( $brands ) ) {
             if ( is_wp_error( $link ) ) {
                 continue;
             }
+            $cover_style_attr = wm_home_card_cover_style_attr( $item, 'brand_' );
+            $cover_class      = empty( $item['brand_cover_enabled'] ) ? ' wm-home-brand-card--no-cover' : '';
             ?>
-            <a class="wm-home-brand-card" href="<?php echo esc_url( $link ); ?>">
+            <a class="wm-home-brand-card<?php echo esc_attr( $cover_class ); ?>" href="<?php echo esc_url( $link ); ?>"<?php echo $cover_style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <span class="wm-home-brand-card__media">
                     <?php echo wm_home_get_image_html( ! empty( $item['brand_image'] ) ? $item['brand_image'] : '', 'medium', array( 'alt' => $term->name, 'class' => 'wm-home-brand-card__image' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </span>

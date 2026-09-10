@@ -201,6 +201,9 @@
 
   if (tabletToggle && tabletDrawer && tabletBackdrop) {
     const closeTabletDrawer = function() {
+      if (window.wmFocusTrap) {
+        window.wmFocusTrap.release();
+      }
       tabletDrawer.classList.remove('is-open');
       tabletDrawer.hidden = true;
       tabletBackdrop.hidden = true;
@@ -210,6 +213,9 @@
     const openTabletDrawer = function() {
       tabletDrawer.hidden = false;
       tabletBackdrop.hidden = false;
+      if (window.wmFocusTrap) {
+        window.wmFocusTrap.trap(tabletDrawer, tabletToggle);
+      }
       requestAnimationFrame(function() {
         tabletDrawer.classList.add('is-open');
       });

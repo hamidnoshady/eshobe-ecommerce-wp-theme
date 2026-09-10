@@ -23,6 +23,7 @@
 	var SelectControl = wp.components.SelectControl;
 	var TextControl = wp.components.TextControl;
 	var TextareaControl = wp.components.TextareaControl;
+	var ToggleControl = wp.components.ToggleControl;
 	var RangeControl = wp.components.RangeControl;
 	var Button = wp.components.Button;
 	var __ = wp.i18n.__;
@@ -531,6 +532,14 @@
 							onChange: function ( value ) {
 								setAttributes( { style: value } );
 							},
+						} ),
+						el( ToggleControl, {
+							label: __( 'نمایش پوشش روی تصویر', 'eshobe-ecommerce' ),
+							help: __( 'غیرفعال کنید تا لایه رنگی روی تصویر کارت کاملاً حذف شود.', 'eshobe-ecommerce' ),
+							checked: attributes.coverEnabled !== false,
+							onChange: function ( value ) {
+								setAttributes( { coverEnabled: value } );
+							},
 						} )
 					),
 					el(
@@ -636,6 +645,13 @@
 											setAttributes( { colorValue: value || '' } );
 										},
 										label: __( 'رنگ تاکید', 'eshobe-ecommerce' ),
+									},
+									{
+										value: attributes.coverColor,
+										onChange: function ( value ) {
+											setAttributes( { coverColor: value || '' } );
+										},
+										label: __( 'رنگ پوشش', 'eshobe-ecommerce' ),
 									},
 								],
 						  } )

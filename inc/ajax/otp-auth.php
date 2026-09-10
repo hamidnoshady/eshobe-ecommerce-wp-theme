@@ -36,6 +36,62 @@ function wm_otp_normalize_phone( $phone ) {
 }
 
 /**
+ * Store an OTP code for a phone number, hashed at rest.
+ *
+ * The transient is keyed by the phone's MD5 and stores `wp_hash()` of the
+ * code rather than the plaintext, so a DB/transient read leak cannot expose
+ * live codes. Comparison happens in constant time (see verify_code).
+ *
+ * @param string $phone Normalized phone number.
+ * @param string $code  One-time code.
+ */
+function wm_otp_store_code( $phone, $code ) {
+	set_transient( 'wm_otp_code_' . md5( $phone ), (string) wp_hash( $code ), 2 * MINUTE_IN_SECONDS );
+}
+
+/**
+ * Whether a stored code exists for the phone number.
+ *
+ * @param string $phone Normalized phone number.
+ * @return bool
+ */
+function wm_otp_has_code( $phone ) {
+	return is_string( get_transient( 'wm_otp_code_' . md5( $phone ) ) );
+}
+
+/**
+ * Enforce the OTP signup password policy.
+ *
+ * Minimum 8 characters with at least two of {letters, digits, symbols} —
+ * deliberately script-agnostic so Persian-only passwords count letters
+ * correctly (Unicode \p{L} / \p{N}).
+ *
+ * @param string $password
+ * @return bool
+ */
+function wm_otp_password_is_strong( $password ) {
+	$password = (string) $password;
+
+	if ( function_exists( 'mb_strlen' ) ? mb_strlen( $password ) < 8 : strlen( $password ) < 8 ) {
+		return false;
+	}
+
+	$classes = 0;
+
+	if ( preg_match( '/\p{L}/u', $password ) ) { // Letters, any script.
+		$classes++;
+	}
+	if ( preg_match( '/\p{N}/u', $password ) ) { // Digits, any script.
+		$classes++;
+	}
+	if ( preg_match( '/[^\p{L}\p{N}]/u', $password ) ) { // Symbols.
+		$classes++;
+	}
+
+	return $classes >= 2;
+}
+
+/**
  * Send an OTP code to a phone number via Kavenegar.
  *
  * Uses the Verify Lookup API when a template name is configured, otherwise
@@ -113,9 +169,9 @@ function wm_otp_send_via_kavenegar( $phone, $code ) {
 function wm_otp_issue_code( $phone ) {
 	$security = wm_technical_get_otp_security_settings();
 
-	// Per-IP hourly limit
-	$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-	// REMOTE_ADDR may be absent in proxied/CLI contexts; per-IP limit is silently skipped when empty.
+	// Per-IP hourly limit (proxy/CDN-aware; see wm_get_client_ip()).
+	$ip = wm_get_client_ip();
+	// The per-IP limit is silently skipped when no client IP is resolvable (CLI/proxied edge cases).
 	if ( $ip ) {
 		$ip_key      = 'wm_otp_ip_' . md5( $ip );
 		$ip_attempts = (int) get_transient( $ip_key );
@@ -143,7 +199,7 @@ function wm_otp_issue_code( $phone ) {
 		return $sent;
 	}
 
-	set_transient( 'wm_otp_code_' . md5( $phone ), $code, 2 * MINUTE_IN_SECONDS );
+	wm_otp_store_code( $phone, $code );
 	set_transient( $throttle_key, 1, $security['resend_seconds'] );
 
 	// Increment counters after successful send
@@ -213,9 +269,31 @@ function wm_ajax_otp_check_phone() {
 	}
 
 	$security = wm_technical_get_otp_security_settings();
+
+	// This endpoint returns whether a number has an account, so it doubles as
+	// a registration oracle. Rate limit *every* lookup (existing numbers
+	// included) and delay existing-account answers to make enumeration more
+	// expensive than the OTP send limits alone.
+	$check_ip_key   = 'wm_otp_check_ip_' . md5( wm_get_client_ip() );
+	$check_ip_count = (int) get_transient( $check_ip_key );
+	if ( $check_ip_count >= $security['max_per_ip'] ) {
+		wp_send_json_error( array( 'message' => 'تعداد درخواست‌ها از این آدرس بیش از حد مجاز است. لطفاً بعداً تلاش کنید.' ) );
+	}
+	set_transient( $check_ip_key, $check_ip_count + 1, HOUR_IN_SECONDS );
+
+	$check_phone_key   = 'wm_otp_check_phone_' . md5( $phone );
+	$check_phone_count = (int) get_transient( $check_phone_key );
+	if ( $check_phone_count >= $security['max_per_phone'] ) {
+		wp_send_json_error( array( 'message' => 'تعداد درخواست‌ها برای این شماره بیش از حد مجاز است. لطفاً یک ساعت دیگر تلاش کنید.' ) );
+	}
+	set_transient( $check_phone_key, $check_phone_count + 1, HOUR_IN_SECONDS );
+
 	$user = wm_otp_get_user_by_phone( $phone );
 
 	if ( $user ) {
+		// Constant small delay: slows bulk enumeration regardless of limits.
+		usleep( 250000 );
+
 		// Incomplete registration: account exists but password was never set
 		if ( get_user_meta( $user->ID, '_wm_otp_needs_password', true ) ) {
 			$issued = wm_otp_issue_code( $phone );
@@ -265,13 +343,30 @@ function wm_ajax_otp_verify_code() {
 	}
 
 	$transient_key = 'wm_otp_code_' . md5( $phone );
-	$expected_code = get_transient( $transient_key );
+	$stored_hash   = get_transient( $transient_key );
 
-	if ( ! $expected_code || ! hash_equals( (string) $expected_code, $code ) ) {
+	if ( ! is_string( $stored_hash ) || '' === $stored_hash ) {
 		wp_send_json_error( array( 'message' => 'کد وارد شده نادرست یا منقضی شده است.' ) );
 	}
 
+	// Codes are stored hashed (see wm_otp_store_code); compare in constant time.
+	if ( ! hash_equals( $stored_hash, (string) wp_hash( $code ) ) ) {
+		$attempts_key = 'wm_otp_attempts_' . md5( $phone );
+		$attempts     = (int) get_transient( $attempts_key );
+		$attempts++;
+
+		if ( $attempts >= 5 ) {
+			delete_transient( $transient_key );
+			delete_transient( $attempts_key );
+			wp_send_json_error( array( 'message' => 'تعداد تلاش‌های ناموفق بیش از حد مجاز است. لطفاً کد جدیدی دریافت کنید.' ) );
+		} else {
+			set_transient( $attempts_key, $attempts, 2 * MINUTE_IN_SECONDS );
+			wp_send_json_error( array( 'message' => 'کد وارد شده نادرست است.' ) );
+		}
+	}
+
 	delete_transient( $transient_key );
+	delete_transient( 'wm_otp_attempts_' . md5( $phone ) );
 	delete_transient( 'wm_otp_throttle_' . md5( $phone ) );
 
 	$user = wm_otp_get_user_by_phone( $phone );
@@ -330,11 +425,27 @@ function wm_ajax_otp_set_password() {
 	$pw_token = isset( $_POST['passwordToken'] ) ? sanitize_text_field( wp_unslash( $_POST['passwordToken'] ) ) : '';
 	$user_id  = 0;
 
+	$security = wm_technical_get_otp_security_settings();
+
+	// Per-IP hourly limit for set password
+	$ip = wm_get_client_ip();
+	$ip_key = '';
+	if ( $ip ) {
+		$ip_key      = 'wm_set_pw_ip_' . md5( $ip );
+		$ip_attempts = (int) get_transient( $ip_key );
+		if ( $ip_attempts >= $security['max_per_ip'] ) {
+			wp_send_json_error( array( 'message' => 'تعداد درخواست‌های ثبت رمز عبور از این آدرس بیش از حد مجاز است. لطفاً بعداً تلاش کنید.' ) );
+		}
+	}
+
 	if ( $pw_token ) {
 		$user_id = (int) get_transient( 'wm_otp_pw_token_' . $pw_token );
 		delete_transient( 'wm_otp_pw_token_' . $pw_token );
 
 		if ( ! $user_id ) {
+			if ( $ip ) {
+				set_transient( $ip_key, $ip_attempts + 1, HOUR_IN_SECONDS );
+			}
 			wp_send_json_error( array( 'message' => 'توکن نامعتبر یا منقضی شده است. دوباره ثبت‌نام کنید.' ) );
 		}
 	} else {
@@ -348,9 +459,26 @@ function wm_ajax_otp_set_password() {
 
 	$password = isset( $_POST['password'] ) ? (string) wp_unslash( $_POST['password'] ) : '';
 
-	if ( mb_strlen( $password ) < 6 ) {
-		wp_send_json_error( array( 'message' => 'رمز عبور باید حداقل ۶ کاراکتر باشد.' ) );
+	// Per-user hourly limit for set password
+	$user_hourly_key = 'wm_set_pw_hourly_' . md5( (string) $user_id );
+	$user_attempts   = (int) get_transient( $user_hourly_key );
+	if ( $user_attempts >= $security['max_per_phone'] ) {
+		wp_send_json_error( array( 'message' => 'تعداد درخواست‌های ثبت رمز عبور برای این حساب بیش از حد مجاز است. لطفاً یک ساعت دیگر تلاش کنید.' ) );
 	}
+
+	if ( ! wm_otp_password_is_strong( $password ) ) {
+		if ( $ip ) {
+			set_transient( $ip_key, $ip_attempts + 1, HOUR_IN_SECONDS );
+		}
+		set_transient( $user_hourly_key, $user_attempts + 1, HOUR_IN_SECONDS );
+		wp_send_json_error( array( 'message' => 'رمز عبور باید حداقل ۸ کاراکتر باشد و ترکیبی از حروف با عدد یا نماد داشته باشد.' ) );
+	}
+
+	// Reset limits on successful password change
+	if ( $ip ) {
+		delete_transient( $ip_key );
+	}
+	delete_transient( $user_hourly_key );
 
 	wp_set_password( $password, $user_id );
 	delete_user_meta( $user_id, '_wm_otp_needs_password' );
@@ -383,11 +511,41 @@ function wm_ajax_otp_password_login() {
 		wp_send_json_error( array( 'message' => 'شماره موبایل و رمز عبور را وارد کنید.' ) );
 	}
 
+	$security = wm_technical_get_otp_security_settings();
+
+	// Per-IP hourly limit for password login
+	$ip = wm_get_client_ip();
+	$ip_key = '';
+	if ( $ip ) {
+		$ip_key      = 'wm_pw_login_ip_' . md5( $ip );
+		$ip_attempts = (int) get_transient( $ip_key );
+		if ( $ip_attempts >= $security['max_per_ip'] ) {
+			wp_send_json_error( array( 'message' => 'تعداد درخواست‌های ورود از این آدرس بیش از حد مجاز است. لطفاً بعداً تلاش کنید.' ) );
+		}
+	}
+
+	// Per-phone hourly limit for password login
+	$phone_hourly_key = 'wm_pw_login_hourly_' . md5( $phone );
+	$phone_attempts   = (int) get_transient( $phone_hourly_key );
+	if ( $phone_attempts >= $security['max_per_phone'] ) {
+		wp_send_json_error( array( 'message' => 'تعداد درخواست‌های ورود برای این شماره بیش از حد مجاز است. لطفاً یک ساعت دیگر تلاش کنید.' ) );
+	}
+
 	$user = wm_otp_get_user_by_phone( $phone );
 
 	if ( ! $user || ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+		if ( $ip ) {
+			set_transient( $ip_key, $ip_attempts + 1, HOUR_IN_SECONDS );
+		}
+		set_transient( $phone_hourly_key, $phone_attempts + 1, HOUR_IN_SECONDS );
 		wp_send_json_error( array( 'message' => 'شماره موبایل یا رمز عبور اشتباه است.' ) );
 	}
+
+	// Reset limits on successful login
+	if ( $ip ) {
+		delete_transient( $ip_key );
+	}
+	delete_transient( $phone_hourly_key );
 
 	wp_set_current_user( $user->ID );
 	wp_set_auth_cookie( $user->ID, true );
@@ -505,14 +663,5 @@ function wm_otp_resolve_redirect_url( $redirect_to ) {
 		return wc_get_page_permalink( 'myaccount' );
 	}
 
-	// Accept a full URL only when it is on the same host (prevents open redirect).
-	if ( $redirect_to && filter_var( $redirect_to, FILTER_VALIDATE_URL ) ) {
-		$site_host     = wp_parse_url( home_url(), PHP_URL_HOST );
-		$redirect_host = wp_parse_url( $redirect_to, PHP_URL_HOST );
-		if ( $site_host && $site_host === $redirect_host ) {
-			return esc_url_raw( $redirect_to );
-		}
-	}
-
-	return home_url( '/' );
+	return wp_validate_redirect( $redirect_to, home_url( '/' ) );
 }
