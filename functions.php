@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.14' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.16' );
 }
 
 /**
