@@ -2,8 +2,9 @@
   direction: rtl;
   background: var(--wm-color-bg);
   /* Explicit padding (not child margins) so the gap between the header card
-     and the hero can never collapse or be cancelled by other rules. */
-  padding-top: 28px;
+     and the hero can never collapse. !important guards against overrides
+     from other/legacy stylesheets seen on production. */
+  padding-top: 28px !important;
   padding-bottom: 64px;
   --wm-home-shadow-sm: 0 10px 26px rgba(17, 24, 39, 0.045);
   --wm-home-shadow-md: 0 16px 36px rgba(17, 24, 39, 0.07);
@@ -26,6 +27,9 @@
 
 .wm-home-hero {
   position: relative;
+  /* Guard against legacy/negative margins from other stylesheets that would
+     pull the hero up into the header card (seen on production). */
+  margin-top: 0 !important;
   overflow: hidden;
   border: 1px solid rgba(229, 224, 216, 0.95);
   border-radius: 28px;
@@ -1107,7 +1111,7 @@
   }
 
   .wm-home-hero {
-    margin-top: 0;
+    margin-top: 0 !important;
     border-radius: 26px;
   }
 
