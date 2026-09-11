@@ -285,14 +285,6 @@ function wm_render_site_header() {
                     </div>
                 <?php endif; ?>
 
-                <?php if ( $show_wishlist ) : ?>
-                    <a class="wm-site-header__action wm-site-header__wishlist" href="<?php echo esc_url( $wishlist_url ); ?>" aria-label="<?php echo esc_attr__( 'علاقه‌مندی‌ها', 'eshobe-ecommerce' ); ?>">
-                        <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'wishlist' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-                        <span class="wm-site-header__action-text"><?php echo esc_html__( 'علاقه‌مندی‌ها', 'eshobe-ecommerce' ); ?></span>
-                        <span class="wm-site-header__wishlist-count" data-wm-wishlist-count hidden>0</span>
-                    </a>
-                <?php endif; ?>
-
                 <?php if ( $show_cart ) : ?>
                     <a class="wm-site-header__action wm-site-header__cart" href="<?php echo esc_url( wm_header_get_cart_url() ); ?>" aria-label="<?php echo esc_attr__( 'سبد خرید', 'eshobe-ecommerce' ); ?>" data-wm-cart-toggle aria-haspopup="dialog" aria-expanded="false" aria-controls="wm-cart-drawer">
                         <span class="wm-site-header__action-icon" aria-hidden="true"><?php echo wm_header_icon_svg( 'cart' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
