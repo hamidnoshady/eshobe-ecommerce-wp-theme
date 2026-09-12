@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/contact-form",
+    "title": "فرم تماس",
+    "category": "eshobe-ecommerce",
+    "icon": "email-alt",
+    "description": "فرم تماس ایمن قالب (ایجکس + نانس + ضدهرزنامه). پیام‌ها ایمیل می‌شوند و در «پیام‌های تماس» پیشخوان هم ذخیره می‌شوند.",
+    "keywords": [ "form", "contact", "فرم", "تماس" ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "subtitle": { "type": "string", "default": "" },
+        "showPhone": { "type": "boolean", "default": true },
+        "showSubject": { "type": "boolean", "default": true },
+        "buttonText": { "type": "string", "default": "" },
+        "successMessage": { "type": "string", "default": "" }
+    },
+    "supports": { "html": false, "multiple": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}

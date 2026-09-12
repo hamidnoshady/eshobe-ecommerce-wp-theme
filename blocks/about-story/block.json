@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/about-story",
+    "title": "داستان برند (متن + تصویر)",
+    "category": "eshobe-ecommerce",
+    "icon": "align-pull-right",
+    "description": "بخش دوستونه متن و تصویر برای معرفی برند؛ هر پاراگراف را با یک خط خالی جدا کنید.",
+    "keywords": [ "story", "about", "درباره", "داستان" ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "subtitle": { "type": "string", "default": "" },
+        "content": { "type": "string", "default": "" },
+        "imageId": { "type": "number", "default": 0 },
+        "imageSide": { "type": "string", "default": "start" },
+        "badgeText": { "type": "string", "default": "" }
+    },
+    "supports": { "html": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}

@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/faq",
+    "title": "پرسش‌های پرتکرار",
+    "category": "eshobe-ecommerce",
+    "icon": "editor-help",
+    "description": "بخش آکاردئونی پرسش و پاسخ. داخل آن بلوک «پرسش و پاسخ» اضافه کنید.",
+    "keywords": [ "faq", "پرسش", "سوال" ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "subtitle": { "type": "string", "default": "" }
+    },
+    "supports": { "html": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}

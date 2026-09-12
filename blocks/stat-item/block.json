@@ -1,0 +1,20 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/stat-item",
+    "title": "آیتم آمار",
+    "category": "eshobe-ecommerce",
+    "icon": "plus-alt2",
+    "parent": [ "wm/stats-row" ],
+    "description": "یک عدد کلیدی داخل «ردیف آمار».",
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "number": { "type": "number", "default": 0 },
+        "prefix": { "type": "string", "default": "" },
+        "suffix": { "type": "string", "default": "+" },
+        "label": { "type": "string", "default": "" }
+    },
+    "supports": { "html": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}
