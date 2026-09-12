@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/team-member",
+    "title": "عضو تیم",
+    "category": "eshobe-ecommerce",
+    "icon": "admin-users",
+    "parent": [ "wm/team-grid" ],
+    "description": "یک عضو تیم داخل بخش «تیم ما».",
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "imageId": { "type": "number", "default": 0 },
+        "name": { "type": "string", "default": "" },
+        "role": { "type": "string", "default": "" },
+        "bio": { "type": "string", "default": "" },
+        "instagram": { "type": "string", "default": "" },
+        "telegram": { "type": "string", "default": "" },
+        "linkedin": { "type": "string", "default": "" }
+    },
+    "supports": { "html": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}

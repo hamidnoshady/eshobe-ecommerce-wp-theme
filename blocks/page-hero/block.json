@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/page-hero",
+    "title": "هدر صفحه (درباره ما / تماس با ما)",
+    "category": "eshobe-ecommerce",
+    "icon": "cover-image",
+    "description": "هدر بزرگ صفحات شرکتی با عنوان، توضیح کوتاه، نشان بالای عنوان و تصویر اختیاری؛ هماهنگ با سیستم طراحی قالب.",
+    "keywords": [ "hero", "header", "هدر", "درباره", "تماس" ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "eyebrow": { "type": "string", "default": "" },
+        "title": { "type": "string", "default": "" },
+        "subtitle": { "type": "string", "default": "" },
+        "imageId": { "type": "number", "default": 0 },
+        "showBreadcrumb": { "type": "boolean", "default": true }
+    },
+    "supports": { "html": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}

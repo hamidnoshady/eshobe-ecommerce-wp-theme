@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/cta-banner",
+    "title": "بنر دعوت به اقدام",
+    "category": "eshobe-ecommerce",
+    "icon": "megaphone",
+    "description": "بنر پایانی صفحه با عنوان، توضیح و دکمه‌ها (مثلاً «مشاهده فروشگاه»).",
+    "keywords": [ "cta", "banner", "بنر", "دکمه" ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "text": { "type": "string", "default": "" },
+        "primaryText": { "type": "string", "default": "" },
+        "primaryUrl": { "type": "string", "default": "" },
+        "secondaryText": { "type": "string", "default": "" },
+        "secondaryUrl": { "type": "string", "default": "" }
+    },
+    "supports": { "html": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}

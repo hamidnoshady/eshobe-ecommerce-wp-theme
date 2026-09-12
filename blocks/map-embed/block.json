@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/map-embed",
+    "title": "نقشه فروشگاه",
+    "category": "eshobe-ecommerce",
+    "icon": "location-alt",
+    "description": "نقشه گوگل/نشان/بلد با قاب هماهنگ با قالب؛ آدرس iframe نقشه را وارد کنید.",
+    "keywords": [ "map", "نقشه", "آدرس" ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "subtitle": { "type": "string", "default": "" },
+        "embedUrl": { "type": "string", "default": "" },
+        "height": { "type": "number", "default": 380 },
+        "addressText": { "type": "string", "default": "" }
+    },
+    "supports": { "html": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}

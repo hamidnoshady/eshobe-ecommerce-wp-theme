@@ -1,0 +1,19 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/feature-cards",
+    "title": "کارت‌های ارزش/مزیت",
+    "category": "eshobe-ecommerce",
+    "icon": "screenoptions",
+    "description": "شبکه‌ای از کارت‌های مزیت (چرا ما، ارزش‌های برند و ...). داخل آن بلوک «کارت مزیت» اضافه کنید.",
+    "keywords": [ "features", "values", "مزیت", "ارزش" ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "subtitle": { "type": "string", "default": "" },
+        "columns": { "type": "number", "default": 3 }
+    },
+    "supports": { "html": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}

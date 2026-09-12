@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/stats-row",
+    "title": "ردیف آمار و اعداد",
+    "category": "eshobe-ecommerce",
+    "icon": "chart-bar",
+    "description": "ردیفی از اعداد کلیدی (مشتریان، محصولات، سال تجربه و ...) با شمارش متحرک. داخل آن بلوک «آیتم آمار» اضافه کنید.",
+    "keywords": [ "stats", "numbers", "آمار", "اعداد" ],
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "subtitle": { "type": "string", "default": "" }
+    },
+    "supports": { "html": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}

@@ -1,0 +1,19 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/faq-item",
+    "title": "پرسش و پاسخ",
+    "category": "eshobe-ecommerce",
+    "icon": "editor-ul",
+    "parent": [ "wm/faq" ],
+    "description": "یک پرسش و پاسخ داخل بخش «پرسش‌های پرتکرار».",
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "question": { "type": "string", "default": "" },
+        "answer": { "type": "string", "default": "" },
+        "open": { "type": "boolean", "default": false }
+    },
+    "supports": { "html": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}

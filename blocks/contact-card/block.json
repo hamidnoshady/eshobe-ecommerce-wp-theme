@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wm/contact-card",
+    "title": "کارت تماس",
+    "category": "eshobe-ecommerce",
+    "icon": "id-alt",
+    "parent": [ "wm/contact-cards" ],
+    "description": "یک کارت راه ارتباطی با آیکون، عنوان، چند خط توضیح و لینک اختیاری.",
+    "textdomain": "eshobe-ecommerce",
+    "attributes": {
+        "icon": { "type": "string", "default": "phone" },
+        "title": { "type": "string", "default": "" },
+        "lines": { "type": "string", "default": "" },
+        "linkUrl": { "type": "string", "default": "" },
+        "linkText": { "type": "string", "default": "" }
+    },
+    "supports": { "html": false },
+    "editorScript": "eshobe-ecommerce-company-blocks-editor",
+    "render": "file:./render.php"
+}
