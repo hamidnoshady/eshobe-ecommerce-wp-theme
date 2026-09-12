@@ -89,7 +89,12 @@ try {
     # tar stream goes through a temp file instead of `git archive | tar -x`.
     $tarPath = Join-Path $pkgDir 'head.tar'
     git -C $repo archive -o $tarPath HEAD
-    tar -x -f $tarPath -C $stage
+    # Use Windows' own bsdtar: GNU tar (e.g. from Git Bash on PATH) treats
+    # drive-letter paths like D:\... as remote "host:path" targets.
+    $tarExe = Join-Path $env:SystemRoot 'System32\tar.exe'
+    if ( -not (Test-Path $tarExe) ) { throw "tar.exe not found at $tarExe" }
+    & $tarExe -x -f $tarPath -C $stage
+    if ( $LASTEXITCODE -ne 0 ) { throw "tar extraction failed (exit $LASTEXITCODE)" }
 
     $devPaths = @(
         'docs', 'tests', 'payload-theme', 'bin', '.github', '.Jules', '.jules'
@@ -112,6 +117,7 @@ try {
     $zipPath = Join-Path $pkgDir "eshobe-ecommerce-wp-theme-$version.zip"
     $rootFolder = 'eshobe-ecommerce-wp-theme'
 
+    Add-Type -AssemblyName System.IO.Compression
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $zip = [System.IO.Compression.ZipFile]::Open(
         $zipPath, [System.IO.Compression.ZipArchiveMode]::Create
