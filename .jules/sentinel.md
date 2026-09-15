@@ -42,3 +42,8 @@
 **Vulnerability:** The AJAX live search endpoint (`wm_ajax_search_products`) executed its IP-based rate limiting check (`wm_search_is_throttled`) before the term cache check. This caused `set_transient` to be called on every single keystroke, creating a severe Database Denial of Service (DoS) risk by hammering the `wp_options` table even for cheap, cached requests or invalid search terms.
 **Learning:** When implementing rate limiting in WordPress themes without guaranteed object caching, you must avoid setting a new transient (e.g., using `set_transient()`) on every request.
 **Prevention:** Move rate limiting checks after caching layers so they only execute when an expensive operation (like a `wc_get_products` LIKE query) is actually about to occur.
+
+## 2025-02-28 - Open Redirect missed during previous fixes
+**Vulnerability:** An Open Redirect vulnerability existed in `inc/ajax/contact-form.php` due to custom URL validation using `wp_parse_url`. This exact same vulnerability pattern was identified and fixed earlier in `inc/ajax/otp-auth.php`, but it was missed here.
+**Learning:** When a vulnerability is discovered, it's often not isolated to a single instance. Developers frequently copy-paste code snippets or patterns across the codebase. Fixing one instance without globally auditing the repository for the same pattern leaves the application exposed.
+**Prevention:** Whenever a specific vulnerability pattern (like custom `wp_parse_url` redirect validation) is identified, immediately grep the entire codebase for similar usages to ensure all instances of the vulnerable pattern are fixed simultaneously.
