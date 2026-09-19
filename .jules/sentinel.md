@@ -42,3 +42,8 @@
 **Vulnerability:** The AJAX live search endpoint (`wm_ajax_search_products`) executed its IP-based rate limiting check (`wm_search_is_throttled`) before the term cache check. This caused `set_transient` to be called on every single keystroke, creating a severe Database Denial of Service (DoS) risk by hammering the `wp_options` table even for cheap, cached requests or invalid search terms.
 **Learning:** When implementing rate limiting in WordPress themes without guaranteed object caching, you must avoid setting a new transient (e.g., using `set_transient()`) on every request.
 **Prevention:** Move rate limiting checks after caching layers so they only execute when an expensive operation (like a `wc_get_products` LIKE query) is actually about to occur.
+
+## 2025-02-28 - Open Redirect in Contact Form Fallback
+**Vulnerability:** The function `wm_contact_form_post_fallback` in `inc/ajax/contact-form.php` used custom URL validation logic relying on `wp_parse_url` to check if the redirect host matches `home_url()`. This allowed attackers to craft URLs (like `https://evil.com\@example.com`) that bypassed the host comparison check, resulting in an Open Redirect.
+**Learning:** This is another instance of the exact same vulnerability found on 2025-02-26 in the OTP auth flow. Custom URL host extraction using `wp_parse_url` or `filter_var` is prone to bypasses due to parsing discrepancies.
+**Prevention:** As identified previously, always use WordPress core's `wp_validate_redirect()` function for safe redirect validation instead of writing custom URL validation logic. Always grep the entire codebase for similar vulnerability patterns when one is discovered.
