@@ -28,3 +28,7 @@
 ## 2026-06-25 - Redundant taxonomy term resolution caching
 **Learning:** Functions that frequently resolve string values to taxonomy terms (e.g. converting a URL slug/name/id parameter into a term object via `get_term_by`) can be called repeatedly during archive rendering across various filter builders and label generators, generating redundant and identical database queries. Replacing manual `get_term_by` logic with centralized, memoized resolution functions improves cache hit rates and reduces database queries.
 **Action:** Consolidate term resolution into a single function (like `wm_product_archive_resolve_filter_term`) and apply static array caching to memoize the results of `get_term_by`. Always remember to conditionally bypass this cache during testing to avoid leaked mocked state.
+
+## 2026-06-25 - Redundant database hits from get_transient in loops
+**Learning:** Functions called multiple times per request (e.g., retrieving filtered scope or price bounds while looping over sidebars and filter controls) can lead to redundant database hits on sites without external object caching when directly calling `get_transient()`. The core transient API always hits the `wp_options` table unless object caching is installed.
+**Action:** When retrieving transient data in functions that may be called multiple times per request lifecycle, always wrap the `get_transient()` call with a static array cache (`static $cache = array();`) to prevent redundant database hits. Ensure this static cache is conditionally bypassed during unit tests.

@@ -712,8 +712,16 @@ function wm_product_archive_scope_product_ids() {
     }
 
     $cache_key = 'wm_archive_scope_ids_' . md5( wp_json_encode( array( $tax_query, $min_price, $max_price, $stock, $search ) ) );
+
+    static $static_cache = array();
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+    if ( ! $is_test && array_key_exists( $cache_key, $static_cache ) ) {
+        return $static_cache[ $cache_key ];
+    }
+
     $cached    = get_transient( $cache_key );
     if ( is_array( $cached ) ) {
+        if ( ! $is_test ) $static_cache[ $cache_key ] = $cached;
         return $cached;
     }
 
@@ -783,6 +791,8 @@ function wm_product_archive_scope_product_ids() {
     delete_transient( $lock_key );
     set_transient( $cache_key, $product_ids, 15 * MINUTE_IN_SECONDS );
 
+    if ( ! $is_test ) $static_cache[ $cache_key ] = $product_ids;
+
     return $product_ids;
 }
 
@@ -836,8 +846,16 @@ function wm_product_archive_category_scope_product_ids() {
     }
 
     $cache_key = 'wm_archive_cat_scope_ids_' . md5( wp_json_encode( array( $tax_query, $min_price, $max_price, $stock, $search ) ) );
+
+    static $cat_static_cache = array();
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+    if ( ! $is_test && array_key_exists( $cache_key, $cat_static_cache ) ) {
+        return $cat_static_cache[ $cache_key ];
+    }
+
     $cached    = get_transient( $cache_key );
     if ( is_array( $cached ) ) {
+        if ( ! $is_test ) $cat_static_cache[ $cache_key ] = $cached;
         return $cached;
     }
 
@@ -905,6 +923,8 @@ function wm_product_archive_category_scope_product_ids() {
     delete_transient( $lock_key );
     set_transient( $cache_key, $product_ids, 15 * MINUTE_IN_SECONDS );
 
+    if ( ! $is_test ) $cat_static_cache[ $cache_key ] = $product_ids;
+
     return $product_ids;
 }
 
@@ -917,8 +937,16 @@ function wm_product_archive_available_term_ids( $taxonomy, $product_ids ) {
     }
 
     $cache_key = 'wm_archive_avail_terms_' . md5( $taxonomy . '|' . wp_json_encode( $product_ids ) );
+
+    static $avail_static_cache = array();
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+    if ( ! $is_test && array_key_exists( $cache_key, $avail_static_cache ) ) {
+        return $avail_static_cache[ $cache_key ];
+    }
+
     $cached    = get_transient( $cache_key );
     if ( is_array( $cached ) ) {
+        if ( ! $is_test ) $avail_static_cache[ $cache_key ] = $cached;
         return $cached;
     }
 
@@ -934,6 +962,8 @@ function wm_product_archive_available_term_ids( $taxonomy, $product_ids ) {
     $result = is_wp_error( $term_ids ) ? array() : array_map( 'intval', $term_ids );
 
     set_transient( $cache_key, $result, 15 * MINUTE_IN_SECONDS );
+
+    if ( ! $is_test ) $avail_static_cache[ $cache_key ] = $result;
 
     return $result;
 }
@@ -1034,8 +1064,16 @@ function wm_product_archive_price_bounds( $config = null ) {
         'stock'     => isset( $_GET['stock_status'] ) && in_array( $_GET['stock_status'], array( 'instock', 'outofstock' ), true ) ? wc_clean( wp_unslash( $_GET['stock_status'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     );
     $cache_key = 'wm_archive_price_bounds_' . md5( wp_json_encode( $scope ) );
+
+    static $bounds_static_cache = array();
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+    if ( ! $is_test && array_key_exists( $cache_key, $bounds_static_cache ) ) {
+        return $bounds_static_cache[ $cache_key ];
+    }
+
     $cached    = get_transient( $cache_key );
     if ( is_array( $cached ) && isset( $cached['min'], $cached['max'] ) ) {
+        if ( ! $is_test ) $bounds_static_cache[ $cache_key ] = $cached;
         return $cached;
     }
 
@@ -1092,6 +1130,8 @@ function wm_product_archive_price_bounds( $config = null ) {
         'max' => isset( $bounds['max_price'] ) ? max( 0, (int) ceil( $bounds['max_price'] ) ) : 0,
     );
     set_transient( $cache_key, $result, HOUR_IN_SECONDS );
+
+    if ( ! $is_test ) $bounds_static_cache[ $cache_key ] = $result;
 
     return $result;
 }
