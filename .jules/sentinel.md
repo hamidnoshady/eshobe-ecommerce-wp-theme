@@ -42,3 +42,8 @@
 **Vulnerability:** The AJAX live search endpoint (`wm_ajax_search_products`) executed its IP-based rate limiting check (`wm_search_is_throttled`) before the term cache check. This caused `set_transient` to be called on every single keystroke, creating a severe Database Denial of Service (DoS) risk by hammering the `wp_options` table even for cheap, cached requests or invalid search terms.
 **Learning:** When implementing rate limiting in WordPress themes without guaranteed object caching, you must avoid setting a new transient (e.g., using `set_transient()`) on every request.
 **Prevention:** Move rate limiting checks after caching layers so they only execute when an expensive operation (like a `wc_get_products` LIKE query) is actually about to occur.
+
+## 2025-02-29 - PII Exposure via Default CPT Capabilities
+**Vulnerability:** The `wm_contact_message` custom post type (which stores user contact messages, potentially containing Personally Identifiable Information like emails and phone numbers) was registered with `'capability_type' => 'post'`. This allowed lower-privileged users (like Authors or Editors) to view, edit, and potentially expose sensitive user data.
+**Learning:** Custom Post Types that store sensitive user data or PII should not inherit default `post` capabilities, as these are designed for public content management, not administrative data logging.
+**Prevention:** Always restrict data storage CPTs by explicitly passing a `capabilities` array mapping standard operations (e.g., `read_post`, `edit_posts`) to `manage_options` or a similarly restrictive admin capability.
