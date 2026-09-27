@@ -166,9 +166,7 @@ function wm_contact_form_post_fallback() {
 	$redirect = isset( $_POST['wm_contact_redirect'] ) ? esc_url_raw( wp_unslash( $_POST['wm_contact_redirect'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified inside wm_contact_process_submission().
 
 	// Only redirect within this site.
-	if ( ! $redirect || wp_parse_url( $redirect, PHP_URL_HOST ) !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {
-		$redirect = home_url( '/' );
-	}
+	$redirect = wp_validate_redirect( $redirect, home_url( '/' ) );
 
 	$redirect = add_query_arg( 'wm_contact', is_wp_error( $result ) ? 'failed' : 'sent', $redirect );
 
