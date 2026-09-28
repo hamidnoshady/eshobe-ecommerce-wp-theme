@@ -179,7 +179,10 @@ function wm_render_product_gallery() {
     $image_count = count( $image_ids );
     $main_id     = ! empty( $image_ids ) ? $image_ids[0] : 0;
 
-    if ( ! empty( $image_ids ) && function_exists( 'update_meta_cache' ) ) {
+    // ⚡ Bolt: Prevent N+1 queries by bulk-loading attachment WP_Post objects and metadata
+    if ( ! empty( $image_ids ) && function_exists( '_prime_post_caches' ) ) {
+        _prime_post_caches( $image_ids, false, true );
+    } elseif ( ! empty( $image_ids ) && function_exists( 'update_meta_cache' ) ) {
         update_meta_cache( 'post', $image_ids );
     }
 
