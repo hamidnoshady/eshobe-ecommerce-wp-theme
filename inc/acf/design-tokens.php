@@ -216,13 +216,28 @@ function wm_get_font_face_css() {
 }
 
 function wm_get_design_tokens_css() {
+    // ⚡ Bolt: Memory cache prevents redundant get_transient (DB) hits during a single request.
+    static $memory_cache = null;
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+
+    if ( ! $is_test && null !== $memory_cache ) {
+        return $memory_cache;
+    }
+
     $cached = get_transient( 'wm_design_tokens_css' );
     if ( false !== $cached ) {
+        if ( ! $is_test ) {
+            $memory_cache = $cached;
+        }
         return $cached;
     }
 
     $css = wm_build_design_tokens_css();
     set_transient( 'wm_design_tokens_css', $css, DAY_IN_SECONDS );
+
+    if ( ! $is_test ) {
+        $memory_cache = $css;
+    }
 
     return $css;
 }
