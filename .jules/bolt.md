@@ -29,6 +29,10 @@
 **Learning:** Functions that frequently resolve string values to taxonomy terms (e.g. converting a URL slug/name/id parameter into a term object via `get_term_by`) can be called repeatedly during archive rendering across various filter builders and label generators, generating redundant and identical database queries. Replacing manual `get_term_by` logic with centralized, memoized resolution functions improves cache hit rates and reduces database queries.
 **Action:** Consolidate term resolution into a single function (like `wm_product_archive_resolve_filter_term`) and apply static array caching to memoize the results of `get_term_by`. Always remember to conditionally bypass this cache during testing to avoid leaked mocked state.
 
+## 2026-06-25 - N+1 Queries in Attachment Rendering
+**Learning:** When rendering loops of image attachments (e.g., product galleries), using `update_meta_cache( 'post', $ids )` only loads the post meta. When functions like `wp_get_attachment_image` are subsequently called, WordPress still fires an individual query (N+1) to fetch the actual `WP_Post` object for each attachment ID.
+**Action:** To completely prevent N+1 database queries when rendering attachment images, always aggregate the attachment IDs and call `_prime_post_caches( $ids, false, true )` before rendering to bulk-load both the `WP_Post` objects and their metadata simultaneously.
+
 ## 2026-09-26 - Attachment Object Caching for N+1 Mitigation
 **Learning:** In image galleries and product loops, using `update_meta_cache` or just resolving product objects isn't enough to prevent N+1 queries when rendering attachment images. It still triggers a database hit per image to load the attachment `WP_Post` object.
 **Action:** When rendering loops containing images, aggregate all attachment IDs (including hover images) and call `_prime_post_caches( $ids, false, true )` before rendering to bulk-load the attachment objects and their meta.

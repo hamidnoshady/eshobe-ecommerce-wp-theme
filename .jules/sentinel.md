@@ -42,3 +42,13 @@
 **Vulnerability:** The AJAX live search endpoint (`wm_ajax_search_products`) executed its IP-based rate limiting check (`wm_search_is_throttled`) before the term cache check. This caused `set_transient` to be called on every single keystroke, creating a severe Database Denial of Service (DoS) risk by hammering the `wp_options` table even for cheap, cached requests or invalid search terms.
 **Learning:** When implementing rate limiting in WordPress themes without guaranteed object caching, you must avoid setting a new transient (e.g., using `set_transient()`) on every request.
 **Prevention:** Move rate limiting checks after caching layers so they only execute when an expensive operation (like a `wc_get_products` LIKE query) is actually about to occur.
+
+## 2025-03-01 - Authorization Bypass in Contact Message Management
+**Vulnerability:** The custom post type `wm_contact_message` was registered with `'capability_type' => 'post'`, which allowed lower-privileged users (like Contributors) to view, edit, and create Contact Messages, exposing PII to unauthorized users.
+**Learning:** Data storage CPTs that contain PII or sensitive data should not use the default post capability. Doing so can expose critical site data to low-privileged users.
+**Prevention:** Always restrict data storage and PII-related CPTs by passing an explicit `capabilities` array mapping standard operations (e.g., `edit_post`, `edit_posts`) to `manage_options` (or another appropriate admin capability).
+
+## 2025-03-01 - Open Redirect in Contact Form Redirect
+**Vulnerability:** The function `wm_contact_form_post_fallback` in `inc/ajax/contact-form.php` used a custom URL validation logic relying on `wp_parse_url`. This allowed attackers to craft URLs that passed the host comparison check but resulted in an Open Redirect.
+**Learning:** Custom URL host extraction and validation using built-in PHP tools is notoriously prone to edge cases and parsing discrepancies, often leading to Open Redirect or SSRF vulnerabilities.
+**Prevention:** Always use WordPress core's `wp_validate_redirect()` function for safe redirect validation instead of writing custom URL validation logic.

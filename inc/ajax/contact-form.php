@@ -31,8 +31,16 @@ function wm_contact_register_cpt() {
 			'menu_icon'           => 'dashicons-email-alt',
 			'menu_position'       => 26,
 			'supports'            => array( 'title', 'editor' ),
-			'capability_type'     => 'post',
-			'capabilities'        => array( 'create_posts' => 'do_not_allow' ),
+			'capabilities'        => array(
+				'edit_post'          => 'manage_options',
+				'read_post'          => 'manage_options',
+				'delete_post'        => 'manage_options',
+				'edit_posts'         => 'manage_options',
+				'edit_others_posts'  => 'manage_options',
+				'publish_posts'      => 'manage_options',
+				'read_private_posts' => 'manage_options',
+				'create_posts'       => 'do_not_allow',
+			),
 			'map_meta_cap'        => true,
 			'exclude_from_search' => true,
 			'show_in_rest'        => false,
@@ -166,9 +174,7 @@ function wm_contact_form_post_fallback() {
 	$redirect = isset( $_POST['wm_contact_redirect'] ) ? esc_url_raw( wp_unslash( $_POST['wm_contact_redirect'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified inside wm_contact_process_submission().
 
 	// Only redirect within this site.
-	if ( ! $redirect || wp_parse_url( $redirect, PHP_URL_HOST ) !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {
-		$redirect = home_url( '/' );
-	}
+	$redirect = wp_validate_redirect( $redirect, home_url( '/' ) );
 
 	$redirect = add_query_arg( 'wm_contact', is_wp_error( $result ) ? 'failed' : 'sent', $redirect );
 
