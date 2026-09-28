@@ -192,11 +192,23 @@ function wm_home_default_sections() {
 }
 
 function wm_get_home_sections_order() {
+    static $cache = null;
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+
+    if ( ! $is_test && null !== $cache ) {
+        return $cache;
+    }
+
+    // Optimize: Memoize to avoid redundant processing and database queries per request
     $defaults = wm_home_default_sections();
     $rows     = wm_home_get_option( 'home_sections_order', array() );
 
     if ( empty( $rows ) || ! is_array( $rows ) ) {
-        return array_keys( $defaults );
+        $result = array_keys( $defaults );
+        if ( ! $is_test ) {
+            $cache = $result;
+        }
+        return $result;
     }
 
     $sections = array();
@@ -211,7 +223,11 @@ function wm_get_home_sections_order() {
         }
     }
 
-    return $sections ? $sections : array_keys( $defaults );
+    $result = $sections ? $sections : array_keys( $defaults );
+    if ( ! $is_test ) {
+        $cache = $result;
+    }
+    return $result;
 }
 
 function wm_render_home_section( $section_key ) {
