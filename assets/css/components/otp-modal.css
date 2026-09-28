@@ -194,6 +194,29 @@
   cursor: not-allowed;
 }
 
+.wm-otp-modal__submit.is-loading {
+  position: relative;
+  pointer-events: none;
+  color: transparent !important;
+}
+
+.wm-otp-modal__submit.is-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: wm-otp-spin 700ms linear infinite;
+}
+
+@keyframes wm-otp-spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ── Secondary actions (resend / back / login-with-code) ── */
 .wm-otp-modal__actions {
   display: flex;

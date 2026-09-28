@@ -25,3 +25,7 @@
 ## 2026-11-20 - Expand/Collapse Accessibility with aria-controls
 **Learning:** Custom expand/collapse toggle buttons (like those used for product descriptions and specs on mobile) that use `aria-expanded` without a corresponding `aria-controls` attribute are less accessible for screen reader users, as the relationship to the content block being toggled is not explicitly defined.
 **Action:** When creating or modifying toggle buttons that show/hide content, always ensure the target content block has an `id` attribute, and the toggle buttons have a matching `aria-controls` attribute.
+
+## 2026-11-21 - OTP Form Submit Button Loading State
+**Learning:** Found that async form submissions in the OTP modal did not provide clear feedback to the user while processing. The buttons were disabled, but there was no visual indicator (like a spinner) that a background request was happening, which can lead to user confusion.
+**Action:** Always add an `is-loading` class to async submit buttons during network requests, and define CSS to hide the text and show a spinner (e.g. via `::after`). Remember to remove the class when the request finishes or fails.

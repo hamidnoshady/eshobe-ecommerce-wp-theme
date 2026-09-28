@@ -712,8 +712,18 @@ function wm_product_archive_scope_product_ids() {
     }
 
     $cache_key = 'wm_archive_scope_ids_' . md5( wp_json_encode( array( $tax_query, $min_price, $max_price, $stock, $search ) ) );
+
+    static $memory_cache = array();
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+    if ( ! $is_test && isset( $memory_cache[ $cache_key ] ) ) {
+        return $memory_cache[ $cache_key ];
+    }
+
     $cached    = get_transient( $cache_key );
     if ( is_array( $cached ) ) {
+        if ( ! $is_test ) {
+            $memory_cache[ $cache_key ] = $cached;
+        }
         return $cached;
     }
 
@@ -783,6 +793,10 @@ function wm_product_archive_scope_product_ids() {
     delete_transient( $lock_key );
     set_transient( $cache_key, $product_ids, 15 * MINUTE_IN_SECONDS );
 
+    if ( ! $is_test ) {
+        $memory_cache[ $cache_key ] = $product_ids;
+    }
+
     return $product_ids;
 }
 
@@ -836,8 +850,18 @@ function wm_product_archive_category_scope_product_ids() {
     }
 
     $cache_key = 'wm_archive_cat_scope_ids_' . md5( wp_json_encode( array( $tax_query, $min_price, $max_price, $stock, $search ) ) );
+
+    static $memory_cache = array();
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+    if ( ! $is_test && isset( $memory_cache[ $cache_key ] ) ) {
+        return $memory_cache[ $cache_key ];
+    }
+
     $cached    = get_transient( $cache_key );
     if ( is_array( $cached ) ) {
+        if ( ! $is_test ) {
+            $memory_cache[ $cache_key ] = $cached;
+        }
         return $cached;
     }
 
@@ -905,6 +929,10 @@ function wm_product_archive_category_scope_product_ids() {
     delete_transient( $lock_key );
     set_transient( $cache_key, $product_ids, 15 * MINUTE_IN_SECONDS );
 
+    if ( ! $is_test ) {
+        $memory_cache[ $cache_key ] = $product_ids;
+    }
+
     return $product_ids;
 }
 
@@ -917,8 +945,18 @@ function wm_product_archive_available_term_ids( $taxonomy, $product_ids ) {
     }
 
     $cache_key = 'wm_archive_avail_terms_' . md5( $taxonomy . '|' . wp_json_encode( $product_ids ) );
+
+    static $memory_cache = array();
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+    if ( ! $is_test && isset( $memory_cache[ $cache_key ] ) ) {
+        return $memory_cache[ $cache_key ];
+    }
+
     $cached    = get_transient( $cache_key );
     if ( is_array( $cached ) ) {
+        if ( ! $is_test ) {
+            $memory_cache[ $cache_key ] = $cached;
+        }
         return $cached;
     }
 
@@ -934,6 +972,10 @@ function wm_product_archive_available_term_ids( $taxonomy, $product_ids ) {
     $result = is_wp_error( $term_ids ) ? array() : array_map( 'intval', $term_ids );
 
     set_transient( $cache_key, $result, 15 * MINUTE_IN_SECONDS );
+
+    if ( ! $is_test ) {
+        $memory_cache[ $cache_key ] = $result;
+    }
 
     return $result;
 }
