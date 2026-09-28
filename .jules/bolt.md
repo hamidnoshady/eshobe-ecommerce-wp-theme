@@ -36,3 +36,7 @@
 ## 2026-09-26 - Attachment Object Caching for N+1 Mitigation
 **Learning:** In image galleries and product loops, using `update_meta_cache` or just resolving product objects isn't enough to prevent N+1 queries when rendering attachment images. It still triggers a database hit per image to load the attachment `WP_Post` object.
 **Action:** When rendering loops containing images, aggregate all attachment IDs (including hover images) and call `_prime_post_caches( $ids, false, true )` before rendering to bulk-load the attachment objects and their meta.
+
+## 2026-06-25 - Prevent Loop-Induced Transient Bottlenecks
+**Learning:** Using `get_transient()` to retrieve cached data from inside a loop (like iterating through archive filters or categories to determine term availability) creates hidden database bottlenecks on sites without an external persistent object cache, since WP retrieves transients from `wp_options`.
+**Action:** Always layer a `static $cache = array();` inside functions that fetch transient data if they are expected to be called multiple times during the same request lifecycle (e.g. rendering sidebars, menus, loops). Ensure cache is bypassed during unit tests.
