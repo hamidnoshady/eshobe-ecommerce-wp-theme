@@ -641,6 +641,26 @@ function wm_render_related_products() {
         $products_by_id[ $prod->get_id() ] = $prod;
     }
 
+    // ⚡ Bolt Optimization:
+    // Pre-fetch all attachment post objects for the main and hover images to
+    // prevent N+1 queries when wp_get_attachment_image is called in the loop.
+    if ( function_exists( '_prime_post_caches' ) ) {
+        $attachment_ids = array();
+        foreach ( $products_by_id as $prod ) {
+            $image_id    = $prod->get_image_id();
+            $gallery_ids = $prod->get_gallery_image_ids();
+            if ( $image_id ) {
+                $attachment_ids[] = absint( $image_id );
+            }
+            if ( ! empty( $gallery_ids ) ) {
+                $attachment_ids[] = absint( $gallery_ids[0] );
+            }
+        }
+        if ( ! empty( $attachment_ids ) ) {
+            _prime_post_caches( array_unique( array_filter( $attachment_ids ) ), false, true );
+        }
+    }
+
     ob_start();
     ?>
     <section class="wm-related-products" aria-label="<?php esc_attr_e( 'Related products', 'eshobe-ecommerce' ); ?>">
