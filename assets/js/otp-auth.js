@@ -315,6 +315,7 @@
 
       var btn = phoneForm.querySelector('button[type="submit"]');
       btn.disabled = true;
+      btn.classList.add('is-loading');
 
       var body = new window.URLSearchParams();
       body.set('action', 'wm_otp_check_phone');
@@ -329,6 +330,7 @@
       })
         .then(function (r) { return r.json(); })
         .then(function (data) {
+          btn.classList.remove('is-loading');
           btn.disabled = false;
 
           if (!data || !data.success) {
@@ -347,6 +349,7 @@
           }
         })
         .catch(function () {
+          btn.classList.remove('is-loading');
           btn.disabled = false;
           showError(phoneStep, 'خطا در ارتباط با سرور. دوباره تلاش کنید.');
         });
@@ -364,6 +367,7 @@
 
       var btn = existingPasswordForm.querySelector('button[type="submit"]');
       btn.disabled = true;
+      btn.classList.add('is-loading');
 
       var body = new window.URLSearchParams();
       body.set('action', 'wm_otp_password_login');
@@ -385,10 +389,12 @@
             window.location.href = data.data.redirect;
             return;
           }
+          btn.classList.remove('is-loading');
           btn.disabled = false;
           showError(existingPasswordStep, (data && data.data && data.data.message) || 'ورود ناموفق بود.');
         })
         .catch(function () {
+          btn.classList.remove('is-loading');
           btn.disabled = false;
           showError(existingPasswordStep, 'خطا در ارتباط با سرور. دوباره تلاش کنید.');
         });
@@ -452,6 +458,7 @@
 
       var btn = codeForm.querySelector('button[type="submit"]');
       btn.disabled = true;
+      btn.classList.add('is-loading');
 
       var body = new window.URLSearchParams();
       body.set('action', 'wm_otp_verify_code');
@@ -469,6 +476,7 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data && data.success && data.data && data.data.needsPassword) {
+            btn.classList.remove('is-loading');
             btn.disabled = false;
             passwordToken = data.data.passwordToken || '';
             setStep('password');
@@ -479,10 +487,12 @@
             window.location.href = data.data.redirect;
             return;
           }
+          btn.classList.remove('is-loading');
           btn.disabled = false;
           showError(codeStep, (data && data.data && data.data.message) || 'کد وارد شده نادرست یا منقضی شده است.');
         })
         .catch(function () {
+          btn.classList.remove('is-loading');
           btn.disabled = false;
           showError(codeStep, 'خطا در ارتباط با سرور. دوباره تلاش کنید.');
         });
@@ -514,6 +524,7 @@
 
       var btn = passwordForm.querySelector('button[type="submit"]');
       btn.disabled = true;
+      btn.classList.add('is-loading');
 
       var body = new window.URLSearchParams();
       body.set('action', 'wm_otp_set_password');
@@ -539,10 +550,12 @@
             window.location.href = data.data.redirect;
             return;
           }
+          btn.classList.remove('is-loading');
           btn.disabled = false;
           showError(passwordStep, (data && data.data && data.data.message) || 'ثبت رمز عبور ناموفق بود.');
         })
         .catch(function () {
+          btn.classList.remove('is-loading');
           btn.disabled = false;
           showError(passwordStep, 'خطا در ارتباط با سرور. دوباره تلاش کنید.');
         });
