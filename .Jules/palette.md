@@ -29,3 +29,7 @@
 ## 2026-11-21 - OTP Form Submit Button Loading State
 **Learning:** Found that async form submissions in the OTP modal did not provide clear feedback to the user while processing. The buttons were disabled, but there was no visual indicator (like a spinner) that a background request was happening, which can lead to user confusion.
 **Action:** Always add an `is-loading` class to async submit buttons during network requests, and define CSS to hide the text and show a spinner (e.g. via `::after`). Remember to remove the class when the request finishes or fails.
+
+## 2024-11-21 - Buy Form Submit Button Loading State
+**Learning:** Found that async form submissions in the Buy modal did not provide clear feedback to the user while processing. The buttons were disabled and their text swapped, but there was no visual indicator (like a spinner) that a background request was happening, which can lead to user confusion.
+**Action:** Always add an `is-loading` class to async submit buttons during network requests, and define CSS to hide the text and show a spinner (e.g. via `::after`). Remember to remove the class when the request finishes or fails.
