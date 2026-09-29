@@ -52,8 +52,10 @@ function wm_get_option( $key, $default = '' ) {
 function wm_get_client_ip() {
 	$remote = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 
-	// Cloudflare: CF-Connecting-IP is set alongside CF-RAY on every edge request.
-	if ( ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) && ! empty( $_SERVER['HTTP_CF_RAY'] ) ) {
+	$trusted = apply_filters( 'wm_trusted_proxy_ips', array() );
+
+	// Cloudflare: only trust CF-Connecting-IP if the direct peer is a trusted proxy.
+	if ( $remote && in_array( $remote, (array) $trusted, true ) && ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) && ! empty( $_SERVER['HTTP_CF_RAY'] ) ) {
 		$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
 		if ( $ip && filter_var( $ip, FILTER_VALIDATE_IP ) ) {
 			return $ip;
@@ -62,7 +64,6 @@ function wm_get_client_ip() {
 
 	// Generic reverse proxy: only trust X-Forwarded-For when the direct peer
 	// is allowlisted. Empty list (default) = header never trusted.
-	$trusted = apply_filters( 'wm_trusted_proxy_ips', array() );
 	if ( $remote && in_array( $remote, (array) $trusted, true ) && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
 		$parts = array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) ) );
 		$ip    = isset( $parts[0] ) ? $parts[0] : '';
