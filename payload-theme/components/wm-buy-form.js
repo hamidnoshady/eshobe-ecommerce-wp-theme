@@ -225,9 +225,7 @@ class WmBuyForm extends HTMLElement {
   _setBusy(busy, btn) {
     if (!btn) return;
     btn.disabled = busy;
-    btn.classList.toggle('is-busy', busy);
-    if (busy) btn.dataset.originalText = btn.textContent;
-    btn.textContent = busy ? 'در حال ثبت…' : (btn.dataset.originalText || 'ثبت سفارش');
+    btn.classList.toggle('is-loading', busy);
   }
 
   _showError(msg, el) {

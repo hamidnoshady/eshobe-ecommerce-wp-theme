@@ -146,8 +146,28 @@
   transition: var(--wm-transition);
 }
 .wm-buy-form__submit:hover { filter: brightness(1.06); }
-.wm-buy-form__submit.is-busy,
 .wm-buy-form__submit:disabled { opacity: 0.7; cursor: default; }
+
+.wm-buy-form__submit.is-loading {
+  position: relative;
+  pointer-events: none;
+  color: transparent !important;
+}
+
+.wm-buy-form__submit.is-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: wm-buy-spin 700ms linear infinite;
+}
+
+@keyframes wm-buy-spin { to { transform: rotate(360deg); } }
 
 @keyframes wm-buy-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes wm-buy-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
