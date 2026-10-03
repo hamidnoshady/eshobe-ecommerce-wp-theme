@@ -236,6 +236,34 @@ function wm_render_header_mega_menus() {
         return;
     }
 
+    // ⚡ Bolt: Prime attachment caches to prevent N+1 queries when wp_get_attachment_image is called in the loop.
+    $attachment_ids = array();
+    foreach ( $menus as $menu ) {
+        if ( ! empty( $menu['mega_feature_image'] ) ) {
+            $image = $menu['mega_feature_image'];
+            if ( is_array( $image ) && ! empty( $image['ID'] ) ) {
+                $attachment_ids[] = absint( $image['ID'] );
+            } elseif ( is_numeric( $image ) ) {
+                $attachment_ids[] = absint( $image );
+            }
+        }
+        foreach ( (array) ( $menu['mega_columns'] ?? array() ) as $column ) {
+            foreach ( (array) ( $column['column_links'] ?? array() ) as $link ) {
+                if ( ! empty( $link['link_icon'] ) ) {
+                    $image = $link['link_icon'];
+                    if ( is_array( $image ) && ! empty( $image['ID'] ) ) {
+                        $attachment_ids[] = absint( $image['ID'] );
+                    } elseif ( is_numeric( $image ) ) {
+                        $attachment_ids[] = absint( $image );
+                    }
+                }
+            }
+        }
+    }
+    if ( ! empty( $attachment_ids ) && function_exists( '_prime_post_caches' ) ) {
+        _prime_post_caches( array_unique( $attachment_ids ), false, true );
+    }
+
     ?>
     <div class="wm-mega-menu" aria-label="<?php echo esc_attr__( 'Mega Menu', 'eshobe-ecommerce' ); ?>">
         <?php foreach ( $menus as $menu ) : ?>
