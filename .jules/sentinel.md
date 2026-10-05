@@ -52,3 +52,8 @@
 **Vulnerability:** The function `wm_contact_form_post_fallback` in `inc/ajax/contact-form.php` used a custom URL validation logic relying on `wp_parse_url`. This allowed attackers to craft URLs that passed the host comparison check but resulted in an Open Redirect.
 **Learning:** Custom URL host extraction and validation using built-in PHP tools is notoriously prone to edge cases and parsing discrepancies, often leading to Open Redirect or SSRF vulnerabilities.
 **Prevention:** Always use WordPress core's `wp_validate_redirect()` function for safe redirect validation instead of writing custom URL validation logic.
+
+## 2025-03-01 - Authorization Bypass in Theme Settings Options Pages
+**Vulnerability:** The ACF options pages and sub-pages in `inc/acf/home-fields.php` were registered with the `'capability' => 'edit_posts'` setting. This allowed any user with lower privileges, such as a Contributor or Author, to access and modify critical theme-wide settings (e.g. homepage structure, marketing banners, and footer configuration).
+**Learning:** Theme-wide settings, layout configurations, and technical options must require a strict administrative capability to prevent unauthorized layout changes or injection.
+**Prevention:** Always use `edit_theme_options` or `manage_options` for functionality that manages theme appearance, blocks, or layout settings, and restrict options to administrators and authorized editors only.
