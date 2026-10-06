@@ -84,7 +84,7 @@ function wm_get_mini_cart_body_html() {
                         </div>
                     </div>
 
-                    <a href="<?php echo esc_url( $remove_url ); ?>" class="wm-cart-drawer__item-remove remove remove_from_cart_button" aria-label="<?php echo esc_attr__( 'حذف از سبد خرید', 'eshobe-ecommerce' ); ?>" data-product_id="<?php echo esc_attr( $cart_item['product_id'] ); ?>" data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>" data-product_sku="<?php echo esc_attr( $product->get_sku() ); ?>">&times;</a>
+                    <a href="<?php echo esc_url( $remove_url ); ?>" class="wm-cart-drawer__item-remove remove remove_from_cart_button" aria-label="<?php echo esc_attr__( 'حذف از سبد خرید', 'eshobe-ecommerce' ); ?>" data-product_id="<?php echo esc_attr( $cart_item['product_id'] ); ?>" data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>" data-product_sku="<?php echo esc_attr( $product->get_sku() ); ?>"><span aria-hidden="true">&times;</span></a>
                 </li>
             <?php endforeach; ?>
         </ul>
@@ -118,7 +118,7 @@ function wm_render_mini_cart_drawer() {
         <div class="wm-cart-drawer__panel">
             <div class="wm-cart-drawer__header">
                 <h2 class="wm-cart-drawer__title"><?php echo esc_html__( 'سبد خرید', 'eshobe-ecommerce' ); ?></h2>
-                <button type="button" class="wm-cart-drawer__close" data-wm-cart-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>">&times;</button>
+                <button type="button" class="wm-cart-drawer__close" data-wm-cart-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="wm-cart-drawer__body" data-wm-cart-drawer-body>
                 <?php echo wm_get_mini_cart_body_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
