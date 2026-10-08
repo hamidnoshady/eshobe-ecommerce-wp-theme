@@ -661,23 +661,25 @@ function wm_render_related_products() {
         }
     }
 
+    $track_id = wp_unique_id( 'wm-related-track-' );
+
     ob_start();
     ?>
     <section class="wm-related-products" aria-label="<?php esc_attr_e( 'Related products', 'eshobe-ecommerce' ); ?>">
         <div class="wm-related-products__header">
             <h2 class="wm-related-products__title"><?php echo esc_html__( 'محصولات مشابه', 'eshobe-ecommerce' ); ?></h2>
             <div class="wm-related-products__nav wm-related-products__controls" aria-label="<?php esc_attr_e( 'Related products carousel controls', 'eshobe-ecommerce' ); ?>">
-                <button class="wm-related-products__arrow wm-related-products__arrow--prev" type="button" data-related-direction="prev" aria-label="<?php esc_attr_e( 'Previous related products', 'eshobe-ecommerce' ); ?>">
+                <button class="wm-related-products__arrow wm-related-products__arrow--prev" type="button" data-related-direction="prev" aria-label="<?php esc_attr_e( 'Previous related products', 'eshobe-ecommerce' ); ?>" aria-controls="<?php echo esc_attr( $track_id ); ?>">
                     <span aria-hidden="true">‹</span>
                 </button>
-                <button class="wm-related-products__arrow wm-related-products__arrow--next" type="button" data-related-direction="next" aria-label="<?php esc_attr_e( 'Next related products', 'eshobe-ecommerce' ); ?>">
+                <button class="wm-related-products__arrow wm-related-products__arrow--next" type="button" data-related-direction="next" aria-label="<?php esc_attr_e( 'Next related products', 'eshobe-ecommerce' ); ?>" aria-controls="<?php echo esc_attr( $track_id ); ?>">
                     <span aria-hidden="true">›</span>
                 </button>
             </div>
         </div>
 
         <div class="wm-related-products__viewport wm-related-products__carousel">
-            <div class="wm-related-products__track" tabindex="0">
+            <div class="wm-related-products__track" id="<?php echo esc_attr( $track_id ); ?>" tabindex="0">
                 <?php foreach ( $related_ids as $related_id ) : ?>
                     <?php
                     if ( ! isset( $products_by_id[ $related_id ] ) ) {

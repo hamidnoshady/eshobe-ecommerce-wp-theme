@@ -107,6 +107,8 @@ class WmProductGrid extends HTMLElement {
       trackHtml = '';
     }
 
+    const trackId = 'wm-product-grid-' + Math.random().toString(36).substring(2, 9);
+
     const header = title
       ? `<div class="wm-home-section__header">
           <div>
@@ -117,8 +119,8 @@ class WmProductGrid extends HTMLElement {
             ${subtitle ? `<p class="wm-home-section__subtitle">${escapeHtml(subtitle)}</p>` : ''}
           </div>
           <div class="wm-product-carousel__controls">
-            <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="prev" aria-label="محصولات قبلی"><span aria-hidden="true">‹</span></button>
-            <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="next" aria-label="محصولات بعدی"><span aria-hidden="true">›</span></button>
+            <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="prev" aria-label="محصولات قبلی" aria-controls="${trackId}"><span aria-hidden="true">‹</span></button>
+            <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="next" aria-label="محصولات بعدی" aria-controls="${trackId}"><span aria-hidden="true">›</span></button>
           </div>
         </div>`
       : '';
@@ -127,7 +129,7 @@ class WmProductGrid extends HTMLElement {
       <section class="wm-product-carousel ${escapeAttr(cls)}" data-product-carousel>
         ${header}
         <div class="wm-product-carousel__viewport">
-          <div class="wm-product-carousel__track" tabindex="0">${trackHtml}</div>
+          <div class="wm-product-carousel__track" id="${trackId}" tabindex="0">${trackHtml}</div>
         </div>
       </section>
     `;

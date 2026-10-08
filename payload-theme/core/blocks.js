@@ -63,15 +63,17 @@ function renderHero(block, site, locale) {
     ? '<div class="wm-home-hero__progress" data-home-hero-progress aria-hidden="true"><span class="wm-home-hero__progress-bar"></span></div>'
     : '';
 
+  const trackId = 'wm-hero-track-' + Math.random().toString(36).substring(2, 9);
+
   const nav = hasMultiple
     ? `<div class="wm-home-hero__nav">
-        <button type="button" class="wm-home-hero__arrow wm-home-hero__arrow--prev" data-hero-direction="prev" aria-label="قبلی"><span aria-hidden="true">‹</span></button>
-        <button type="button" class="wm-home-hero__arrow wm-home-hero__arrow--next" data-hero-direction="next" aria-label="بعدی"><span aria-hidden="true">›</span></button>
+        <button type="button" class="wm-home-hero__arrow wm-home-hero__arrow--prev" data-hero-direction="prev" aria-label="قبلی" aria-controls="${trackId}"><span aria-hidden="true">‹</span></button>
+        <button type="button" class="wm-home-hero__arrow wm-home-hero__arrow--next" data-hero-direction="next" aria-label="بعدی" aria-controls="${trackId}"><span aria-hidden="true">›</span></button>
       </div>`
     : '';
 
   return `<section class="wm-home-hero wm-section-decor wm-section-decor--hero wm-section-decor--dots wm-section-decor--ring" data-home-hero data-autoplay="${escapeAttr(autoplayInterval)}" data-autoplay-pause-hover="${autoplayPause ? 1 : 0}">
-    <div class="wm-home-hero__track">${slidesHtml}</div>
+    <div class="wm-home-hero__track" id="${trackId}">${slidesHtml}</div>
     ${progress}
     ${nav}
   </section>`;

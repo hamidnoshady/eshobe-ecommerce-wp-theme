@@ -64,9 +64,10 @@ $has_multiple = count( $slides ) > 1;
 $autoplay_enabled  = (bool) wm_home_get_option( 'home_hero_autoplay', false );
 $autoplay_interval = $autoplay_enabled ? max( 1500, absint( wm_home_get_option( 'home_hero_autoplay_interval', 5000 ) ) ) : 0;
 $autoplay_pause    = $autoplay_enabled ? (bool) wm_home_get_option( 'home_hero_autoplay_pause_hover', true ) : false;
+$track_id          = wp_unique_id( 'wm-hero-track-' );
 ?>
 <section class="wm-home-hero wm-section-decor wm-section-decor--hero wm-section-decor--dots wm-section-decor--ring" data-home-hero data-autoplay="<?php echo esc_attr( $autoplay_interval ); ?>" data-autoplay-pause-hover="<?php echo $autoplay_pause ? '1' : '0'; ?>">
-    <div class="wm-home-hero__track">
+    <div class="wm-home-hero__track" id="<?php echo esc_attr( $track_id ); ?>">
         <?php foreach ( $slides as $index => $slide ) : ?>
             <?php if ( 'image' === ( $slide['type'] ?? 'content' ) ) : ?>
                 <?php
@@ -162,13 +163,13 @@ $autoplay_pause    = $autoplay_enabled ? (bool) wm_home_get_option( 'home_hero_a
     <?php endif; ?>
     <?php if ( $has_multiple ) : ?>
         <div class="wm-home-hero__nav">
-            <button type="button" class="wm-home-hero__arrow" data-home-hero-prev aria-label="<?php esc_attr_e( 'Previous slide', 'eshobe-ecommerce' ); ?>">‹</button>
+            <button type="button" class="wm-home-hero__arrow" data-home-hero-prev aria-label="<?php esc_attr_e( 'Previous slide', 'eshobe-ecommerce' ); ?>" aria-controls="<?php echo esc_attr( $track_id ); ?>">‹</button>
             <div class="wm-home-hero__dots">
                 <?php foreach ( $slides as $index => $slide ) : ?>
-                    <button type="button" class="wm-home-hero__dot <?php echo 0 === $index ? 'is-active' : ''; ?>" data-home-hero-dot="<?php echo esc_attr( $index ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Show slide %d', 'eshobe-ecommerce' ), $index + 1 ) ); ?>"></button>
+                    <button type="button" class="wm-home-hero__dot <?php echo 0 === $index ? 'is-active' : ''; ?>" data-home-hero-dot="<?php echo esc_attr( $index ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Show slide %d', 'eshobe-ecommerce' ), $index + 1 ) ); ?>" aria-controls="<?php echo esc_attr( $track_id ); ?>"></button>
                 <?php endforeach; ?>
             </div>
-            <button type="button" class="wm-home-hero__arrow" data-home-hero-next aria-label="<?php esc_attr_e( 'Next slide', 'eshobe-ecommerce' ); ?>">›</button>
+            <button type="button" class="wm-home-hero__arrow" data-home-hero-next aria-label="<?php esc_attr_e( 'Next slide', 'eshobe-ecommerce' ); ?>" aria-controls="<?php echo esc_attr( $track_id ); ?>">›</button>
         </div>
     <?php endif; ?>
 </section>
