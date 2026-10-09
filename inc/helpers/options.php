@@ -39,6 +39,57 @@ function wm_get_option( $key, $default = '' ) {
 }
 
 /**
+ * Checks if an IP address is within a given CIDR block.
+ *
+ * @param string $ip   The IP address to check.
+ * @param string $cidr The CIDR block (e.g. 192.168.1.0/24) or single IP.
+ * @return bool True if IP is in the CIDR block, false otherwise.
+ */
+function wm_ip_in_cidr( $ip, $cidr ) {
+	if ( strpos( $cidr, '/' ) === false ) {
+		return $ip === $cidr;
+	}
+	list( $subnet, $mask ) = explode( '/', $cidr );
+	$mask = (int) $mask;
+
+	// IPv4
+	if ( strpos( $ip, '.' ) !== false && strpos( $subnet, '.' ) !== false ) {
+		$ip_long     = ip2long( $ip );
+		$subnet_long = ip2long( $subnet );
+		if ( false === $ip_long || false === $subnet_long ) {
+			return false;
+		}
+		$mask_long = ~ ( ( 1 << ( 32 - $mask ) ) - 1 );
+		return ( $ip_long & $mask_long ) === ( $subnet_long & $mask_long );
+	}
+
+	// IPv6
+	if ( strpos( $ip, ':' ) !== false && strpos( $subnet, ':' ) !== false ) {
+		$ip_bin     = inet_pton( $ip );
+		$subnet_bin = inet_pton( $subnet );
+		if ( false === $ip_bin || false === $subnet_bin ) {
+			return false;
+		}
+		$bytes = (int) ( $mask / 8 );
+		$bits  = $mask % 8;
+		if ( $bytes > 0 && substr( $ip_bin, 0, $bytes ) !== substr( $subnet_bin, 0, $bytes ) ) {
+			return false;
+		}
+		if ( $bits > 0 ) {
+			$ip_byte     = ord( $ip_bin[ $bytes ] );
+			$subnet_byte = ord( $subnet_bin[ $bytes ] );
+			$mask_byte   = ~ ( ( 1 << ( 8 - $bits ) ) - 1 ) & 0xFF;
+			if ( ( $ip_byte & $mask_byte ) !== ( $subnet_byte & $mask_byte ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	return false;
+}
+
+/**
  * Resolve the client IP for rate limiting, proxy/CDN-aware.
  *
  * `REMOTE_ADDR` alone is wrong behind a proxy or CDN: every visitor shares
@@ -51,23 +102,63 @@ function wm_get_option( $key, $default = '' ) {
  */
 function wm_get_client_ip() {
 	$remote = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+	if ( ! $remote ) {
+		return '';
+	}
 
-	// Cloudflare: CF-Connecting-IP is set alongside CF-RAY on every edge request.
-	if ( ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) && ! empty( $_SERVER['HTTP_CF_RAY'] ) ) {
-		$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
-		if ( $ip && filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-			return $ip;
+	$trusted = apply_filters( 'wm_trusted_proxy_ips', array(
+		// Cloudflare IPv4
+		'173.245.48.0/20',
+		'103.21.244.0/22',
+		'103.22.200.0/22',
+		'103.31.4.0/22',
+		'141.101.64.0/18',
+		'108.162.192.0/18',
+		'190.93.240.0/20',
+		'188.114.96.0/20',
+		'197.234.240.0/22',
+		'198.41.128.0/17',
+		'162.158.0.0/15',
+		'104.16.0.0/13',
+		'104.24.0.0/14',
+		'172.64.0.0/13',
+		'131.0.72.0/22',
+		// Cloudflare IPv6
+		'2400:cb00::/32',
+		'2606:4700::/32',
+		'2803:f800::/32',
+		'2405:b500::/32',
+		'2405:8100::/32',
+		'2a06:98c0::/29',
+		'2c0f:f248::/32',
+	) );
+	$is_trusted_proxy = false;
+
+	if ( is_array( $trusted ) ) {
+		foreach ( $trusted as $trusted_ip ) {
+			if ( wm_ip_in_cidr( $remote, $trusted_ip ) ) {
+				$is_trusted_proxy = true;
+				break;
+			}
 		}
 	}
 
-	// Generic reverse proxy: only trust X-Forwarded-For when the direct peer
-	// is allowlisted. Empty list (default) = header never trusted.
-	$trusted = apply_filters( 'wm_trusted_proxy_ips', array() );
-	if ( $remote && in_array( $remote, (array) $trusted, true ) && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-		$parts = array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) ) );
-		$ip    = isset( $parts[0] ) ? $parts[0] : '';
-		if ( $ip && filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-			return $ip;
+	if ( $is_trusted_proxy ) {
+		// Cloudflare: CF-Connecting-IP is set alongside CF-RAY on every edge request.
+		if ( ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) && ! empty( $_SERVER['HTTP_CF_RAY'] ) ) {
+			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
+			if ( $ip && filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+				return $ip;
+			}
+		}
+
+		// Generic reverse proxy
+		if ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+			$parts = array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) ) );
+			$ip    = isset( $parts[0] ) ? $parts[0] : '';
+			if ( $ip && filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+				return $ip;
+			}
 		}
 	}
 
