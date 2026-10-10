@@ -60,12 +60,12 @@ body.editor-styles-wrapper{margin:0;}
       <p class="wm-home-section__subtitle">محصولاتی که بیشتر انتخاب شده‌اند.</p>
     </div>
     <div class="wm-product-carousel__controls">
-      <button class="wm-product-carousel__arrow" type="button"><span aria-hidden="true">‹</span></button>
-      <button class="wm-product-carousel__arrow" type="button"><span aria-hidden="true">›</span></button>
+      <button class="wm-product-carousel__arrow" type="button" aria-controls="wm-product-carousel-track"><span aria-hidden="true">‹</span></button>
+      <button class="wm-product-carousel__arrow" type="button" aria-controls="wm-product-carousel-track"><span aria-hidden="true">›</span></button>
     </div>
   </div>
   <div class="wm-product-carousel__viewport">
-    <div class="wm-product-carousel__track" tabindex="0">
+    <div class="wm-product-carousel__track" id="wm-product-carousel-track" tabindex="0">
       <article class="wm-product-card wm-product-carousel__item">
         <div class="wm-product-card__media-wrap">
           <a class="wm-product-card__media" href="#" aria-label="محصول نمونه">
