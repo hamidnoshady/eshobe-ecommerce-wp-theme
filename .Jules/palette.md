@@ -29,3 +29,7 @@
 ## 2026-11-21 - OTP Form Submit Button Loading State
 **Learning:** Found that async form submissions in the OTP modal did not provide clear feedback to the user while processing. The buttons were disabled, but there was no visual indicator (like a spinner) that a background request was happening, which can lead to user confusion.
 **Action:** Always add an `is-loading` class to async submit buttons during network requests, and define CSS to hide the text and show a spinner (e.g. via `::after`). Remember to remove the class when the request finishes or fails.
+
+## 2026-12-05 - Carousel Navigation Accessibility with aria-controls
+**Learning:** Carousel navigation buttons (like "Next", "Previous", or dot navigation) often lack a clear programmatic relationship to the track container they are scrolling. This makes it difficult for screen reader users to understand what content will change when the button is activated.
+**Action:** Always verify that carousel track containers have a unique `id` attribute (e.g., via `wp_unique_id()` in PHP), and ensure all associated navigation buttons (arrows, dots) reference that `id` using the `aria-controls` attribute for proper accessibility mapping.
