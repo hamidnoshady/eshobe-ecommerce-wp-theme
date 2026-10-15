@@ -29,3 +29,7 @@
 ## 2026-11-21 - OTP Form Submit Button Loading State
 **Learning:** Found that async form submissions in the OTP modal did not provide clear feedback to the user while processing. The buttons were disabled, but there was no visual indicator (like a spinner) that a background request was happening, which can lead to user confusion.
 **Action:** Always add an `is-loading` class to async submit buttons during network requests, and define CSS to hide the text and show a spinner (e.g. via `::after`). Remember to remove the class when the request finishes or fails.
+
+## 2024-11-22 - Raw Characters in Icon-Only Buttons
+**Learning:** Icon-only buttons that use raw text characters (like `×`, `&times;`, `‹`, `›`) for visual icons alongside an `aria-label` cause screen readers to redundantly announce both the label and the character (e.g. 'Close, multiply').
+**Action:** Always wrap the raw text character in a `<span aria-hidden="true">` inside the button so that the screen reader only reads the `aria-label`.
