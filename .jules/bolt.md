@@ -44,3 +44,7 @@
 ## 2026-06-25 - Redundant transient lookups across multiple hooks
 **Learning:** Functions that return global configuration or generated CSS (like `wm_get_design_tokens_css()`) are often hooked into multiple WordPress actions per request (e.g. `wp_enqueue_scripts` in the frontend and a block editor hook in the backend, or printed multiple times). Relying solely on `get_transient` means hitting the database on every hook execution, because transients aren't natively memoized per-request when external object caching isn't guaranteed.
 **Action:** Always wrap `get_transient()` calls with a local `static $memory_cache` array or variable inside functions that might be called multiple times per request. Ensure this memory cache is bypassed during unit tests to avoid mocking leakages.
+
+## 2026-10-15 - Unoptimized Attachment Image Caches in Abstracted Render Components
+**Learning:** Even if helper functions are created to abstract product grid or carousel rendering (e.g., `wm_render_product_carousel`, `wm_product_archive_render_loop`), if they internally loop over a dataset and call functions like `wm_render_product_card()` which uses `wp_get_attachment_image()`, they will trigger N+1 queries. Just passing the array of products is not sufficient.
+**Action:** Before rendering the loop inside those abstracted functions, loop over the dataset to aggregate all attachment IDs (including hover gallery images) and execute `_prime_post_caches( $ids, false, true )` to bulk load the missing object meta.
