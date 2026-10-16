@@ -520,6 +520,13 @@ function wm_home_default_filter_items() {
 }
 
 function wm_home_get_filter_sections() {
+    static $cache = null;
+    $is_test      = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+
+    if ( ! $is_test && null !== $cache ) {
+        return $cache;
+    }
+
     $sections = wm_home_get_option( 'home_filter_sections', array() );
     $output   = array();
 
@@ -575,10 +582,14 @@ function wm_home_get_filter_sections() {
     }
 
     if ( $output ) {
+        // Optimize ⚡ Bolt: Memoize the resolved output to avoid redundant processing of ACF options
+        if ( ! $is_test ) {
+            $cache = $output;
+        }
         return $output;
     }
 
-    return array(
+    $output = array(
         array(
             'title'    => 'مسیر خرید سریع',
             'subtitle' => '',
@@ -586,6 +597,12 @@ function wm_home_get_filter_sections() {
             'items'    => wm_home_default_filter_items(),
         ),
     );
+
+    // Optimize ⚡ Bolt: Memoize the resolved output to avoid redundant processing of ACF options
+    if ( ! $is_test ) {
+        $cache = $output;
+    }
+    return $output;
 }
 
 function wm_render_filter_card( $item ) {
@@ -634,6 +651,24 @@ function wm_render_home_filter_section( $section, $extra_class = '' ) {
 
     if ( ! $items ) {
         return;
+    }
+
+    // Optimize ⚡ Bolt: Prevent N+1 queries when rendering attachment images in loops.
+    // Aggregate all attachment IDs and call _prime_post_caches() before rendering.
+    if ( function_exists( '_prime_post_caches' ) ) {
+        $image_ids = array();
+        foreach ( $items as $item ) {
+            if ( ! empty( $item['filter_image'] ) ) {
+                if ( is_array( $item['filter_image'] ) && ! empty( $item['filter_image']['ID'] ) ) {
+                    $image_ids[] = absint( $item['filter_image']['ID'] );
+                } elseif ( is_numeric( $item['filter_image'] ) ) {
+                    $image_ids[] = absint( $item['filter_image'] );
+                }
+            }
+        }
+        if ( ! empty( $image_ids ) ) {
+            _prime_post_caches( array_unique( $image_ids ), false, true );
+        }
     }
 
     ?>
