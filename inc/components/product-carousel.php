@@ -23,6 +23,27 @@ function wm_render_product_carousel( $products, $args = array() ) {
 
     $section_id = 'wm-product-carousel-' . wp_unique_id();
 
+    if ( function_exists( '_prime_post_caches' ) ) {
+        $attachment_ids = array();
+        foreach ( $products as $product ) {
+            $p = wm_resolve_product( $product );
+            if ( $p instanceof WC_Product ) {
+                if ( $p->get_image_id() ) {
+                    $attachment_ids[] = $p->get_image_id();
+                }
+                $gallery = $p->get_gallery_image_ids();
+                if ( ! empty( $gallery ) ) {
+                    $attachment_ids[] = $gallery[0];
+                }
+            }
+        }
+        $attachment_ids = array_unique( array_filter( $attachment_ids ) );
+        if ( ! empty( $attachment_ids ) ) {
+            // ⚡ Bolt Optimization: Bulk prime attachment caches to prevent N+1 queries during loop
+            _prime_post_caches( $attachment_ids, false, true );
+        }
+    }
+
     ob_start();
     ?>
     <section class="wm-product-carousel <?php echo esc_attr( $args['class'] ); ?>" id="<?php echo esc_attr( $section_id ); ?>" data-product-carousel>

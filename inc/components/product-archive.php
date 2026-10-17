@@ -1912,6 +1912,29 @@ function wm_product_archive_render_loop() {
     // Above-the-fold row gets fetchpriority=high; everything below stays lazy.
     $first_row = wm_product_archive_int_option( 'wm_archive_columns_desktop', 3, 1, 4 );
     $index     = 0;
+
+    global $wp_query;
+    if ( function_exists( '_prime_post_caches' ) && ! empty( $wp_query->posts ) ) {
+        $attachment_ids = array();
+        foreach ( $wp_query->posts as $post_obj ) {
+            $p = wc_get_product( $post_obj );
+            if ( $p instanceof WC_Product ) {
+                if ( $p->get_image_id() ) {
+                    $attachment_ids[] = $p->get_image_id();
+                }
+                $gallery = $p->get_gallery_image_ids();
+                if ( ! empty( $gallery ) ) {
+                    $attachment_ids[] = $gallery[0];
+                }
+            }
+        }
+        $attachment_ids = array_unique( array_filter( $attachment_ids ) );
+        if ( ! empty( $attachment_ids ) ) {
+            // ⚡ Bolt Optimization: Bulk prime attachment caches to prevent N+1 queries during loop
+            _prime_post_caches( $attachment_ids, false, true );
+        }
+    }
+
     ?>
     <div class="wm-product-archive__grid wm-products-loop">
         <?php while ( have_posts() ) : ?>
