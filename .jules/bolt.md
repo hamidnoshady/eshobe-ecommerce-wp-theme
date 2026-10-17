@@ -44,3 +44,7 @@
 ## 2026-06-25 - Redundant transient lookups across multiple hooks
 **Learning:** Functions that return global configuration or generated CSS (like `wm_get_design_tokens_css()`) are often hooked into multiple WordPress actions per request (e.g. `wp_enqueue_scripts` in the frontend and a block editor hook in the backend, or printed multiple times). Relying solely on `get_transient` means hitting the database on every hook execution, because transients aren't natively memoized per-request when external object caching isn't guaranteed.
 **Action:** Always wrap `get_transient()` calls with a local `static $memory_cache` array or variable inside functions that might be called multiple times per request. Ensure this memory cache is bypassed during unit tests to avoid mocking leakages.
+
+## 2026-10-17 - Prevent N+1 queries when rendering product loops and carousels
+**Learning:** When generating product loops or carousels that contain image attachments, fetching post meta per image is not sufficient, as fetching the attachment via `wp_get_attachment_image()` triggers N+1 DB queries for the underlying post object itself.
+**Action:** Extract the image IDs (both primary and first gallery item, for hover effects) from all products within the query or loop and bulk-prime them using `_prime_post_caches()` prior to outputting the HTML to prevent these N+1 queries.
