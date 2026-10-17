@@ -25,6 +25,7 @@ function wm_render_post_carousel( $posts, $args = array() ) {
     );
 
     $section_id = 'wm-post-carousel-' . wp_unique_id();
+    $track_id   = $section_id . '-track';
     $style = sprintf(
         '--wm-cols-desktop: %d; --wm-cols-tablet: %d; --wm-cols-mobile: %d;',
         $args['columnsDesktop'],
@@ -55,13 +56,13 @@ function wm_render_post_carousel( $posts, $args = array() ) {
             
             <div class="wm-home-section__actions" style="display: flex; gap: 12px; align-items: center;">
                 <div class="wm-product-carousel__controls">
-                    <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="prev" aria-label="<?php esc_attr_e( 'قبلی', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">‹</span></button>
-                    <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="next" aria-label="<?php esc_attr_e( 'بعدی', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">›</span></button>
+                    <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="prev" aria-controls="<?php echo esc_attr( $track_id ); ?>" aria-label="<?php esc_attr_e( 'قبلی', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">‹</span></button>
+                    <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="next" aria-controls="<?php echo esc_attr( $track_id ); ?>" aria-label="<?php esc_attr_e( 'بعدی', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">›</span></button>
                 </div>
             </div>
         </div>
         <div class="wm-product-carousel__viewport">
-            <div class="wm-product-carousel__track wm-post-carousel__track" tabindex="0">
+            <div class="wm-product-carousel__track wm-post-carousel__track" id="<?php echo esc_attr( $track_id ); ?>" tabindex="0">
                 <?php foreach ( $posts as $post ) : ?>
                     <?php echo wm_render_post_card( $post->ID, array( 'class' => 'wm-product-carousel__item' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 <?php endforeach; ?>
