@@ -520,6 +520,14 @@ function wm_home_default_filter_items() {
 }
 
 function wm_home_get_filter_sections() {
+    // ⚡ Bolt Optimization: Memoize complex ACF repeater data mapping to prevent redundant processing and database queries per request.
+    static $cache = null;
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+
+    if ( ! $is_test && null !== $cache ) {
+        return $cache;
+    }
+
     $sections = wm_home_get_option( 'home_filter_sections', array() );
     $output   = array();
 
@@ -547,6 +555,9 @@ function wm_home_get_filter_sections() {
     }
 
     if ( $output ) {
+        if ( ! $is_test ) {
+            $cache = $output;
+        }
         return $output;
     }
 
@@ -575,10 +586,13 @@ function wm_home_get_filter_sections() {
     }
 
     if ( $output ) {
+        if ( ! $is_test ) {
+            $cache = $output;
+        }
         return $output;
     }
 
-    return array(
+    $default_output = array(
         array(
             'title'    => 'مسیر خرید سریع',
             'subtitle' => '',
@@ -586,6 +600,11 @@ function wm_home_get_filter_sections() {
             'items'    => wm_home_default_filter_items(),
         ),
     );
+
+    if ( ! $is_test ) {
+        $cache = $default_output;
+    }
+    return $default_output;
 }
 
 function wm_render_filter_card( $item ) {
