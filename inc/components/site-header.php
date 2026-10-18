@@ -321,7 +321,7 @@ function wm_render_site_header() {
                         <?php if ( function_exists( 'wc_get_product_types' ) ) : ?>
                             <input type="hidden" name="post_type" value="product">
                         <?php endif; ?>
-                        <button type="button" class="wm-search-modal__close" data-search-modal-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>">×</button>
+                        <button type="button" class="wm-search-modal__close" data-search-modal-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">×</span></button>
                     </form>
 
                     <div class="wm-search-modal__body">
@@ -363,7 +363,7 @@ function wm_render_site_header() {
         <div id="wm-tablet-nav-drawer" class="wm-tablet-nav-drawer" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'منو', 'eshobe-ecommerce' ); ?>" hidden>
             <div class="wm-tablet-nav-drawer__head">
                 <strong><?php echo esc_html__( 'منو', 'eshobe-ecommerce' ); ?></strong>
-                <button type="button" class="wm-tablet-nav-drawer__close" data-tablet-nav-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>">&times;</button>
+                <button type="button" class="wm-tablet-nav-drawer__close" data-tablet-nav-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="wm-tablet-nav-drawer__body">
                 <?php wm_header_render_menu( 'mobile' ); ?>
