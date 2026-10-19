@@ -32,6 +32,20 @@ function wm_render_post_carousel( $posts, $args = array() ) {
         $args['columnsMobile']
     );
 
+    // ⚡ Bolt: Pre-fetch attachment post objects to prevent N+1 queries during card rendering. Expected impact: Reduces database queries by the number of posts in the carousel.
+    if ( function_exists( '_prime_post_caches' ) ) {
+        $thumbnail_ids = array();
+        foreach ( $posts as $post ) {
+            $thumbnail_id = get_post_thumbnail_id( $post->ID );
+            if ( $thumbnail_id ) {
+                $thumbnail_ids[] = absint( $thumbnail_id );
+            }
+        }
+        if ( ! empty( $thumbnail_ids ) ) {
+            _prime_post_caches( array_unique( $thumbnail_ids ), false, true );
+        }
+    }
+
     ob_start();
     ?>
     <section class="wm-product-carousel <?php echo esc_attr( $args['class'] ); ?>" id="<?php echo esc_attr( $section_id ); ?>" data-post-carousel style="<?php echo esc_attr( $style ); ?>">
