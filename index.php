@@ -27,6 +27,22 @@ get_header();
         <?php endif; ?>
 
         <?php if ( have_posts() ) : ?>
+            <?php
+            // ⚡ Bolt: Pre-fetch attachment post objects to prevent N+1 queries during post card rendering in the main loop. Expected impact: Reduces database queries by the number of posts displayed per page.
+            global $wp_query;
+            if ( ! empty( $wp_query->posts ) && function_exists( '_prime_post_caches' ) ) {
+                $thumbnail_ids = array();
+                foreach ( $wp_query->posts as $loop_post ) {
+                    $thumbnail_id = get_post_thumbnail_id( $loop_post->ID );
+                    if ( $thumbnail_id ) {
+                        $thumbnail_ids[] = absint( $thumbnail_id );
+                    }
+                }
+                if ( ! empty( $thumbnail_ids ) ) {
+                    _prime_post_caches( array_unique( $thumbnail_ids ), false, true );
+                }
+            }
+            ?>
             <ul class="wm-blog-grid">
             <?php while ( have_posts() ) : the_post(); ?>
                 <li>
