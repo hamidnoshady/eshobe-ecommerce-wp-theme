@@ -39,6 +39,39 @@ function wm_get_option( $key, $default = '' ) {
 }
 
 /**
+ * Check if an IP is within a CIDR block.
+ *
+ * @param string $ip   The IP address to check.
+ * @param string $cidr The CIDR block (e.g., 192.168.1.0/24) or a single IP.
+ * @return bool True if the IP matches the CIDR or exact IP.
+ */
+function wm_ip_in_cidr( $ip, $cidr ) {
+	if ( strpos( $cidr, '/' ) === false ) {
+		return $ip === $cidr;
+	}
+	$parts = explode( '/', $cidr );
+	if ( count( $parts ) !== 2 ) {
+		return false;
+	}
+	list( $subnet, $bits ) = $parts;
+	$bits                  = (int) $bits;
+	$ip_pton               = inet_pton( $ip );
+	$subnet_pton           = inet_pton( $subnet );
+
+	if ( false === $ip_pton || false === $subnet_pton || strlen( $ip_pton ) !== strlen( $subnet_pton ) ) {
+		return false;
+	}
+
+	$mask = '';
+	for ( $i = 0; $i < strlen( $ip_pton ); $i++ ) {
+		$mask .= chr( $bits >= 8 ? 255 : max( 0, 255 - ( ( 1 << ( 8 - $bits ) ) - 1 ) ) );
+		$bits  = max( 0, $bits - 8 );
+	}
+
+	return ( $ip_pton & $mask ) === ( $subnet_pton & $mask );
+}
+
+/**
  * Resolve the client IP for rate limiting, proxy/CDN-aware.
  *
  * `REMOTE_ADDR` alone is wrong behind a proxy or CDN: every visitor shares
@@ -62,8 +95,18 @@ function wm_get_client_ip() {
 
 	// Generic reverse proxy: only trust X-Forwarded-For when the direct peer
 	// is allowlisted. Empty list (default) = header never trusted.
-	$trusted = apply_filters( 'wm_trusted_proxy_ips', array() );
-	if ( $remote && in_array( $remote, (array) $trusted, true ) && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+	$trusted   = apply_filters( 'wm_trusted_proxy_ips', array() );
+	$is_trusted = false;
+	if ( $remote ) {
+		foreach ( (array) $trusted as $trusted_proxy ) {
+			if ( wm_ip_in_cidr( $remote, $trusted_proxy ) ) {
+				$is_trusted = true;
+				break;
+			}
+		}
+	}
+
+	if ( $is_trusted && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
 		$parts = array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) ) );
 		$ip    = isset( $parts[0] ) ? $parts[0] : '';
 		if ( $ip && filter_var( $ip, FILTER_VALIDATE_IP ) ) {
