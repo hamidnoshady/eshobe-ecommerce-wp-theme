@@ -118,7 +118,7 @@ function wm_render_mini_cart_drawer() {
         <div class="wm-cart-drawer__panel">
             <div class="wm-cart-drawer__header">
                 <h2 class="wm-cart-drawer__title"><?php echo esc_html__( 'سبد خرید', 'eshobe-ecommerce' ); ?></h2>
-                <button type="button" class="wm-cart-drawer__close" data-wm-cart-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>">&times;</button>
+                <button type="button" class="wm-cart-drawer__close" data-wm-cart-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="wm-cart-drawer__body" data-wm-cart-drawer-body>
                 <?php echo wm_get_mini_cart_body_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

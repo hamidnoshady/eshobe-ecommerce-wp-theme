@@ -1817,7 +1817,7 @@ function wm_product_archive_render_sidebar() {
             <div class="wm-product-archive__sidebar-header">
                 <strong><?php echo esc_html__( 'فیلترها', 'eshobe-ecommerce' ); ?></strong>
                 <a class="wm-product-archive__reset" href="<?php echo esc_url( wm_product_archive_reset_url() ); ?>"><?php echo esc_html__( 'حذف فیلترها', 'eshobe-ecommerce' ); ?></a>
-                <button class="wm-product-archive__sidebar-close" type="button" data-archive-filter-close aria-label="<?php echo esc_attr__( 'بستن فیلترها', 'eshobe-ecommerce' ); ?>">×</button>
+                <button class="wm-product-archive__sidebar-close" type="button" data-archive-filter-close aria-label="<?php echo esc_attr__( 'بستن فیلترها', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">×</span></button>
             </div>
             <div class="wm-product-archive__filters">
                 <?php wm_product_archive_render_custom_filters(); ?>

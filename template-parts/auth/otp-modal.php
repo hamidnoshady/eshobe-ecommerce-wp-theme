@@ -14,7 +14,7 @@ if ( is_user_logged_in() ) {
 <div id="wm-otp-modal" class="wm-otp-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'ورود یا ثبت‌نام', 'eshobe-ecommerce' ); ?>" dir="rtl" hidden>
 	<div class="wm-otp-modal__backdrop"></div>
 	<div class="wm-otp-modal__panel">
-		<button type="button" class="wm-otp-modal__close" data-otp-modal-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>">×</button>
+		<button type="button" class="wm-otp-modal__close" data-otp-modal-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">×</span></button>
 
 		<!-- Confirm-exit bar: shown when × is clicked mid-flow -->
 		<div class="wm-otp-modal__confirm-exit" data-otp-confirm-exit hidden>
