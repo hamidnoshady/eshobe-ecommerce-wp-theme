@@ -1909,6 +1909,29 @@ function wm_product_archive_render_toolbar() {
 }
 
 function wm_product_archive_render_loop() {
+    global $wp_query;
+
+    // ⚡ Bolt: Prevent N+1 queries by bulk-loading attachment WP_Post objects for the loop
+    if ( function_exists( '_prime_post_caches' ) && ! empty( $wp_query->posts ) ) {
+        $attachment_ids = array();
+        foreach ( $wp_query->posts as $post ) {
+            $product = wc_get_product( $post );
+            if ( $product ) {
+                if ( $product->get_image_id() ) {
+                    $attachment_ids[] = $product->get_image_id();
+                }
+                $gallery = $product->get_gallery_image_ids();
+                if ( ! empty( $gallery ) ) {
+                    $attachment_ids[] = $gallery[0];
+                }
+            }
+        }
+        $attachment_ids = array_unique( array_filter( array_map( 'absint', $attachment_ids ) ) );
+        if ( ! empty( $attachment_ids ) ) {
+            _prime_post_caches( $attachment_ids, false, true );
+        }
+    }
+
     // Above-the-fold row gets fetchpriority=high; everything below stays lazy.
     $first_row = wm_product_archive_int_option( 'wm_archive_columns_desktop', 3, 1, 4 );
     $index     = 0;

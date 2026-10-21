@@ -11,6 +11,31 @@ function wm_render_product_carousel( $products, $args = array() ) {
         return '';
     }
 
+    // ⚡ Bolt: Prevent N+1 queries by bulk-loading attachment WP_Post objects for the carousel
+    if ( function_exists( '_prime_post_caches' ) ) {
+        $attachment_ids = array();
+        foreach ( $products as $product ) {
+            if ( ! $product instanceof WC_Product ) {
+                if ( function_exists( 'wc_get_product' ) ) {
+                    $product = wc_get_product( $product );
+                }
+            }
+            if ( $product instanceof WC_Product ) {
+                if ( $product->get_image_id() ) {
+                    $attachment_ids[] = $product->get_image_id();
+                }
+                $gallery = $product->get_gallery_image_ids();
+                if ( ! empty( $gallery ) ) {
+                    $attachment_ids[] = $gallery[0];
+                }
+            }
+        }
+        $attachment_ids = array_unique( array_filter( array_map( 'absint', $attachment_ids ) ) );
+        if ( ! empty( $attachment_ids ) ) {
+            _prime_post_caches( $attachment_ids, false, true );
+        }
+    }
+
     $args = wp_parse_args(
         $args,
         array(
