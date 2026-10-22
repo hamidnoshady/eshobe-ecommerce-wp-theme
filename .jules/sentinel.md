@@ -52,3 +52,8 @@
 **Vulnerability:** The function `wm_contact_form_post_fallback` in `inc/ajax/contact-form.php` used a custom URL validation logic relying on `wp_parse_url`. This allowed attackers to craft URLs that passed the host comparison check but resulted in an Open Redirect.
 **Learning:** Custom URL host extraction and validation using built-in PHP tools is notoriously prone to edge cases and parsing discrepancies, often leading to Open Redirect or SSRF vulnerabilities.
 **Prevention:** Always use WordPress core's `wp_validate_redirect()` function for safe redirect validation instead of writing custom URL validation logic.
+
+## 2025-03-01 - IP Spoofing via Unverified Forwarded Headers
+**Vulnerability:** The function `wm_get_client_ip()` trusted the `CF-Connecting-IP` and `X-Forwarded-For` HTTP headers without verifying if the request actually originated from a trusted reverse proxy (e.g., Cloudflare) by checking if `REMOTE_ADDR` belongs to a trusted proxy CIDR block. An attacker could spoof these headers to bypass IP-based rate limiting or other security controls.
+**Learning:** Checking `REMOTE_ADDR` against a list of trusted proxies is crucial before trusting any HTTP headers containing client IP addresses, as these headers can easily be manipulated by clients.
+**Prevention:** Always validate that the direct peer (`REMOTE_ADDR`) matches a known proxy network using CIDR matching (e.g., `wm_ip_in_cidr`) before trusting forwarded HTTP headers.
