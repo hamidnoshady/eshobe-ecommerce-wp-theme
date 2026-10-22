@@ -23,8 +23,25 @@ function wm_get_terms_for_product( $product_id, $taxonomy ) {
 }
 
 function wm_term_link( $term ) {
+    // ⚡ Bolt: Cache term links to prevent redundant WP Rewrite API overhead during a single request.
+    static $cache = array();
+
+    $is_testing = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+
+    $term_id = is_object( $term ) ? $term->term_id : ( is_array( $term ) && isset( $term['term_id'] ) ? $term['term_id'] : $term );
+
+    if ( ! $is_testing && $term_id && isset( $cache[ $term_id ] ) ) {
+        return $cache[ $term_id ];
+    }
+
     $link = get_term_link( $term );
-    return is_wp_error( $link ) ? '' : $link;
+    $result = is_wp_error( $link ) ? '' : $link;
+
+    if ( ! $is_testing && $term_id ) {
+        $cache[ $term_id ] = $result;
+    }
+
+    return $result;
 }
 
 function wm_render_linked_terms( $terms ) {
