@@ -25,3 +25,7 @@
 ## 2026-11-20 - Expand/Collapse Accessibility with aria-controls
 **Learning:** Custom expand/collapse toggle buttons (like those used for product descriptions and specs on mobile) that use `aria-expanded` without a corresponding `aria-controls` attribute are less accessible for screen reader users, as the relationship to the content block being toggled is not explicitly defined.
 **Action:** When creating or modifying toggle buttons that show/hide content, always ensure the target content block has an `id` attribute, and the toggle buttons have a matching `aria-controls` attribute.
+
+## 2026-11-25 - Visually Exposed Text Characters in Icon-Only Buttons
+**Learning:** Icon-only buttons that rely on text characters for the visual icon (like `&times;` or `&#8249;`) can be redundantly read by screen readers if they also contain an `aria-label`, because the text content is still accessible to assistive technologies.
+**Action:** When an icon-only button contains a raw text character to serve as an icon along with an `aria-label`, always wrap the text character in a `<span aria-hidden="true">` to prevent screen readers from announcing both the label and the raw character.
