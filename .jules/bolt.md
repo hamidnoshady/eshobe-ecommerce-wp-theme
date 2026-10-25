@@ -44,3 +44,7 @@
 ## 2026-06-25 - Redundant transient lookups across multiple hooks
 **Learning:** Functions that return global configuration or generated CSS (like `wm_get_design_tokens_css()`) are often hooked into multiple WordPress actions per request (e.g. `wp_enqueue_scripts` in the frontend and a block editor hook in the backend, or printed multiple times). Relying solely on `get_transient` means hitting the database on every hook execution, because transients aren't natively memoized per-request when external object caching isn't guaranteed.
 **Action:** Always wrap `get_transient()` calls with a local `static $memory_cache` array or variable inside functions that might be called multiple times per request. Ensure this memory cache is bypassed during unit tests to avoid mocking leakages.
+
+## 2024-05-18 - Permalink Generator Memoization Pattern
+**Learning:** WordPress permalink generators (such as `get_term_link` when wrapped in a custom helper like `wm_term_link`) hit the WP Rewrite API which can have performance overhead. If these are called repeatedly for the same term during a single request (e.g., in lists of products, category sidebars), it redundantly processes the link.
+**Action:** When creating wrapper functions for WordPress permalink generators, implement static array memoization (e.g., `static $cache = array();`) keyed by the object ID to prevent redundant execution of the link generation logic within a single request lifecycle. Always bypass the cache during unit tests to avoid leaking mocked data.
