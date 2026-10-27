@@ -44,3 +44,7 @@
 ## 2026-06-25 - Redundant transient lookups across multiple hooks
 **Learning:** Functions that return global configuration or generated CSS (like `wm_get_design_tokens_css()`) are often hooked into multiple WordPress actions per request (e.g. `wp_enqueue_scripts` in the frontend and a block editor hook in the backend, or printed multiple times). Relying solely on `get_transient` means hitting the database on every hook execution, because transients aren't natively memoized per-request when external object caching isn't guaranteed.
 **Action:** Always wrap `get_transient()` calls with a local `static $memory_cache` array or variable inside functions that might be called multiple times per request. Ensure this memory cache is bypassed during unit tests to avoid mocking leakages.
+
+## 2026-06-25 - Redundant ACF Repeater Processing
+**Learning:** Functions (like `wm_home_get_filter_sections`) that extract complex ACF repeater layouts by calling ACF option getters and iterating via loops can create redundant processing overhead if called multiple times in a single request.
+**Action:** When a function retrieves and parses an ACF repeater into an output configuration structure, inject a static variable (`static $cache = null;`) to memoize the final built configuration array, ensuring it's conditionally bypassed during tests (`$is_test = defined('PHPUNIT_COMPOSER_INSTALL') || defined('WP_TESTS_DOMAIN');`).
