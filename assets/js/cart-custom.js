@@ -25,8 +25,8 @@
 			}
 
 			$quantity.addClass( 'wm-quantity-stepper' );
-			$input.before( '<button type="button" class="wm-qty-step wm-qty-step--minus" aria-label="کاهش تعداد">−</button>' );
-			$input.after( '<button type="button" class="wm-qty-step wm-qty-step--plus" aria-label="افزایش تعداد">+</button>' );
+			$input.before( '<button type="button" class="wm-qty-step wm-qty-step--minus" aria-label="کاهش تعداد"><span aria-hidden="true">−</span></button>' );
+			$input.after( '<button type="button" class="wm-qty-step wm-qty-step--plus" aria-label="افزایش تعداد"><span aria-hidden="true">+</span></button>' );
 		} );
 
 		$form.on( 'click', '.wm-qty-step', function() {
