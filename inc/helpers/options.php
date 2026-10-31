@@ -63,7 +63,18 @@ function wm_get_client_ip() {
 	// Generic reverse proxy: only trust X-Forwarded-For when the direct peer
 	// is allowlisted. Empty list (default) = header never trusted.
 	$trusted = apply_filters( 'wm_trusted_proxy_ips', array() );
-	if ( $remote && in_array( $remote, (array) $trusted, true ) && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+	$is_trusted = false;
+
+	if ( $remote && ! empty( $trusted ) ) {
+		foreach ( (array) $trusted as $proxy_cidr ) {
+			if ( wm_ip_in_cidr( $remote, $proxy_cidr ) ) {
+				$is_trusted = true;
+				break;
+			}
+		}
+	}
+
+	if ( $is_trusted && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
 		$parts = array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) ) );
 		$ip    = isset( $parts[0] ) ? $parts[0] : '';
 		if ( $ip && filter_var( $ip, FILTER_VALIDATE_IP ) ) {
@@ -72,4 +83,49 @@ function wm_get_client_ip() {
 	}
 
 	return $remote;
+}
+
+/**
+ * Check if a given IP falls within a CIDR block.
+ *
+ * @param string $ip   The IP address to check.
+ * @param string $cidr The CIDR block (e.g., '192.168.1.0/24') or an exact IP string.
+ * @return bool
+ */
+function wm_ip_in_cidr( $ip, $cidr ) {
+	if ( strpos( $cidr, '/' ) === false ) {
+		return $ip === $cidr;
+	}
+
+	list( $subnet, $bits ) = explode( '/', $cidr );
+
+	if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) && filter_var( $subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+		$mask = -1 << ( 32 - (int) $bits );
+		return ( ip2long( $ip ) & $mask ) === ( ip2long( $subnet ) & $mask );
+	}
+
+	if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) && filter_var( $subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+		$ip_bin = inet_pton( $ip );
+		$subnet_bin = inet_pton( $subnet );
+
+		if ( $ip_bin === false || $subnet_bin === false ) {
+			return false;
+		}
+
+		$bytes = (int) ( $bits / 8 );
+		if ( $bytes > 0 && substr( $ip_bin, 0, $bytes ) !== substr( $subnet_bin, 0, $bytes ) ) {
+			return false;
+		}
+
+		$remainder = (int) $bits % 8;
+		if ( $remainder > 0 ) {
+			$mask = 256 - ( 1 << ( 8 - $remainder ) );
+			if ( ( ord( $ip_bin[ $bytes ] ) & $mask ) !== ( ord( $subnet_bin[ $bytes ] ) & $mask ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	return false;
 }
