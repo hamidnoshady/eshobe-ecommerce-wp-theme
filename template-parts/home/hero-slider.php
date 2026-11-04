@@ -162,13 +162,13 @@ $autoplay_pause    = $autoplay_enabled ? (bool) wm_home_get_option( 'home_hero_a
     <?php endif; ?>
     <?php if ( $has_multiple ) : ?>
         <div class="wm-home-hero__nav">
-            <button type="button" class="wm-home-hero__arrow" data-home-hero-prev aria-label="<?php esc_attr_e( 'Previous slide', 'eshobe-ecommerce' ); ?>">‹</button>
+            <button type="button" class="wm-home-hero__arrow" data-home-hero-prev aria-label="<?php esc_attr_e( 'Previous slide', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">‹</span></button>
             <div class="wm-home-hero__dots">
                 <?php foreach ( $slides as $index => $slide ) : ?>
                     <button type="button" class="wm-home-hero__dot <?php echo 0 === $index ? 'is-active' : ''; ?>" data-home-hero-dot="<?php echo esc_attr( $index ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Show slide %d', 'eshobe-ecommerce' ), $index + 1 ) ); ?>"></button>
                 <?php endforeach; ?>
             </div>
-            <button type="button" class="wm-home-hero__arrow" data-home-hero-next aria-label="<?php esc_attr_e( 'Next slide', 'eshobe-ecommerce' ); ?>">›</button>
+            <button type="button" class="wm-home-hero__arrow" data-home-hero-next aria-label="<?php esc_attr_e( 'Next slide', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">›</span></button>
         </div>
     <?php endif; ?>
 </section>

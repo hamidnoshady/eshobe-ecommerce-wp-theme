@@ -13,7 +13,7 @@ function wm_render_quick_view_modal() {
 	<div id="wm-quick-view-modal" class="wm-quick-view-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'نمایش سریع محصول', 'eshobe-ecommerce' ); ?>" hidden>
 		<div class="wm-quick-view-modal__backdrop" data-wm-quick-view-close></div>
 		<div class="wm-quick-view-modal__panel">
-			<button type="button" class="wm-quick-view-modal__close" data-wm-quick-view-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>">&times;</button>
+			<button type="button" class="wm-quick-view-modal__close" data-wm-quick-view-close aria-label="<?php echo esc_attr__( 'بستن', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">&times;</span></button>
 			<div class="wm-quick-view-modal__body" data-wm-quick-view-body></div>
 		</div>
 	</div>
