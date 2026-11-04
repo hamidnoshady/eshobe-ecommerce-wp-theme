@@ -44,3 +44,7 @@
 ## 2026-06-25 - Redundant transient lookups across multiple hooks
 **Learning:** Functions that return global configuration or generated CSS (like `wm_get_design_tokens_css()`) are often hooked into multiple WordPress actions per request (e.g. `wp_enqueue_scripts` in the frontend and a block editor hook in the backend, or printed multiple times). Relying solely on `get_transient` means hitting the database on every hook execution, because transients aren't natively memoized per-request when external object caching isn't guaranteed.
 **Action:** Always wrap `get_transient()` calls with a local `static $memory_cache` array or variable inside functions that might be called multiple times per request. Ensure this memory cache is bypassed during unit tests to avoid mocking leakages.
+
+## 2024-05-17 - Memoize repeated complex array structures processing with multiple early returns
+**Learning:** Functions that parse, filter, and normalize multiple ACF repeater rows (like `wm_home_get_filter_sections`) can add noticeable CPU overhead if called multiple times in a single request. When adding static variable array memoization, failure to assign the cached result before every single early return path results in cache misses in certain scenarios, negating the performance benefits.
+**Action:** When adding `static $cache`, review every `return` statement in the function and ensure the static variable is assigned the output value right before the return (if the cache bypass for unit testing allows it).
