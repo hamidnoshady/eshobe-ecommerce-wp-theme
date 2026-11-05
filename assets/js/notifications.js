@@ -73,7 +73,7 @@
 		closeButton.type = 'button';
 		closeButton.className = 'wm-toast__close';
 		closeButton.setAttribute( 'aria-label', 'بستن اعلان' );
-		closeButton.innerHTML = '&times;';
+		closeButton.innerHTML = '<span aria-hidden="true">&times;</span>';
 		closeButton.addEventListener( 'click', function() {
 			dismissToast( notice );
 		} );
