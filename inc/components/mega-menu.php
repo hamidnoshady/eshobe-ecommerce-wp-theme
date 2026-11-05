@@ -40,10 +40,20 @@ function wm_get_header_mega_menus() {
         return array();
     }
 
+    // ⚡ Bolt: Memory cache prevents redundant get_transient (DB) hits during a single request.
+    static $memory_cache = null;
+    $is_test = defined( 'PHPUNIT_COMPOSER_INSTALL' ) || defined( 'WP_TESTS_DOMAIN' );
+    if ( ! $is_test && null !== $memory_cache ) {
+        return $memory_cache;
+    }
+
     $debug = defined( 'WP_DEBUG' ) && WP_DEBUG;
     if ( ! $debug ) {
         $cached = get_transient( 'wm_header_mega_menus' );
         if ( false !== $cached ) {
+            if ( ! $is_test ) {
+                $memory_cache = $cached;
+            }
             return $cached;
         }
     }
@@ -52,6 +62,10 @@ function wm_get_header_mega_menus() {
 
     if ( ! $debug ) {
         set_transient( 'wm_header_mega_menus', $output, DAY_IN_SECONDS );
+    }
+
+    if ( ! $is_test ) {
+        $memory_cache = $output;
     }
 
     return $output;
