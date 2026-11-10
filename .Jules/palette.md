@@ -29,3 +29,7 @@
 ## 2026-11-21 - OTP Form Submit Button Loading State
 **Learning:** Found that async form submissions in the OTP modal did not provide clear feedback to the user while processing. The buttons were disabled, but there was no visual indicator (like a spinner) that a background request was happening, which can lead to user confusion.
 **Action:** Always add an `is-loading` class to async submit buttons during network requests, and define CSS to hide the text and show a spinner (e.g. via `::after`). Remember to remove the class when the request finishes or fails.
+
+## 2026-11-21 - Accessible Names for Editor Canvas Carousel Arrows
+**Learning:** I noticed the mock HTML used for the Gutenberg editor canvas (`tests/editor-preview/canvas.html`) contained carousel arrow buttons (`.wm-product-carousel__arrow`) missing `aria-label` attributes, which existed in the live PHP component but were forgotten in the static mock.
+**Action:** Always verify that static HTML mocks (like those used for editor previews or testing canvases) accurately reflect the accessibility attributes (like `aria-label`s on icon-only buttons) implemented in the production PHP components.
