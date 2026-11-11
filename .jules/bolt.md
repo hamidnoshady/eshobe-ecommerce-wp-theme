@@ -44,3 +44,7 @@
 ## 2026-06-25 - Redundant transient lookups across multiple hooks
 **Learning:** Functions that return global configuration or generated CSS (like `wm_get_design_tokens_css()`) are often hooked into multiple WordPress actions per request (e.g. `wp_enqueue_scripts` in the frontend and a block editor hook in the backend, or printed multiple times). Relying solely on `get_transient` means hitting the database on every hook execution, because transients aren't natively memoized per-request when external object caching isn't guaranteed.
 **Action:** Always wrap `get_transient()` calls with a local `static $memory_cache` array or variable inside functions that might be called multiple times per request. Ensure this memory cache is bypassed during unit tests to avoid mocking leakages.
+
+## 2026-06-25 - Redundant ACF options and mapping in Home Filter Sections
+**Learning:** Functions like `wm_home_get_filter_sections()` repeatedly fetch large configuration structures from options (`wm_home_get_option`) and map over items normalizing configurations (e.g. `wm_home_normalize_filter_item()`). Without memoization, this process runs redundantly every time it's invoked per request cycle, creating processing overhead.
+**Action:** Use a static `$cache` inside the builder function to memoize the processed output of the sections list. Bypass it conditionally with `$is_test` to prevent test leakages.
