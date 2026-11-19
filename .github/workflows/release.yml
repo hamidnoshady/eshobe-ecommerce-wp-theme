@@ -130,6 +130,7 @@ jobs:
         if: steps.version.outputs.published == 'false'
         env:
           DIST_REPO_TOKEN: ${{ secrets.DIST_REPO_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
           if [ -z "${DIST_REPO_TOKEN:-}" ] || [ ! -d dist ]; then
