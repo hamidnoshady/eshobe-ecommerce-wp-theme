@@ -1933,6 +1933,12 @@ function wm_product_archive_render_loop() {
         }
     }
 
+    // Discount plugins render shop-level promotion messages on this hook; the
+    // theme's own archive loop never fires it. WooCommerce's notice printer is
+    // unhooked first so notices are not repeated.
+    remove_action( 'woocommerce_before_shop_loop', 'wc_print_notices', 10 );
+    do_action( 'woocommerce_before_shop_loop' );
+
     // Above-the-fold row gets fetchpriority=high; everything below stays lazy.
     $first_row = wm_product_archive_int_option( 'wm_archive_columns_desktop', 3, 1, 4 );
     $index     = 0;

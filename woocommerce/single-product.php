@@ -17,6 +17,13 @@ while ( have_posts() ) :
     if ( function_exists( 'WC' ) && isset( WC()->structured_data ) && $product instanceof WC_Product ) {
         WC()->structured_data->generate_product_data( $product );
     }
+
+    // Discount plugins print their promotion bar / label on this hook. The
+    // theme's custom layout never fires it, so without this the plugin's
+    // discount message has nowhere to appear. WooCommerce's own notice printer
+    // is unhooked first so notices are not printed twice.
+    remove_action( 'woocommerce_before_single_product', 'wc_print_notices', 10 );
+    do_action( 'woocommerce_before_single_product' );
     ?>
     <main id="primary" class="site-main wm-single-product">
         <div <?php wc_product_class( 'wm-product-layout', $product ); ?>>

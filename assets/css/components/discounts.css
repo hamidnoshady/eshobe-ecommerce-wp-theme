@@ -163,6 +163,22 @@
 }
 
 /* Mini-cart subtotal savings */
+.wm-cart-drawer__adjustment {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 2px;
+  color: var(--wm-color-success-text, #027a48);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.wm-cart-drawer__adjustment .amount {
+  color: inherit;
+  font-weight: 850;
+}
+
 .wm-cart-drawer__savings {
   display: flex;
   align-items: center;
