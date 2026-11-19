@@ -51,6 +51,14 @@ function wm_get_mini_cart_body_html() {
         <?php
     } else {
         ?>
+        <?php
+        // Discount plugins (Discount Rules for WooCommerce among them) print
+        // their promotion labels and calculate cart totals on these hooks. The
+        // theme draws its own drawer markup, so without firing them here the
+        // plugin's messages never reach the drawer.
+        do_action( 'woocommerce_before_mini_cart' );
+        do_action( 'woocommerce_before_mini_cart_contents' );
+        ?>
         <ul class="wm-cart-drawer__items">
             <?php foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) :
                 $product = $cart_item['data'];
@@ -61,7 +69,9 @@ function wm_get_mini_cart_body_html() {
 
                 $product_permalink = $product->is_visible() ? $product->get_permalink( $cart_item ) : '';
                 $thumbnail         = $product->get_image( 'thumbnail' );
-                $price_html        = WC()->cart->get_product_price( $product );
+                // Same filter the cart table applies, so a discount the plugin
+                // only applies to cart prices shows up here too.
+                $price_html = apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $product ), $cart_item, $cart_item_key );
                 $remove_url        = wc_get_cart_remove_url( $cart_item_key );
                 ?>
                 <li class="wm-cart-drawer__item">
@@ -98,9 +108,15 @@ function wm_get_mini_cart_body_html() {
                     <strong><?php echo wp_kses_post( wc_price( $wm_drawer_savings ) ); ?></strong>
                 </div>
             <?php endif; ?>
+            <?php foreach ( ( function_exists( 'wm_get_cart_adjustment_rows' ) ? wm_get_cart_adjustment_rows() : array() ) as $wm_adjustment ) : ?>
+                <div class="wm-cart-drawer__adjustment">
+                    <span><?php echo esc_html( $wm_adjustment['label'] ); ?></span>
+                    <strong><?php echo wp_kses_post( wc_price( -1 * $wm_adjustment['amount'] ) ); ?></strong>
+                </div>
+            <?php endforeach; ?>
             <div class="wm-cart-drawer__subtotal">
                 <span><?php echo esc_html__( 'جمع کل', 'eshobe-ecommerce' ); ?></span>
-                <strong><?php echo wp_kses_post( WC()->cart->get_cart_subtotal() ); ?></strong>
+                <strong><?php echo wp_kses_post( WC()->cart->get_total() ); ?></strong>
             </div>
             <div class="wm-cart-drawer__actions">
                 <a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="wm-cart-drawer__btn wm-cart-drawer__btn--secondary"><?php echo esc_html__( 'مشاهده سبد خرید', 'eshobe-ecommerce' ); ?></a>

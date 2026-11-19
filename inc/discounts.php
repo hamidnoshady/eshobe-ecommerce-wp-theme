@@ -142,6 +142,46 @@ function wm_get_discount_badge_html( $percent, $args = array() ) {
 }
 
 /**
+ * Derive the regular / current price pair from rendered price HTML.
+ *
+ * Discount plugins (Discount Rules for WooCommerce among them) can replace
+ * get_price_html() without changing get_regular_price() / get_price(), so the
+ * numbers above report "no discount" while the markup already shows a struck
+ * through regular price. Reading the two amounts back keeps the percentage
+ * badge in step with what the customer actually sees.
+ *
+ * @param string $html Price HTML.
+ * @return array{regular: float, current: float, percent: int, saved: float}|null
+ */
+function wm_get_price_parts_from_html( $html ) {
+	if ( false === strpos( $html, '<del' ) ) {
+		return null;
+	}
+
+	if ( ! preg_match( '#<del[^>]*>(.*?)</del>#s', $html, $regular_match ) ) {
+		return null;
+	}
+
+	if ( ! preg_match( '#<ins[^>]*>(.*?)</ins>#s', $html, $current_match ) ) {
+		return null;
+	}
+
+	$regular = (float) preg_replace( '/\D+/', '', wp_strip_all_tags( $regular_match[1] ) );
+	$current = (float) preg_replace( '/\D+/', '', wp_strip_all_tags( $current_match[1] ) );
+
+	if ( $regular <= 0 || $current <= 0 || $current >= $regular ) {
+		return null;
+	}
+
+	return array(
+		'regular' => $regular,
+		'current' => $current,
+		'saved'   => $regular - $current,
+		'percent' => max( 1, min( 99, (int) round( ( ( $regular - $current ) / $regular ) * 100 ) ) ),
+	);
+}
+
+/**
  * Price HTML with the regular price struck through and a percentage badge.
  *
  * WooCommerce (and Discount Rules) already output a struck-out price when a
@@ -166,10 +206,18 @@ function wm_get_product_price_html( $product ) {
 	$parts = wm_get_product_price_parts( $product );
 
 	if ( $parts['percent'] < 1 ) {
-		return $html;
+		$parts_from_html = wm_get_price_parts_from_html( $html );
+
+		if ( null === $parts_from_html ) {
+			return $html;
+		}
+
+		$parts = $parts_from_html;
 	}
 
-	$badge = wm_get_discount_badge_html( $parts['percent'] );
+	// Some plugins print their own "-20%" inside the price; do not repeat it.
+	$has_percent_text = false !== strpos( $html, '٪' ) || false !== strpos( $html, '%' );
+	$badge            = $has_percent_text ? '' : wm_get_discount_badge_html( $parts['percent'] );
 
 	if ( false !== strpos( $html, '<del' ) || $product->is_type( 'variable' ) ) {
 		return '<span class="wm-price wm-price--discounted">' . $html . $badge . '</span>';
@@ -247,7 +295,54 @@ function wm_get_cart_item_discount_html( $cart_item, $args = array() ) {
 }
 
 /**
+ * Cart-level discounts that never reach a line price.
+ *
+ * Discount Rules for WooCommerce applies its cart rules as negative fees and
+ * coupons come off the cart total, so neither appears as a product price
+ * change. Both are surfaced here so the store can show what was saved.
+ *
+ * @return array<int, array{label: string, amount: float}>
+ */
+function wm_get_cart_adjustment_rows() {
+	$rows = array();
+
+	if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+		return $rows;
+	}
+
+	foreach ( (array) WC()->cart->get_fees() as $fee ) {
+		$amount = isset( $fee->amount ) ? (float) $fee->amount : 0.0;
+
+		if ( $amount >= 0 ) {
+			continue;
+		}
+
+		$label = isset( $fee->name ) ? trim( wp_strip_all_tags( (string) $fee->name ) ) : '';
+
+		$rows[] = array(
+			'label'  => '' !== $label ? $label : __( 'تخفیف', 'eshobe-ecommerce' ),
+			'amount' => abs( $amount ),
+		);
+	}
+
+	$coupons = (float) WC()->cart->get_discount_total();
+
+	if ( $coupons > 0 ) {
+		$rows[] = array(
+			'label'  => __( 'کد تخفیف', 'eshobe-ecommerce' ),
+			'amount' => $coupons,
+		);
+	}
+
+	return $rows;
+}
+
+/**
  * Total product-level saving for the current cart.
+ *
+ * Cart-level fees and coupons are deliberately left out: the cart page already
+ * lists them as their own rows, so adding them here would show the same money
+ * twice.
  *
  * @return float
  */
