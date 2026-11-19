@@ -1,20 +1,19 @@
 name: Release
 
-# Every merge to main publishes a distributable theme zip as a GitHub Release
-# and mirrors the update manifest + zip into the public dist repo, which is
-# what WordPress's built-in updater reads.
-#
-# WordPress (inc/theme-updater.php) fetches
-#   https://raw.githubusercontent.com/hamidnoshady/eshobe-ecommerce-wp-theme-dist/main/<channel>/update.json
-# and only accepts a download_url that points into that dist repo, so the zip
-# and the manifest are committed to the dist repo together. The release asset
-# on this repo is for people installing by hand.
+# Every merge to main publishes a distributable theme zip as a GitHub Release.
 #
 # bin/build-release.sh builds the zip from the merged commit and prunes
 # dev-only paths (docs, tests, payload-theme, bin, .github, .jules, AGENTS/
 # CLAUDE/README, composer and phpunit files), wrapping everything in the
 # top-level eshobe-ecommerce-wp-theme/ folder that
 # Appearance > Themes > Add New > Upload Theme expects.
+#
+# WordPress's built-in updater does not read this repo's releases: it reads
+#   https://raw.githubusercontent.com/hamidnoshady/eshobe-ecommerce-wp-theme-dist/main/<channel>/update.json
+# so the dist repo mirrors each release with its own workflow
+# (.github/workflows/sync.yml there). A GitHub token from this repo cannot
+# write to another repository, and the dist repo's own token can read this
+# repo's public releases, so the pull direction needs no shared secret.
 #
 # Merges that do not bump the version are skipped: the tag for that version
 # already exists, so there is nothing new to publish.
@@ -31,11 +30,6 @@ permissions:
 concurrency:
   group: release-main
   cancel-in-progress: false
-
-env:
-  DIST_OWNER: hamidnoshady
-  DIST_REPO: eshobe-ecommerce-wp-theme-dist
-  DIST_RAW_BASE: https://raw.githubusercontent.com/hamidnoshady/eshobe-ecommerce-wp-theme-dist/main
 
 jobs:
   release:
@@ -89,60 +83,3 @@ jobs:
             --title "$VERSION" \
             --target "$GITHUB_SHA" \
             --generate-notes
-
-      # WordPress reads the dist repo, not this repo's releases. Both channels
-      # are refreshed because a beta install must still be able to update; beta
-      # mirrors stable until a separate beta pipeline exists.
-      - name: Publish the dist repo manifest
-        if: steps.version.outputs.published == 'false'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          DIST_REPO_TOKEN: ${{ secrets.DIST_REPO_TOKEN }}
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          set -euo pipefail
-          if [ -z "${DIST_REPO_TOKEN:-}" ]; then
-            echo "::warning::DIST_REPO_TOKEN is not set - skipped the dist repo update, so WordPress will not see v${VERSION} yet. Add a fine-grained PAT with contents:write on ${DIST_OWNER}/${DIST_REPO} as the DIST_REPO_TOKEN repository secret."
-            exit 0
-          fi
-
-          zip="eshobe-ecommerce-wp-theme-${VERSION}.zip"
-          changelog=$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}" --jq .body || true)
-          published_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-
-          git clone --depth 1 "https://x-access-token:${DIST_REPO_TOKEN}@github.com/${DIST_OWNER}/${DIST_REPO}.git" dist
-          sha256=$(sha256sum "$zip" | cut -d' ' -f1)
-
-          for channel in stable beta; do
-            mkdir -p "dist/${channel}"
-            cp "$zip" "dist/${channel}/"
-            jq -n \
-              --arg version "$VERSION" \
-              --arg download_url "${DIST_RAW_BASE}/${channel}/${zip}" \
-              --arg published_at "$published_at" \
-              --arg sha256 "$sha256" \
-              --arg changelog "$changelog" \
-              '{version: $version, download_url: $download_url, published_at: $published_at, sha256: $sha256, changelog: $changelog}' \
-              > "dist/${channel}/update.json"
-          done
-
-      - name: Commit the dist repo
-        if: steps.version.outputs.published == 'false'
-        env:
-          DIST_REPO_TOKEN: ${{ secrets.DIST_REPO_TOKEN }}
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          set -euo pipefail
-          if [ -z "${DIST_REPO_TOKEN:-}" ] || [ ! -d dist ]; then
-            exit 0
-          fi
-          cd dist
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add stable beta
-          if git diff --cached --quiet; then
-            echo "Dist repo already up to date."
-            exit 0
-          fi
-          git commit -q -m "Release ${VERSION}"
-          git push -q origin HEAD:main
