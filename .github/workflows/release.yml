@@ -1,0 +1,78 @@
+name: Release
+
+# Every merge to main publishes a distributable theme zip as a GitHub Release.
+#
+# bin/build-release.sh builds the zip from the commit on main and prunes
+# dev-only paths (docs, tests, payload-theme, bin, .github, .jules, AGENTS/
+# CLAUDE/README, composer and phpunit files), wrapping everything in the
+# top-level eshobe-ecommerce-wp-theme/ folder that
+# Appearance > Themes > Add New > Upload Theme expects.
+#
+# Merges that do not bump the version are skipped: the tag for that version
+# already exists, so there is nothing new to publish.
+
+on:
+  push:
+    branches: [main]
+
+# Creating the tag and the release needs write access to repository contents.
+permissions:
+  contents: write
+
+# Releases must not race each other when several merges land quickly.
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish theme zip
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          # Tags are needed to tell whether this version was already released.
+          fetch-depth: 0
+
+      - name: Read version and check for an existing release
+        id: version
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's/^Version:[[:space:]]*//p' style.css | head -n1)
+          if [ -z "$version" ]; then
+            echo "::error file=style.css::No Version: header found."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if git rev-parse --verify --quiet "refs/tags/v$version" >/dev/null; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "Tag v$version already exists - this merge did not bump the version, skipping."
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "Version $version has no release yet - publishing."
+          fi
+
+      - name: Build the release zip
+        if: steps.version.outputs.published == 'false'
+        # Fails loudly on a version mismatch between functions.php and
+        # style.css, a dirty tree, or a stray version reference, so a broken
+        # zip never ships.
+        run: ./bin/build-release.sh
+
+      - name: Publish the GitHub release
+        if: steps.version.outputs.published == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          zip="eshobe-ecommerce-wp-theme-${VERSION}.zip"
+          if [ ! -f "$zip" ]; then
+            echo "::error::$zip was not produced by bin/build-release.sh"
+            exit 1
+          fi
+          gh release create "v${VERSION}" "$zip" \
+            --title "$VERSION" \
+            --target "$GITHUB_SHA" \
+            --generate-notes
