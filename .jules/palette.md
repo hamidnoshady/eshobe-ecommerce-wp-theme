@@ -25,3 +25,7 @@
 ## 2026-11-20 - Expand/Collapse Accessibility with aria-controls
 **Learning:** Custom expand/collapse toggle buttons (like those used for product descriptions and specs on mobile) that use `aria-expanded` without a corresponding `aria-controls` attribute are less accessible for screen reader users, as the relationship to the content block being toggled is not explicitly defined.
 **Action:** When creating or modifying toggle buttons that show/hide content, always ensure the target content block has an `id` attribute, and the toggle buttons have a matching `aria-controls` attribute.
+
+## 2026-11-21 - Carousel Navigation aria-controls
+**Learning:** Carousel components (like product carousels, post carousels, and hero sliders) use "Next" and "Previous" navigation buttons to scroll through a track of items. Without `aria-controls`, screen readers do not understand which element these navigation buttons control, especially when they just contain visual arrows (`aria-hidden="true"`).
+**Action:** When building or modifying UI carousels with 'Next/Previous' navigation buttons, always ensure the carousel track container has a unique `id` attribute (e.g., via `wp_unique_id()`) and that the navigation buttons reference it using the `aria-controls` attribute for proper screen reader accessibility.
