@@ -56,7 +56,7 @@
         grid.innerHTML = cards.map(function (card) {
           return '<div class="wm-wishlist-page__item">'
             + card.html
-            + '<button type="button" class="wm-wishlist-page__remove" data-wm-wishlist-remove data-product-id="' + card.id + '" aria-label="حذف از علاقه\u200cمندی\u200cها">×</button>'
+            + '<button type="button" class="wm-wishlist-page__remove" data-wm-wishlist-remove data-product-id="' + card.id + '" aria-label="حذف از علاقه\u200cمندی\u200cها"><span aria-hidden="true">×</span></button>'
             + '</div>';
         }).join('');
 

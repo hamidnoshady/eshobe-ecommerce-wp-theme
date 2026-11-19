@@ -22,6 +22,7 @@ function wm_render_product_carousel( $products, $args = array() ) {
     );
 
     $section_id = 'wm-product-carousel-' . wp_unique_id();
+    $track_id   = $section_id . '-track';
 
     ob_start();
     ?>
@@ -44,12 +45,12 @@ function wm_render_product_carousel( $products, $args = array() ) {
                 <?php endif; ?>
             </div>
             <div class="wm-product-carousel__controls">
-                <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="prev" aria-label="<?php esc_attr_e( 'Previous products', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">‹</span></button>
-                <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="next" aria-label="<?php esc_attr_e( 'Next products', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">›</span></button>
+                <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="prev" aria-controls="<?php echo esc_attr( $track_id ); ?>" aria-label="<?php esc_attr_e( 'Previous products', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">‹</span></button>
+                <button class="wm-product-carousel__arrow" type="button" data-carousel-direction="next" aria-controls="<?php echo esc_attr( $track_id ); ?>" aria-label="<?php esc_attr_e( 'Next products', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">›</span></button>
             </div>
         </div>
         <div class="wm-product-carousel__viewport">
-            <div class="wm-product-carousel__track" tabindex="0">
+            <div class="wm-product-carousel__track" id="<?php echo esc_attr( $track_id ); ?>" tabindex="0">
                 <?php foreach ( $products as $product ) : ?>
                     <?php echo wm_render_product_card( $product, array( 'class' => 'wm-product-carousel__item' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 <?php endforeach; ?>

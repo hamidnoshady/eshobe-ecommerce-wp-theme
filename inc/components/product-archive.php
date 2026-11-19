@@ -1817,7 +1817,7 @@ function wm_product_archive_render_sidebar() {
             <div class="wm-product-archive__sidebar-header">
                 <strong><?php echo esc_html__( 'فیلترها', 'eshobe-ecommerce' ); ?></strong>
                 <a class="wm-product-archive__reset" href="<?php echo esc_url( wm_product_archive_reset_url() ); ?>"><?php echo esc_html__( 'حذف فیلترها', 'eshobe-ecommerce' ); ?></a>
-                <button class="wm-product-archive__sidebar-close" type="button" data-archive-filter-close aria-label="<?php echo esc_attr__( 'بستن فیلترها', 'eshobe-ecommerce' ); ?>">×</button>
+                <button class="wm-product-archive__sidebar-close" type="button" data-archive-filter-close aria-label="<?php echo esc_attr__( 'بستن فیلترها', 'eshobe-ecommerce' ); ?>"><span aria-hidden="true">×</span></button>
             </div>
             <div class="wm-product-archive__filters">
                 <?php wm_product_archive_render_custom_filters(); ?>
@@ -1909,6 +1909,30 @@ function wm_product_archive_render_toolbar() {
 }
 
 function wm_product_archive_render_loop() {
+    // ⚡ Bolt Optimization:
+    // Pre-fetch all attachment post objects for the main and hover images to
+    // prevent N+1 queries when wp_get_attachment_image is called in the loop.
+    global $wp_query;
+    if ( function_exists( '_prime_post_caches' ) && ! empty( $wp_query->posts ) ) {
+        $attachment_ids = array();
+        foreach ( $wp_query->posts as $post ) {
+            $product = wc_get_product( $post );
+            if ( $product instanceof WC_Product ) {
+                $image_id    = $product->get_image_id();
+                $gallery_ids = $product->get_gallery_image_ids();
+                if ( $image_id ) {
+                    $attachment_ids[] = absint( $image_id );
+                }
+                if ( ! empty( $gallery_ids ) ) {
+                    $attachment_ids[] = absint( $gallery_ids[0] );
+                }
+            }
+        }
+        if ( ! empty( $attachment_ids ) ) {
+            _prime_post_caches( array_unique( array_filter( $attachment_ids ) ), false, true );
+        }
+    }
+
     // Above-the-fold row gets fetchpriority=high; everything below stays lazy.
     $first_row = wm_product_archive_int_option( 'wm_archive_columns_desktop', 3, 1, 4 );
     $index     = 0;
