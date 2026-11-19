@@ -105,6 +105,8 @@ do_action( 'woocommerce_before_cart' );
 											?>
 										</div>
 
+										<?php echo wm_get_cart_item_discount_html( $cart_item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+
 									</div>
 								</div>
 

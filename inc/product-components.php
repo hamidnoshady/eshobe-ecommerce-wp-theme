@@ -451,8 +451,9 @@ function wm_render_product_purchase() {
     ob_start();
     ?>
     <section class="wm-card wm-product-purchase">
-        <?php if ( $product->get_price_html() ) : ?>
-            <div class="wm-product-purchase__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
+        <?php $price_html = function_exists( 'wm_get_product_price_html' ) ? wm_get_product_price_html( $product ) : $product->get_price_html(); ?>
+        <?php if ( $price_html ) : ?>
+            <div class="wm-product-purchase__price"><?php echo wp_kses_post( $price_html ); ?></div>
         <?php endif; ?>
         <?php if ( $product->is_type( 'variable' ) ) : ?>
             <p class="wm-product-purchase__price-note"><?php echo esc_html__( 'قیمت بسته به رنگ انتخابی متفاوت است', 'eshobe-ecommerce' ); ?></p>
@@ -489,8 +490,9 @@ function wm_render_mobile_product_bottom_bar() {
     ?>
     <section class="wm-mobile-bottom-bar" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'eshobe-ecommerce' ); ?>">
         <div class="wm-mobile-bottom-bar__summary">
-            <?php if ( $product->get_price_html() ) : ?>
-                <div class="wm-mobile-bottom-bar__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
+            <?php $mobile_price_html = function_exists( 'wm_get_product_price_html' ) ? wm_get_product_price_html( $product ) : $product->get_price_html(); ?>
+            <?php if ( $mobile_price_html ) : ?>
+                <div class="wm-mobile-bottom-bar__price"><?php echo wp_kses_post( $mobile_price_html ); ?></div>
             <?php endif; ?>
 
             <?php if ( ! empty( $stock ) ) : ?>
@@ -723,8 +725,9 @@ function wm_render_related_products() {
                             <?php endif; ?>
                         </a>
 
-                        <?php if ( $related_product->get_price_html() ) : ?>
-                            <div class="wm-related-card__price"><?php echo wp_kses_post( $related_product->get_price_html() ); ?></div>
+                        <?php $related_price_html = function_exists( 'wm_get_product_price_html' ) ? wm_get_product_price_html( $related_product ) : $related_product->get_price_html(); ?>
+                        <?php if ( $related_price_html ) : ?>
+                            <div class="wm-related-card__price"><?php echo wp_kses_post( $related_price_html ); ?></div>
                         <?php endif; ?>
 
                         <div class="wm-related-card__actions">

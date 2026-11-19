@@ -56,6 +56,8 @@ function wm_render_product_card( $product, $args = array() ) {
         $image_attrs['fetchpriority'] = sanitize_key( $args['fetchpriority'] );
     }
 
+    $price_html = function_exists( 'wm_get_product_price_html' ) ? wm_get_product_price_html( $product ) : $product->get_price_html();
+
     $button_class = implode(
         ' ',
         array_filter(
@@ -100,8 +102,8 @@ function wm_render_product_card( $product, $args = array() ) {
             <?php endif; ?>
         </div>
         <h3 class="wm-product-card__title"><a href="<?php echo esc_url( $permalink ); ?>"><?php echo esc_html( $title ); ?></a></h3>
-        <?php if ( $product->get_price_html() ) : ?>
-            <div class="wm-product-card__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
+        <?php if ( $price_html ) : ?>
+            <div class="wm-product-card__price"><?php echo wp_kses_post( $price_html ); ?></div>
         <?php endif; ?>
         <div class="wm-product-card__actions">
             <a
@@ -162,8 +164,9 @@ function wm_render_search_result_row( $product ) {
                     <span class="wm-search-result__brand"><?php echo esc_html( $brand ); ?></span>
                 <?php endif; ?>
             </span>
-            <?php if ( $product->get_price_html() ) : ?>
-                <span class="wm-search-result__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></span>
+            <?php $search_price_html = function_exists( 'wm_get_product_price_html' ) ? wm_get_product_price_html( $product ) : $product->get_price_html(); ?>
+            <?php if ( $search_price_html ) : ?>
+                <span class="wm-search-result__price"><?php echo wp_kses_post( $search_price_html ); ?></span>
             <?php endif; ?>
         </a>
     </li>

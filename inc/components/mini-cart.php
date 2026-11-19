@@ -82,6 +82,7 @@ function wm_get_mini_cart_body_html() {
                             <span class="wm-cart-drawer__item-qty"><?php echo esc_html( $cart_item['quantity'] ); ?> ×</span>
                             <span class="wm-cart-drawer__item-price"><?php echo wp_kses_post( $price_html ); ?></span>
                         </div>
+                        <?php echo wm_get_cart_item_discount_html( $cart_item, array( 'context' => 'drawer' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     </div>
 
                     <a href="<?php echo esc_url( $remove_url ); ?>" class="wm-cart-drawer__item-remove remove remove_from_cart_button" aria-label="<?php echo esc_attr__( 'حذف از سبد خرید', 'eshobe-ecommerce' ); ?>" data-product_id="<?php echo esc_attr( $cart_item['product_id'] ); ?>" data-cart_item_key="<?php echo esc_attr( $cart_item_key ); ?>" data-product_sku="<?php echo esc_attr( $product->get_sku() ); ?>">&times;</a>
@@ -90,6 +91,13 @@ function wm_get_mini_cart_body_html() {
         </ul>
 
         <div class="wm-cart-drawer__footer">
+            <?php $wm_drawer_savings = function_exists( 'wm_get_cart_savings_total' ) ? wm_get_cart_savings_total() : 0; ?>
+            <?php if ( $wm_drawer_savings > 0 ) : ?>
+                <div class="wm-cart-drawer__savings">
+                    <span><?php echo esc_html__( 'سود شما از تخفیف‌ها', 'eshobe-ecommerce' ); ?></span>
+                    <strong><?php echo wp_kses_post( wc_price( $wm_drawer_savings ) ); ?></strong>
+                </div>
+            <?php endif; ?>
             <div class="wm-cart-drawer__subtotal">
                 <span><?php echo esc_html__( 'جمع کل', 'eshobe-ecommerce' ); ?></span>
                 <strong><?php echo wp_kses_post( WC()->cart->get_cart_subtotal() ); ?></strong>

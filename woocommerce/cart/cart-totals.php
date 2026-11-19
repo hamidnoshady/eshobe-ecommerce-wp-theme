@@ -89,6 +89,16 @@ if ( ! function_exists( 'wm_cart_totals_shipping_fragment' ) ) {
 			);
 		}
 
+		$wm_cart_savings = function_exists( 'wm_get_cart_savings_total' ) ? wm_get_cart_savings_total() : 0;
+
+		if ( $wm_cart_savings > 0 ) {
+			wm_cart_totals_row(
+				'wm-cart-summary__row--savings',
+				esc_html__( 'سود شما از تخفیف‌ها', 'eshobe-ecommerce' ),
+				wc_price( $wm_cart_savings ) . '<span class="wm-cart-summary__savings-note">' . esc_html__( 'تخفیف اعمال شد', 'eshobe-ecommerce' ) . '</span>'
+			);
+		}
+
 		if ( WC()->cart->needs_shipping() && WC()->cart->show_shipping() ) {
 			?>
 			<div class="wm-cart-summary__row shipping">

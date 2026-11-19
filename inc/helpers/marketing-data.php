@@ -30,7 +30,16 @@ function wm_marketing_get_sale_badge_config() {
  * @return string
  */
 function wm_marketing_get_sale_badge_html( $product ) {
-	if ( ! $product instanceof WC_Product || ! $product->is_on_sale() ) {
+	if ( ! $product instanceof WC_Product ) {
+		return '';
+	}
+
+	// Rule-based discounts (e.g. Discount Rules for WooCommerce) lower the
+	// effective price without setting a native sale price, so rely on the
+	// shared discount helper instead of is_on_sale() alone.
+	$percent = function_exists( 'wm_get_product_discount_percentage' ) ? wm_get_product_discount_percentage( $product ) : 0;
+
+	if ( ! $product->is_on_sale() && $percent < 1 ) {
 		return '';
 	}
 
@@ -42,10 +51,7 @@ function wm_marketing_get_sale_badge_html( $product ) {
 	$text = $config['text'];
 
 	if ( false !== strpos( $text, '{percent}' ) ) {
-		$regular = (float) $product->get_regular_price();
-		$sale    = (float) $product->get_sale_price();
-		$percent = ( $regular > 0 ) ? round( ( ( $regular - $sale ) / $regular ) * 100 ) : 0;
-		$text    = str_replace( '{percent}', $percent, $text );
+		$text = str_replace( '{percent}', number_format_i18n( $percent ), $text );
 	}
 
 	if ( '' === $text ) {

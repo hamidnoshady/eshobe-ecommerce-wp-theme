@@ -170,10 +170,18 @@ $item_count    = WC()->cart ? WC()->cart->get_cart_contents_count() : 0;
 									<div>
 										<span><?php echo esc_html( $product->get_name() ); ?></span>
 										<small><?php echo esc_html( sprintf( __( 'تعداد: %d', 'eshobe-ecommerce' ), $cart_item['quantity'] ) ); ?></small>
+										<?php echo wm_get_cart_item_discount_html( $cart_item, array( 'context' => 'checkout' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 									</div>
 								</div>
 							<?php endforeach; ?>
 						</div>
+						<?php $wm_checkout_savings = function_exists( 'wm_get_cart_savings_total' ) ? wm_get_cart_savings_total() : 0; ?>
+						<?php if ( $wm_checkout_savings > 0 ) : ?>
+							<div class="wm-checkout-sidebar__savings">
+								<span><?php echo esc_html__( 'سود شما از تخفیف‌ها', 'eshobe-ecommerce' ); ?></span>
+								<strong><?php echo wp_kses_post( wc_price( $wm_checkout_savings ) ); ?></strong>
+							</div>
+						<?php endif; ?>
 						<div class="wm-checkout-sidebar__total">
 							<span><?php echo esc_html__( 'مبلغ قابل پرداخت', 'eshobe-ecommerce' ); ?></span>
 							<strong><?php wc_cart_totals_order_total_html(); ?></strong>

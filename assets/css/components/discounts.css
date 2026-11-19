@@ -1,0 +1,370 @@
+/**
+ * Discount pricing language.
+ *
+ * Shared by WooCommerce sale prices and by Discount Rules for WooCommerce
+ * (Flycart, "awdr"): struck-through regular price, payable price and a
+ * percentage badge on product cards, single product, cart and checkout.
+ */
+.wm-price {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  direction: rtl;
+  line-height: 1.5;
+}
+
+.wm-price del,
+.wm-price__regular,
+.wm-price .woocommerce-Price-amount del {
+  color: var(--wm-color-muted, #6b7280);
+  font-size: 0.72em;
+  font-weight: 600;
+  text-decoration: line-through;
+  opacity: 0.9;
+}
+
+.wm-price ins,
+.wm-price__current {
+  color: var(--wm-color-accent-dark, #9f7425);
+  font-weight: inherit;
+  text-decoration: none;
+}
+
+.wm-price .woocommerce-Price-amount,
+.wm-price bdi {
+  color: inherit;
+}
+
+.wm-discount-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 0 9px;
+  border-radius: var(--wm-radius-pill, 999px);
+  background: #c0392b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.4;
+  white-space: nowrap;
+  direction: rtl;
+}
+
+/* Single product purchase box */
+.wm-product-purchase__price .wm-price {
+  gap: 6px 10px;
+}
+
+.wm-product-purchase__price .wm-price__regular,
+.wm-product-purchase__price .wm-price del {
+  font-size: 15px;
+}
+
+.wm-product-purchase__price .wm-discount-badge {
+  min-height: 24px;
+  font-size: 12px;
+}
+
+/* Product cards / related / mobile bar */
+.wm-product-card__price .wm-price,
+.wm-related-card__price .wm-price,
+.wm-mobile-bottom-bar__price .wm-price {
+  gap: 4px 6px;
+}
+
+.wm-product-card__price .wm-discount-badge,
+.wm-related-card__price .wm-discount-badge,
+.wm-mobile-bottom-bar__price .wm-discount-badge {
+  min-height: 20px;
+  padding-inline: 7px;
+  font-size: 10px;
+}
+
+/* Cart, mini-cart and checkout line items */
+.wm-cart-discount {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 6px;
+  color: var(--wm-color-muted, #6b7280);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.7;
+}
+
+.wm-cart-discount .wm-discount-badge {
+  min-height: 20px;
+  padding-inline: 8px;
+  font-size: 10px;
+}
+
+.wm-cart-discount__regular {
+  color: var(--wm-color-muted, #6b7280);
+  font-size: 12px;
+  font-weight: 650;
+  opacity: 0.85;
+}
+
+.wm-cart-discount__saved {
+  color: var(--wm-color-success-text, #027a48);
+  font-weight: 800;
+}
+
+.wm-cart-discount--drawer {
+  margin-top: 2px;
+  font-size: 11px;
+  gap: 3px 6px;
+}
+
+.wm-cart-discount--drawer .wm-cart-discount__regular,
+.wm-cart-discount--drawer .wm-cart-discount__saved {
+  font-size: 11px;
+}
+
+.wm-cart-discount--checkout {
+  width: 100%;
+  margin-top: 4px;
+  font-size: 11px;
+  gap: 3px 6px;
+}
+
+.wm-cart-discount--checkout .wm-cart-discount__regular,
+.wm-cart-discount--checkout .wm-cart-discount__saved {
+  font-size: 11px;
+}
+
+/* Cart summary savings row (gold summary uses light text) */
+.wm-cart-summary__row--savings .wm-cart-summary__label,
+.wm-cart-summary__row--savings .wm-cart-summary__value,
+.wm-cart-summary__row--savings .amount,
+.wm-cart-summary__row--savings bdi {
+  color: #fff;
+}
+
+.wm-cart-summary__row--savings .wm-cart-summary__value {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wm-cart-summary__savings-note {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 8px;
+  border-radius: var(--wm-radius-pill, 999px);
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Mini-cart subtotal savings */
+.wm-cart-drawer__savings {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px dashed rgba(2, 122, 72, 0.28);
+  border-radius: 12px;
+  background: var(--wm-color-success-bg, #ecfdf3);
+  color: var(--wm-color-success-text, #027a48);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Checkout sidebar */
+.wm-checkout-sidebar__item .wm-cart-discount {
+  font-size: 11px;
+}
+
+.wm-checkout-sidebar__savings {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(2, 122, 72, 0.22);
+  border-radius: 12px;
+  background: var(--wm-color-success-bg, #ecfdf3);
+  color: var(--wm-color-success-text, #027a48);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.wm-checkout-sidebar__savings .amount {
+  color: inherit;
+  font-weight: 850;
+}
+
+/* Single product sale flash */
+.woocommerce span.onsale,
+.wm-single-product span.onsale {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  min-width: 0;
+  margin: 0 0 10px;
+  padding: 0 12px;
+  border-radius: var(--wm-radius-pill, 999px);
+  background: #c0392b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.6;
+}
+
+/* -------------------------------------------------------------------------
+ * Discount Rules for WooCommerce (Flycart) label + table compatibility
+ * ---------------------------------------------------------------------- */
+
+/* "You saved" message in cart / checkout */
+.awdr-you-saved-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-block: 6px;
+  padding: 5px 12px;
+  border: 1px solid rgba(2, 122, 72, 0.22);
+  border-radius: var(--wm-radius-pill, 999px);
+  background: var(--wm-color-success-bg, #ecfdf3);
+  color: var(--wm-color-success-text, #027a48) !important;
+  font-family: var(--wm-font-primary);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.7;
+}
+
+/* Discount bar on the product page */
+.awdr_discount_bar {
+  display: block;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(200, 155, 60, 0.35);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(200, 155, 60, 0.16), rgba(255, 250, 240, 0.92)),
+    #fffaf0;
+  color: var(--wm-color-primary, #111827);
+  font-family: var(--wm-font-primary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.9;
+}
+
+.awdr_discount_bar_content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.awdr_discount_bar_content strong,
+.awdr_discount_bar_content b,
+.awdr_discount_bar_content .woocommerce-Price-amount {
+  color: var(--wm-color-accent-dark, #9f7425);
+  font-weight: 850;
+}
+
+/* Bulk / tiered discount table */
+.awdr-bulk-customizable-table {
+  margin: 16px 0;
+  overflow-x: auto;
+  border: 1px solid var(--wm-color-border, #e5e0d8);
+  border-radius: 14px;
+  background: var(--wm-color-surface, #fff);
+}
+
+.awdr-bulk-customizable-table table.wdr_bulk_table_msg {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  direction: rtl;
+  font-family: var(--wm-font-primary);
+  font-size: 13px;
+}
+
+.wdr_bulk_table_msg thead th,
+.wdr_bulk_table_msg .wdr_bulk_table_thead th,
+.wdr_bulk_table_msg .wdr_bulk_table_td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(200, 155, 60, 0.28);
+  background: rgba(200, 155, 60, 0.12);
+  color: var(--wm-color-primary, #111827);
+  font-weight: 850;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.wdr_bulk_table_msg tbody td.wdr_bulk_table_td {
+  border-bottom: 1px solid var(--wm-color-border, #e5e0d8);
+  background: transparent;
+  color: var(--wm-color-text, #1f2937);
+  font-weight: 650;
+}
+
+.wdr_bulk_table_msg tbody tr:last-child td.wdr_bulk_table_td {
+  border-bottom: 0;
+}
+
+.wdr_bulk_table_msg tbody tr:nth-child(even) td.wdr_bulk_table_td {
+  background: rgba(249, 248, 245, 0.72);
+}
+
+.wdr_bulk_table_msg .wdr_table_discounted_value {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 9px;
+  border-radius: var(--wm-radius-pill, 999px);
+  background: rgba(192, 57, 43, 0.1);
+  color: #c0392b;
+  font-size: 11px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.wdr_bulk_table_msg .wdr_table_discounted_price {
+  color: var(--wm-color-accent-dark, #9f7425);
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.wdr_bulk_table_msg .wdr_bulk_title {
+  color: var(--wm-color-primary, #111827);
+  font-weight: 800;
+}
+
+.wdr_bulk_table_msg .wdr_bulk_range {
+  color: var(--wm-color-muted, #6b7280);
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .wm-cart-discount {
+    gap: 3px 6px;
+    font-size: 11px;
+  }
+
+  .wm-cart-discount__regular,
+  .wm-cart-discount__saved {
+    font-size: 11px;
+  }
+
+  .awdr-bulk-customizable-table table.wdr_bulk_table_msg {
+    font-size: 12px;
+  }
+
+  .wdr_bulk_table_msg thead th,
+  .wdr_bulk_table_msg .wdr_bulk_table_thead th,
+  .wdr_bulk_table_msg .wdr_bulk_table_td {
+    padding: 8px 6px;
+  }
+}

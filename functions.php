@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ESHOBE_ECOMMERCE_VERSION' ) ) {
-    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.21' );
+    define( 'ESHOBE_ECOMMERCE_VERSION', '0.8.22' );
 }
 
 /**
@@ -171,6 +171,7 @@ function eshobe_ecommerce_scripts() {
     wp_enqueue_script( 'eshobe-ecommerce-back-to-top', wm_asset_uri( 'assets/js/back-to-top.js' ), array(), wm_asset_version( 'assets/js/back-to-top.js' ), true );
 
     if ( function_exists( 'WC' ) ) {
+        wp_enqueue_style( 'eshobe-ecommerce-discounts', wm_asset_uri( 'assets/css/components/discounts.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/discounts.css' ) );
         wp_enqueue_style( 'eshobe-ecommerce-mini-cart', wm_asset_uri( 'assets/css/components/mini-cart.css' ), array( 'eshobe-ecommerce-style' ), wm_asset_version( 'assets/css/components/mini-cart.css' ) );
         // Vanilla rewrite (no jQuery) — the drawer listens for the native
         // `added_to_cart` event WooCommerce dispatches via jQuery's trigger.
@@ -299,6 +300,7 @@ require get_template_directory() . '/inc/components/taxonomy-landing.php';
 require get_template_directory() . '/inc/components/site-footer.php';
 require get_template_directory() . '/inc/components/mobile-nav.php';
 require get_template_directory() . '/inc/product-components.php';
+require get_template_directory() . '/inc/discounts.php';
 require get_template_directory() . '/inc/woocommerce.php';
 require get_template_directory() . '/inc/yith-swatches.php';
 require get_template_directory() . '/inc/ajax/search.php';
