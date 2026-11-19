@@ -65,13 +65,9 @@ Local WP manages the WordPress site itself (PHP, MySQL, web server). VS Code is 
 ## GitHub & Production Deploy
 
 - Repo: `github.com/hamidnoshady/eshobe-ecommerce-wp-theme` (private).
-- `.github/workflows/release.yml` auto-creates a distributable ZIP and GitHub Release when a version tag is pushed.
+- Merging to `main` runs `.github/workflows/release.yml`: it reads the version from `style.css`, builds the distributable ZIP with `bin/build-release.sh` and publishes it as a GitHub Release tagged `v<version>`. Merges that do not bump the version are skipped.
 - `inc/theme-updater.php` hooks into WordPress's native update system and checks GitHub releases API every 6 hours.
-- **Deploy workflow** (run after every pushed commit):
-  ```
-  git tag v0.4.53   # use the exact version from style.css
-  git push origin v0.4.53
-  ```
-  GitHub Action runs → WP admin shows the update badge → click "Update now" or let auto-update handle it.
+- **Deploy workflow**: bump `ESHOBE_ECOMMERCE_VERSION` in `functions.php` and `Version:` in `style.css` in the same branch, then merge the PR. The release workflow builds the zip and publishes `v<version>` automatically; no manual tagging.
+- `bin/build-release.ps1` packages the current HEAD locally on Windows; `bin/build-release.sh` is the POSIX equivalent used by CI. Both prune dev-only paths and wrap the theme in `eshobe-ecommerce-wp-theme/`.
 - **Private repo requirement**: production `wp-config.php` must have `define('WM_GITHUB_TOKEN', 'ghp_...')` — a GitHub PAT with `repo` (read-only) scope — so WordPress can authenticate to download the release ZIP.
 - To force WP to check for updates immediately: Dashboard → Updates → "Check Again".
