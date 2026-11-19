@@ -15,7 +15,7 @@ function wm_register_home_acf_options() {
             'page_title' => 'تنظیمات قالب',
             'menu_title' => 'تنظیمات قالب',
             'menu_slug'  => 'eshobe-ecommerce',
-            'capability' => 'edit_posts',
+            'capability' => 'edit_theme_options',
             'redirect'   => true,
             'position'   => 59,
         )
@@ -38,7 +38,7 @@ function wm_register_home_acf_options() {
                 'menu_title'  => $page['menu_title'],
                 'menu_slug'   => $page['menu_slug'],
                 'parent_slug' => 'eshobe-ecommerce',
-                'capability'  => isset( $page['capability'] ) ? $page['capability'] : 'edit_posts',
+                'capability'  => isset( $page['capability'] ) ? $page['capability'] : 'edit_theme_options',
                 'post_id'     => 'option',
             )
         );
