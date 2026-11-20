@@ -10,6 +10,53 @@
     select.dispatchEvent(event);
   }
 
+  // Numeric amount out of a WooCommerce price fragment (currency symbol,
+  // thousands separators, Latin or Persian/Arabic digits).
+  function priceAmount(html) {
+    if (!html) {
+      return 0;
+    }
+    var text = String(html).replace(/<[^>]*>/g, '');
+    var latin = text
+      .replace(/[\u06F0-\u06F9]/g, function (digit) {
+        return String('0123456789'.charAt('\u06F0\u06F1\u06F2\u06F3\u06F4\u06F5\u06F6\u06F7\u06F8\u06F9'.indexOf(digit)));
+      })
+      .replace(/[\u0660-\u0669]/g, function (digit) {
+        return String('0123456789'.charAt('\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669'.indexOf(digit)));
+      });
+    var digits = latin.replace(/[^0-9]/g, '');
+    return digits ? parseFloat(digits) : 0;
+  }
+
+  // Same breakdown the server prints for the starting price, rebuilt for the
+  // variation the customer just picked. Returns '' when that variation has no
+  // discount, so the caller can fall back to WooCommerce's own price markup.
+  function variationHeroHtml(variation) {
+    var regular = priceAmount(variation.display_regular_price);
+    var current = priceAmount(variation.display_price);
+    if (!regular || !current || current >= regular) {
+      return '';
+    }
+
+    var percent = Math.max(1, Math.min(99, Math.round(((regular - current) / regular) * 100)));
+    var percentText = String(percent).replace(/[0-9]/g, function (digit) {
+      return '۰۱۲۳۴۵۶۷۸۹'.charAt(Number(digit));
+    });
+
+    return (
+      '<div class="wm-price-hero wm-price-hero--discounted wm-price-hero--bar">' +
+      '<div class="wm-price-hero__row">' +
+      '<span class="wm-price-hero__current">' + variation.display_price + '</span>' +
+      '<span class="wm-discount-badge wm-price-hero__badge">' + percentText + '٪ تخفیف</span>' +
+      '</div>' +
+      '<div class="wm-price-hero__meta">' +
+      '<span class="wm-price-hero__regular-label">قیمت قبلی</span>' +
+      '<del class="wm-price-hero__regular">' + variation.display_regular_price + '</del>' +
+      '</div>' +
+      '</div>'
+    );
+  }
+
   function getVariations(form) {
     var raw = form.getAttribute('data-product_variations');
     if (!raw) {
@@ -118,6 +165,10 @@
       priceEl.dataset.wmDefaultPrice = priceEl.innerHTML;
     }
 
+    // The mobile buy bar prints the starting price as the theme's own price
+    // block; remember that so variation updates can keep the same breakdown.
+    var priceElUsesHero = !!priceEl && priceEl.dataset.wmDefaultPrice.indexOf('wm-price-hero--bar') !== -1;
+
     var stockBox = null;
     var status = null;
     var minus = null;
@@ -219,7 +270,14 @@
     }
 
     window.jQuery(form).on('found_variation', function (event, variation) {
-      if (priceEl && variation.price_html) {
+      // The bar starts on the product's starting price; once a swatch is
+      // picked, keep the same badge/regular-price breakdown for that
+      // variation instead of dropping to WooCommerce's bare price markup.
+      var heroHtml = priceElUsesHero ? variationHeroHtml(variation) : '';
+
+      if (priceEl && heroHtml) {
+        priceEl.innerHTML = heroHtml;
+      } else if (priceEl && variation.price_html) {
         priceEl.innerHTML = variation.price_html;
       }
       if (stockBox) {

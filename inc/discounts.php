@@ -255,12 +255,17 @@ function wm_get_product_price_html( $product ) {
  * The mobile buy bar shows the same breakdown without the saving line, which
  * does not fit the bar's height.
  *
- * Variable products keep WooCommerce's range markup.
+ * Variable products keep WooCommerce's range markup in the purchase box; the
+ * bar can opt into the starting (lowest variation) price instead, because a
+ * price range does not fit beside its stock pill.
  *
  * @param WC_Product $product Product.
  * @param array      $args {
- *     @type bool   $show_saved Whether to append the "… سود شما" line.
- *     @type string $class      Extra CSS class on the wrapper.
+ *     @type bool   $show_saved       Whether to append the "… سود شما" line.
+ *     @type string $class            Extra CSS class on the wrapper.
+ *     @type bool   $starting_price   Use the lowest variation price for
+ *                                    variable products instead of their
+ *                                    WooCommerce range markup.
  * }
  * @return string
  */
@@ -272,12 +277,13 @@ function wm_get_single_product_price_html( $product, $args = array() ) {
 	$args = wp_parse_args(
 		$args,
 		array(
-			'show_saved' => true,
-			'class'      => '',
+			'show_saved'     => true,
+			'class'          => '',
+			'starting_price' => false,
 		)
 	);
 
-	if ( ! $product->is_type( 'simple' ) ) {
+	if ( ! $product->is_type( 'simple' ) && ! ( $args['starting_price'] && $product->is_type( 'variable' ) ) ) {
 		return wm_get_product_price_html( $product );
 	}
 
@@ -294,6 +300,9 @@ function wm_get_single_product_price_html( $product, $args = array() ) {
 
 	$html = '<div class="' . esc_attr( $wrapper_class ) . '">'
 		. '<div class="wm-price-hero__row">'
+		. ( $product->is_type( 'variable' )
+			? '<span class="wm-price-hero__from">' . esc_html__( 'از', 'eshobe-ecommerce' ) . '</span>'
+			: '' )
 		. '<span class="wm-price-hero__current">' . wc_price( $parts['current'] ) . '</span>'
 		. wm_get_discount_badge_html( $parts['percent'], array( 'label' => 'full', 'class' => 'wm-price-hero__badge' ) )
 		. '</div>'
