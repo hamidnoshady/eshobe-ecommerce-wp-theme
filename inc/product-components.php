@@ -511,8 +511,18 @@ function wm_render_mobile_product_bottom_bar() {
             // Same readable breakdown as the purchase box: dark payable price,
             // discount badge and a labelled struck regular price. The saving
             // line is left out because the bar is only two short rows tall.
+            // Variable products use their starting price here — a price range
+            // does not fit beside the stock pill, and the swatch picker below
+            // replaces it with the chosen variation's price.
             $mobile_price_html = function_exists( 'wm_get_single_product_price_html' )
-                ? wm_get_single_product_price_html( $product, array( 'show_saved' => false, 'class' => 'wm-price-hero--bar' ) )
+                ? wm_get_single_product_price_html(
+                    $product,
+                    array(
+                        'show_saved'     => false,
+                        'class'          => 'wm-price-hero--bar',
+                        'starting_price' => true,
+                    )
+                )
                 : $product->get_price_html();
             ?>
             <?php if ( $mobile_price_html ) : ?>
