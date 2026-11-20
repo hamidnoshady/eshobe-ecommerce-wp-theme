@@ -28,30 +28,82 @@
     return digits ? parseFloat(digits) : 0;
   }
 
-  // Same breakdown the server prints for the starting price, rebuilt for the
-  // variation the customer just picked. Returns '' when that variation has no
+  // Formats an amount the way the variation's own price markup does, so the
+  // digits keep the store's numerals and thousands separator.
+  function formatAmountLike(amount, sample) {
+    var text = String(sample).replace(/<[^>]*>/g, '');
+    var separator = (text.match(/[\u066C\u060C,]/) || [','])[0];
+    var digits = String(Math.round(amount)).replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+
+    if (/[\u06F0-\u06F9]/.test(text)) {
+      digits = digits.replace(/[0-9]/g, function (digit) {
+        return '۰۱۲۳۴۵۶۷۸۹'.charAt(Number(digit));
+      });
+    }
+
+    return digits;
+  }
+
+  // Swaps the first amount printed in the markup for another one, leaving the
+  // currency symbol and WooCommerce's wrappers in place.
+  function replaceAmount(html, amount) {
+    var replaced = false;
+    return String(html).replace(/(<[^>]*>)|([^<]+)/g, function (match, tag, text) {
+      if (tag || replaced || !/[0-9\u06F0-\u06F9]/.test(text)) {
+        return match;
+      }
+      replaced = true;
+      return text.replace(
+        /[0-9\u06F0-\u06F9](?:[0-9\u06F0-\u06F9,\u066C\u060C.]*[0-9\u06F0-\u06F9])?/,
+        formatAmountLike(amount, text)
+      );
+    });
+  }
+
+  // The variation's price markup without WooCommerce's struck regular price:
+  // the payable amount, wrappers and currency intact.
+  function currentAmountHtml(priceHtml) {
+    var html = String(priceHtml);
+    var ins = html.match(/<ins[^>]*>([\s\S]*?)<\/ins>/i);
+
+    if (ins) {
+      return ins[1];
+    }
+
+    return html.replace(/<del[\s\S]*?<\/del>/i, '').trim() || html;
+  }
+
+  // Same breakdown the server prints for the page's price block, rebuilt for
+  // the variation the customer just picked. The purchase box keeps the saving
+  // line, the compact bar leaves it out. Returns '' when that variation has no
   // discount, so the caller can fall back to WooCommerce's own price markup.
-  function variationHeroHtml(variation) {
+  function variationHeroHtml(variation, compact) {
     var regular = priceAmount(variation.display_regular_price);
     var current = priceAmount(variation.display_price);
     if (!regular || !current || current >= regular) {
       return '';
     }
 
+    var amountHtml = currentAmountHtml(variation.price_html || current);
     var percent = Math.max(1, Math.min(99, Math.round(((regular - current) / regular) * 100)));
     var percentText = String(percent).replace(/[0-9]/g, function (digit) {
       return '۰۱۲۳۴۵۶۷۸۹'.charAt(Number(digit));
     });
 
     return (
-      '<div class="wm-price-hero wm-price-hero--discounted wm-price-hero--bar">' +
+      '<div class="wm-price-hero wm-price-hero--discounted' +
+      (compact ? ' wm-price-hero--bar' : '') +
+      '">' +
       '<div class="wm-price-hero__row">' +
-      '<span class="wm-price-hero__current">' + variation.display_price + '</span>' +
+      '<span class="wm-price-hero__current">' + amountHtml + '</span>' +
       '<span class="wm-discount-badge wm-price-hero__badge">' + percentText + '٪ تخفیف</span>' +
       '</div>' +
       '<div class="wm-price-hero__meta">' +
       '<span class="wm-price-hero__regular-label">قیمت قبلی</span>' +
-      '<del class="wm-price-hero__regular">' + variation.display_regular_price + '</del>' +
+      '<del class="wm-price-hero__regular">' + replaceAmount(amountHtml, regular) + '</del>' +
+      (compact
+        ? ''
+        : '<span class="wm-price-hero__saved">' + replaceAmount(amountHtml, regular - current) + ' سود شما</span>') +
       '</div>' +
       '</div>'
     );
@@ -165,9 +217,9 @@
       priceEl.dataset.wmDefaultPrice = priceEl.innerHTML;
     }
 
-    // The mobile buy bar prints the starting price as the theme's own price
-    // block; remember that so variation updates can keep the same breakdown.
-    var priceElUsesHero = !!priceEl && priceEl.dataset.wmDefaultPrice.indexOf('wm-price-hero--bar') !== -1;
+    // The mobile buy bar prints the compact form of the theme's price block
+    // (no saving line); the purchase box has room for the full one.
+    var compactPrice = !!priceEl && priceEl.dataset.wmDefaultPrice.indexOf('wm-price-hero--bar') !== -1;
 
     var stockBox = null;
     var status = null;
@@ -270,10 +322,10 @@
     }
 
     window.jQuery(form).on('found_variation', function (event, variation) {
-      // The bar starts on the product's starting price; once a swatch is
-      // picked, keep the same badge/regular-price breakdown for that
-      // variation instead of dropping to WooCommerce's bare price markup.
-      var heroHtml = priceElUsesHero ? variationHeroHtml(variation) : '';
+      // The purchase box and the bar start on the product's price block; once
+      // a swatch is picked, keep the same badge/regular-price breakdown for
+      // that variation instead of dropping to WooCommerce's bare price markup.
+      var heroHtml = priceEl ? variationHeroHtml(variation, compactPrice) : '';
 
       if (priceEl && heroHtml) {
         priceEl.innerHTML = heroHtml;
