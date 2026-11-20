@@ -468,7 +468,7 @@ function wm_render_product_purchase() {
     ob_start();
     ?>
     <section class="wm-card wm-product-purchase">
-        <?php $price_html = function_exists( 'wm_get_product_price_html' ) ? wm_get_product_price_html( $product ) : $product->get_price_html(); ?>
+        <?php $price_html = function_exists( 'wm_get_single_product_price_html' ) ? wm_get_single_product_price_html( $product ) : $product->get_price_html(); ?>
         <?php if ( $price_html ) : ?>
             <div class="wm-product-purchase__price"><?php echo wp_kses_post( $price_html ); ?></div>
         <?php endif; ?>
