@@ -182,6 +182,27 @@ function wm_get_price_parts_from_html( $html ) {
 }
 
 /**
+ * Regular / current price pair resolved for display.
+ *
+ * Prefers the product's own price fields and falls back to the rendered price
+ * markup when a discount plugin only adjusts the price HTML.
+ *
+ * @param WC_Product $product Product.
+ * @return array{regular: float, current: float, percent: int, saved: float}
+ */
+function wm_get_resolved_price_parts( $product ) {
+	$parts = wm_get_product_price_parts( $product );
+
+	if ( ! $product instanceof WC_Product || $parts['percent'] >= 1 ) {
+		return $parts;
+	}
+
+	$parts_from_html = wm_get_price_parts_from_html( $product->get_price_html() );
+
+	return null === $parts_from_html ? $parts : $parts_from_html;
+}
+
+/**
  * Price HTML with the regular price struck through and a percentage badge.
  *
  * WooCommerce (and Discount Rules) already output a struck-out price when a
@@ -203,16 +224,10 @@ function wm_get_product_price_html( $product ) {
 		return '';
 	}
 
-	$parts = wm_get_product_price_parts( $product );
+	$parts = wm_get_resolved_price_parts( $product );
 
 	if ( $parts['percent'] < 1 ) {
-		$parts_from_html = wm_get_price_parts_from_html( $html );
-
-		if ( null === $parts_from_html ) {
-			return $html;
-		}
-
-		$parts = $parts_from_html;
+		return $html;
 	}
 
 	// Some plugins print their own "-20%" inside the price; do not repeat it.
@@ -228,6 +243,49 @@ function wm_get_product_price_html( $product ) {
 		. '<ins class="wm-price__current">' . wc_price( $parts['current'] ) . '</ins>'
 		. $badge
 		. '</span>';
+}
+
+/**
+ * Price block for the single product purchase box.
+ *
+ * The purchase box has room for the full story, so instead of reusing the
+ * compact card markup it prints the payable price, a "20٪ تخفیف" badge, the
+ * labelled regular price and how much the customer saves.
+ *
+ * Variable products keep WooCommerce's range markup.
+ *
+ * @param WC_Product $product Product.
+ * @return string
+ */
+function wm_get_single_product_price_html( $product ) {
+	if ( ! $product instanceof WC_Product ) {
+		return '';
+	}
+
+	if ( ! $product->is_type( 'simple' ) ) {
+		return wm_get_product_price_html( $product );
+	}
+
+	$parts = wm_get_resolved_price_parts( $product );
+
+	if ( $parts['percent'] < 1 ) {
+		return $product->get_price_html();
+	}
+
+	return '<div class="wm-price-hero wm-price-hero--discounted">'
+		. '<div class="wm-price-hero__row">'
+		. '<span class="wm-price-hero__current">' . wc_price( $parts['current'] ) . '</span>'
+		. wm_get_discount_badge_html( $parts['percent'], array( 'label' => 'full', 'class' => 'wm-price-hero__badge' ) )
+		. '</div>'
+		. '<div class="wm-price-hero__meta">'
+		. '<span class="wm-price-hero__regular-label">' . esc_html__( 'قیمت قبلی', 'eshobe-ecommerce' ) . '</span>'
+		. '<del class="wm-price-hero__regular">' . wc_price( $parts['regular'] ) . '</del>'
+		. '<span class="wm-price-hero__saved">'
+		/* translators: %s: amount saved on the product. */
+		. sprintf( esc_html__( '%s سود شما', 'eshobe-ecommerce' ), wc_price( $parts['saved'] ) )
+		. '</span>'
+		. '</div>'
+		. '</div>';
 }
 
 /**
