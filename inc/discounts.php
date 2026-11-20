@@ -246,21 +246,36 @@ function wm_get_product_price_html( $product ) {
 }
 
 /**
- * Price block for the single product purchase box.
+ * Price block for the single product purchase box and the mobile buy bar.
  *
  * The purchase box has room for the full story, so instead of reusing the
  * compact card markup it prints the payable price, a "20٪ تخفیف" badge, the
  * labelled regular price and how much the customer saves.
  *
+ * The mobile buy bar shows the same breakdown without the saving line, which
+ * does not fit the bar's height.
+ *
  * Variable products keep WooCommerce's range markup.
  *
  * @param WC_Product $product Product.
+ * @param array      $args {
+ *     @type bool   $show_saved Whether to append the "… سود شما" line.
+ *     @type string $class      Extra CSS class on the wrapper.
+ * }
  * @return string
  */
-function wm_get_single_product_price_html( $product ) {
+function wm_get_single_product_price_html( $product, $args = array() ) {
 	if ( ! $product instanceof WC_Product ) {
 		return '';
 	}
+
+	$args = wp_parse_args(
+		$args,
+		array(
+			'show_saved' => true,
+			'class'      => '',
+		)
+	);
 
 	if ( ! $product->is_type( 'simple' ) ) {
 		return wm_get_product_price_html( $product );
@@ -272,20 +287,28 @@ function wm_get_single_product_price_html( $product ) {
 		return $product->get_price_html();
 	}
 
-	return '<div class="wm-price-hero wm-price-hero--discounted">'
+	$wrapper_class = 'wm-price-hero wm-price-hero--discounted';
+	if ( $args['class'] ) {
+		$wrapper_class .= ' ' . $args['class'];
+	}
+
+	$html = '<div class="' . esc_attr( $wrapper_class ) . '">'
 		. '<div class="wm-price-hero__row">'
 		. '<span class="wm-price-hero__current">' . wc_price( $parts['current'] ) . '</span>'
 		. wm_get_discount_badge_html( $parts['percent'], array( 'label' => 'full', 'class' => 'wm-price-hero__badge' ) )
 		. '</div>'
 		. '<div class="wm-price-hero__meta">'
 		. '<span class="wm-price-hero__regular-label">' . esc_html__( 'قیمت قبلی', 'eshobe-ecommerce' ) . '</span>'
-		. '<del class="wm-price-hero__regular">' . wc_price( $parts['regular'] ) . '</del>'
-		. '<span class="wm-price-hero__saved">'
-		/* translators: %s: amount saved on the product. */
-		. sprintf( esc_html__( '%s سود شما', 'eshobe-ecommerce' ), wc_price( $parts['saved'] ) )
-		. '</span>'
-		. '</div>'
-		. '</div>';
+		. '<del class="wm-price-hero__regular">' . wc_price( $parts['regular'] ) . '</del>';
+
+	if ( $args['show_saved'] ) {
+		$html .= '<span class="wm-price-hero__saved">'
+			/* translators: %s: amount saved on the product. */
+			. sprintf( esc_html__( '%s سود شما', 'eshobe-ecommerce' ), wc_price( $parts['saved'] ) )
+			. '</span>';
+	}
+
+	return $html . '</div></div>';
 }
 
 /**
