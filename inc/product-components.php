@@ -507,7 +507,14 @@ function wm_render_mobile_product_bottom_bar() {
     ?>
     <section class="wm-mobile-bottom-bar" aria-label="<?php esc_attr_e( 'Mobile purchase bar', 'eshobe-ecommerce' ); ?>">
         <div class="wm-mobile-bottom-bar__summary">
-            <?php $mobile_price_html = function_exists( 'wm_get_product_price_html' ) ? wm_get_product_price_html( $product ) : $product->get_price_html(); ?>
+            <?php
+            // Same readable breakdown as the purchase box: dark payable price,
+            // discount badge and a labelled struck regular price. The saving
+            // line is left out because the bar is only two short rows tall.
+            $mobile_price_html = function_exists( 'wm_get_single_product_price_html' )
+                ? wm_get_single_product_price_html( $product, array( 'show_saved' => false, 'class' => 'wm-price-hero--bar' ) )
+                : $product->get_price_html();
+            ?>
             <?php if ( $mobile_price_html ) : ?>
                 <div class="wm-mobile-bottom-bar__price"><?php echo wp_kses_post( $mobile_price_html ); ?></div>
             <?php endif; ?>
