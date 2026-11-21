@@ -482,7 +482,7 @@ add_filter( 'woocommerce_cart_item_name', 'wm_checkout_cart_item_discount', 20, 
  * @return string
  */
 function wm_discounted_products_cache_key() {
-	return 'wm_discounted_product_ids_v1';
+	return 'wm_discounted_product_ids_v2';
 }
 
 /**
@@ -542,6 +542,12 @@ function wm_get_discounted_product_ids() {
 		return $memory_cache;
 	}
 
+	// The scan builds the price markup of every published product, which can
+	// take a while on a large catalog. It runs at most once per cache window.
+	if ( function_exists( 'set_time_limit' ) ) {
+		@set_time_limit( 120 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	}
+
 	$ids  = array();
 	$page = 1;
 
@@ -558,11 +564,13 @@ function wm_get_discounted_product_ids() {
 		);
 
 		foreach ( (array) $batch as $product ) {
-			if ( ! $product instanceof WC_Product || ! $product->get_image_id() ) {
+			if ( ! $product instanceof WC_Product ) {
 				continue;
 			}
 
-			$parts = wm_get_product_price_parts( $product );
+			// Resolved parts also read the rendered price markup, which is the
+			// only place Discount Rules reports some of its adjustments.
+			$parts = wm_get_resolved_price_parts( $product );
 
 			if ( $parts['percent'] > 0 ) {
 				$ids[] = (int) $product->get_id();
@@ -570,11 +578,11 @@ function wm_get_discounted_product_ids() {
 		}
 
 		$page++;
-	} while ( count( (array) $batch ) === 100 );
+	} while ( count( (array) $batch ) === 100 && $page <= 50 );
 
 	$ids = array_values( array_unique( $ids ) );
 
-	set_transient( wm_discounted_products_cache_key(), $ids, 15 * MINUTE_IN_SECONDS );
+	set_transient( wm_discounted_products_cache_key(), $ids, 30 * MINUTE_IN_SECONDS );
 
 	$memory_cache = $ids;
 

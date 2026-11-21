@@ -94,28 +94,27 @@ function wm_discount_archive_maybe_flush_rewrites() {
 add_action( 'wp_loaded', 'wm_discount_archive_maybe_flush_rewrites' );
 
 /**
- * Narrows the archive main query to discounted products.
+ * Narrows the shop loop to discounted products.
  *
- * Runs before WooCommerce's product query filters so its ordering/visibility
- * handling still applies.
+ * WooCommerce resets `post__in` on the main product query with whatever the
+ * `loop_shop_post_in` filter returns, so a plain pre_get_posts constraint is
+ * discarded. Filtering the list WooCommerce itself uses keeps ordering, price
+ * filtering and pagination intact.
  *
- * @param WP_Query $query Query.
+ * @param int[] $ids Product IDs to limit the loop to.
+ * @return int[]
  */
-function wm_discount_archive_filter_query( $query ) {
-	if ( is_admin() || ! $query instanceof WP_Query || ! $query->is_main_query() ) {
-		return;
-	}
-
-	if ( ! $query->get( 'wm_discount_archive' ) ) {
-		return;
+function wm_discount_archive_loop_shop_post_in( $ids ) {
+	if ( ! wm_discount_archive_is_context() ) {
+		return $ids;
 	}
 
 	$product_ids = wm_get_discounted_product_ids();
 
-	$query->set( 'post__in', ! empty( $product_ids ) ? $product_ids : array( 0 ) );
-	$query->set( 'ignore_sticky_posts', true );
+	// array( 0 ) deliberately matches nothing when no product is discounted.
+	return ! empty( $product_ids ) ? $product_ids : array( 0 );
 }
-add_action( 'pre_get_posts', 'wm_discount_archive_filter_query', 5 );
+add_filter( 'loop_shop_post_in', 'wm_discount_archive_loop_shop_post_in' );
 
 /**
  * Keep WordPress from canonicalising the archive URL to the shop page.
