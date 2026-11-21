@@ -783,12 +783,23 @@ function wm_get_discounted_product_ids() {
 /**
  * Discounted products for carousels.
  *
+ * The sweep stores its ids newest first, so slicing that list would always
+ * show the same newest products. The carousel shuffles a copy instead, so
+ * repeated visits surface different products from the whole discounted
+ * catalog. The archive keeps the ordered list for stable pagination.
+ *
  * @param int $count Max number of products.
  * @return WC_Product[]
  */
 function wm_get_discounted_products( $count = 10 ) {
 	$count = max( 1, absint( $count ) );
-	$ids   = array_slice( wm_get_discounted_product_ids(), 0, $count );
+	$ids   = wm_get_discounted_product_ids();
+
+	if ( count( $ids ) > 1 ) {
+		shuffle( $ids );
+	}
+
+	$ids = array_slice( $ids, 0, $count );
 
 	if ( empty( $ids ) || ! function_exists( 'wc_get_product' ) ) {
 		return array();
