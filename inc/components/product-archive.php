@@ -1393,6 +1393,10 @@ function wm_product_archive_css_vars() {
 }
 
 function wm_product_archive_title() {
+    if ( function_exists( 'wm_discount_archive_is_context' ) && wm_discount_archive_is_context() ) {
+        return wm_discount_archive_title();
+    }
+
     if ( is_search() ) {
         return sprintf(
             /* translators: %s: search query. */
@@ -1409,6 +1413,10 @@ function wm_product_archive_description() {
         return '';
     }
 
+    if ( function_exists( 'wm_discount_archive_is_context' ) && wm_discount_archive_is_context() ) {
+        return '<p>' . esc_html__( 'همه محصولاتی که همین حالا تخفیف دارند، یکجا. با فیلترها و مرتب‌سازی، تخفیف مناسب خودتان را پیدا کنید.', 'eshobe-ecommerce' ) . '</p>';
+    }
+
     ob_start();
     if ( is_product_taxonomy() ) {
         woocommerce_taxonomy_archive_description();
@@ -1420,6 +1428,10 @@ function wm_product_archive_description() {
 }
 
 function wm_product_archive_reset_url() {
+    if ( function_exists( 'wm_discount_archive_is_context' ) && wm_discount_archive_is_context() ) {
+        return wm_discount_archive_url();
+    }
+
     if ( function_exists( 'is_shop' ) && is_shop() && function_exists( 'wc_get_page_permalink' ) ) {
         return wc_get_page_permalink( 'shop' );
     }

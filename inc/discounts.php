@@ -475,3 +475,267 @@ function wm_checkout_cart_item_discount( $name, $cart_item, $cart_item_key ) {
 	return $name . wm_get_cart_item_discount_html( $cart_item, array( 'context' => 'checkout' ) );
 }
 add_filter( 'woocommerce_cart_item_name', 'wm_checkout_cart_item_discount', 20, 3 );
+
+/**
+ * Option holding the discounted product sweep.
+ *
+ * Shape: ids (products found so far), offset (next catalog row), sweeping (a
+ * full pass is in progress), time (when the last complete pass finished) and
+ * updated (last slice). Kept in an option rather than a transient so a stale
+ * list can still be served while the sweep runs in the background.
+ *
+ * @return string
+ */
+function wm_discounted_products_option_key() {
+	return 'wm_discounted_products_list';
+}
+
+/**
+ * How long a completed sweep stays fresh.
+ *
+ * @return int
+ */
+function wm_discounted_products_ttl() {
+	return max( 60, (int) apply_filters( 'wm_discounted_products_ttl', 20 * MINUTE_IN_SECONDS ) );
+}
+
+/**
+ * Normalised sweep state.
+ *
+ * @return array{ids: int[], offset: int, sweeping: bool, time: int, updated: int}
+ */
+function wm_discounted_products_state() {
+	$state = get_option( wm_discounted_products_option_key(), array() );
+
+	if ( ! is_array( $state ) ) {
+		$state = array();
+	}
+
+	return array(
+		'ids'      => isset( $state['ids'] ) && is_array( $state['ids'] ) ? array_values( array_map( 'intval', $state['ids'] ) ) : array(),
+		'offset'   => isset( $state['offset'] ) ? max( 0, (int) $state['offset'] ) : 0,
+		'sweeping' => ! empty( $state['sweeping'] ),
+		'time'     => isset( $state['time'] ) ? (int) $state['time'] : 0,
+		'updated'  => isset( $state['updated'] ) ? (int) $state['updated'] : 0,
+	);
+}
+
+/**
+ * Queues the next sweep slice.
+ */
+function wm_schedule_discount_sweep() {
+	if ( ! wp_next_scheduled( 'wm_refresh_discounted_products' ) ) {
+		wp_schedule_single_event( time() + 1, 'wm_refresh_discounted_products' );
+	}
+}
+
+/**
+ * Marks the stored list as stale and asks for a background sweep.
+ *
+ * The timestamp is moved just past the freshness window, so the next request
+ * keeps serving the known list instead of rebuilding it inline.
+ */
+function wm_discounted_products_cache_flush() {
+	$state = wm_discounted_products_state();
+
+	if ( $state['time'] > 0 ) {
+		$state['time'] = time() - wm_discounted_products_ttl();
+		update_option( wm_discounted_products_option_key(), $state, false );
+	}
+
+	wm_schedule_discount_sweep();
+}
+
+add_action( 'woocommerce_update_product', 'wm_discounted_products_cache_flush' );
+add_action( 'woocommerce_new_product', 'wm_discounted_products_cache_flush' );
+add_action( 'save_post_product', 'wm_discounted_products_cache_flush' );
+add_action( 'trashed_post', 'wm_discounted_products_cache_flush' );
+add_action( 'untrashed_post', 'wm_discounted_products_cache_flush' );
+
+/**
+ * Discount Rules stores its rules as posts; a changed rule changes prices
+ * without touching a product, so refresh the list when one is saved.
+ *
+ * @param int     $post_id Post ID.
+ * @param WP_Post $post    Post object.
+ */
+function wm_discounted_products_flush_on_rule_save( $post_id, $post ) {
+	if ( $post instanceof WP_Post && 0 === strpos( (string) $post->post_type, 'wdr' ) ) {
+		wm_discounted_products_cache_flush();
+	}
+}
+add_action( 'save_post', 'wm_discounted_products_flush_on_rule_save', 10, 2 );
+
+/**
+ * Runs one time-boxed slice of the catalog sweep.
+ *
+ * Rendering every product's price markup takes long enough on a large catalog
+ * that a single pass could hit the PHP time limit, so the sweep stores its
+ * cursor after every batch and continues from there on the next run.
+ *
+ * @param int $budget Seconds this slice may spend.
+ */
+function wm_run_discount_sweep( $budget = 20 ) {
+	if ( ! function_exists( 'wc_get_products' ) ) {
+		return;
+	}
+
+	$budget = max( 1, (int) $budget );
+
+	if ( function_exists( 'set_time_limit' ) ) {
+		@set_time_limit( $budget + 20 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	}
+
+	$state = wm_discounted_products_state();
+
+	if ( ! $state['sweeping'] ) {
+		$state['ids']      = array();
+		$state['offset']   = 0;
+		$state['sweeping'] = true;
+		update_option( wm_discounted_products_option_key(), $state, false );
+	}
+
+	$deadline = microtime( true ) + $budget;
+	$done     = false;
+
+	do {
+		$batch = wc_get_products(
+			array(
+				'status'  => 'publish',
+				'limit'   => 100,
+				'offset'  => $state['offset'],
+				'return'  => 'objects',
+				'orderby' => 'date',
+				'order'   => 'DESC',
+			)
+		);
+
+		$batch           = (array) $batch;
+		$state['offset'] += count( $batch );
+
+		foreach ( $batch as $product ) {
+			if ( ! $product instanceof WC_Product ) {
+				continue;
+			}
+
+			// Resolved parts also read the rendered price markup, which is the
+			// only place Discount Rules reports some of its adjustments.
+			$parts = wm_get_resolved_price_parts( $product );
+
+			if ( $parts['percent'] > 0 ) {
+				$state['ids'][] = (int) $product->get_id();
+			}
+		}
+
+		$state['ids']     = array_values( array_unique( $state['ids'] ) );
+		$state['updated'] = time();
+
+		if ( count( $batch ) < 100 ) {
+			$done = true;
+			break;
+		}
+
+		update_option( wm_discounted_products_option_key(), $state, false );
+	} while ( microtime( true ) < $deadline );
+
+	if ( $done ) {
+		$state['time']     = time();
+		$state['offset']   = 0;
+		$state['sweeping'] = false;
+	}
+
+	update_option( wm_discounted_products_option_key(), $state, false );
+
+	if ( ! $done ) {
+		wm_schedule_discount_sweep();
+	}
+}
+
+/**
+ * WP-Cron callback: continue the sweep.
+ */
+function wm_refresh_discounted_products_cron() {
+	wm_run_discount_sweep( 20 );
+}
+add_action( 'wm_refresh_discounted_products', 'wm_refresh_discounted_products_cron' );
+
+/**
+ * IDs of published products whose payable price is below their regular price.
+ *
+ * Covers native WooCommerce sale prices and rule-based price adjustments. A
+ * stale or partial list is returned immediately while the sweep continues in
+ * the background, so shoppers never wait for the catalog scan.
+ *
+ * @return int[]
+ */
+function wm_get_discounted_product_ids() {
+	static $memory_cache = null;
+
+	if ( is_array( $memory_cache ) ) {
+		return $memory_cache;
+	}
+
+	$state = wm_discounted_products_state();
+	$ttl   = wm_discounted_products_ttl();
+	$age   = time() - $state['time'];
+
+	if ( $state['time'] > 0 && $age < $ttl ) {
+		$memory_cache = $state['ids'];
+
+		return $memory_cache;
+	}
+
+	if ( wp_doing_cron() ) {
+		$memory_cache = $state['ids'];
+
+		return $memory_cache;
+	}
+
+	// Nothing stored yet: run a short slice now so the archive is not empty
+	// while the rest of the catalog is being swept.
+	if ( ! $state['sweeping'] && empty( $state['ids'] ) && 0 === $state['time'] ) {
+		wm_run_discount_sweep( 8 );
+		$state = wm_discounted_products_state();
+	}
+
+	// A sweep that stopped progressing (cron unavailable) gets nudged forward.
+	if ( $state['sweeping'] && $state['updated'] > 0 && ( time() - $state['updated'] ) > 5 * MINUTE_IN_SECONDS ) {
+		wm_run_discount_sweep( 8 );
+		$state = wm_discounted_products_state();
+	}
+
+	if ( $state['sweeping'] || 0 === $state['time'] || $age >= $ttl ) {
+		wm_schedule_discount_sweep();
+	}
+
+	$memory_cache = $state['ids'];
+
+	return $memory_cache;
+}
+
+/**
+ * Discounted products for carousels.
+ *
+ * @param int $count Max number of products.
+ * @return WC_Product[]
+ */
+function wm_get_discounted_products( $count = 10 ) {
+	$count = max( 1, absint( $count ) );
+	$ids   = array_slice( wm_get_discounted_product_ids(), 0, $count );
+
+	if ( empty( $ids ) || ! function_exists( 'wc_get_product' ) ) {
+		return array();
+	}
+
+	$products = array();
+
+	foreach ( $ids as $product_id ) {
+		$product = wc_get_product( $product_id );
+
+		if ( $product instanceof WC_Product ) {
+			$products[] = $product;
+		}
+	}
+
+	return $products;
+}
