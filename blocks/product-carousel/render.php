@@ -32,6 +32,12 @@ $attributes = wp_parse_args(
 
 $count = max( 1, absint( $attributes['count'] ) );
 
+// The carousel header holds the "view all" link, so give the discounted
+// source a sensible heading even when the block was added without one.
+if ( 'discounts' === $attributes['source'] && '' === trim( (string) $attributes['title'] ) ) {
+    $attributes['title'] = __( 'پیشنهادهای تخفیف‌دار', 'eshobe-ecommerce' );
+}
+
 $view_all_url = '';
 if ( $attributes['source'] === 'taxonomy' && ! empty( $attributes['taxonomy'] ) ) {
     if ( ! empty( $attributes['terms'] ) ) {
@@ -48,9 +54,13 @@ if ( $attributes['source'] === 'taxonomy' && ! empty( $attributes['taxonomy'] ) 
     }
 } elseif ( in_array( $attributes['source'], array( 'recommended', 'bestsellers' ), true ) && function_exists( 'wc_get_page_id' ) ) {
     $view_all_url = get_permalink( wc_get_page_id( 'shop' ) );
+} elseif ( 'discounts' === $attributes['source'] && function_exists( 'wm_discount_archive_url' ) ) {
+    $view_all_url = wm_discount_archive_url();
 }
 
-if ( in_array( $attributes['source'], array( 'recommended', 'bestsellers' ), true ) && function_exists( 'wm_home_get_products' ) ) {
+if ( 'discounts' === $attributes['source'] && function_exists( 'wm_get_discounted_products' ) ) {
+    $products = wm_get_discounted_products( $count );
+} elseif ( in_array( $attributes['source'], array( 'recommended', 'bestsellers' ), true ) && function_exists( 'wm_home_get_products' ) ) {
     $products = wm_home_get_products( $attributes['source'], $count );
 } elseif ( function_exists( 'wm_get_taxonomy_carousel_products' ) ) {
     $products = wm_get_taxonomy_carousel_products( $attributes['taxonomy'], $attributes['terms'], $count, $attributes['orderby'], $attributes['order'] );

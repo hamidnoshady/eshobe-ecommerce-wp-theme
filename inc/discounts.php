@@ -475,3 +475,135 @@ function wm_checkout_cart_item_discount( $name, $cart_item, $cart_item_key ) {
 	return $name . wm_get_cart_item_discount_html( $cart_item, array( 'context' => 'checkout' ) );
 }
 add_filter( 'woocommerce_cart_item_name', 'wm_checkout_cart_item_discount', 20, 3 );
+
+/**
+ * Transient key holding the discounted product ID list.
+ *
+ * @return string
+ */
+function wm_discounted_products_cache_key() {
+	return 'wm_discounted_product_ids_v1';
+}
+
+/**
+ * Flush the cached discounted product list.
+ */
+function wm_discounted_products_cache_flush() {
+	delete_transient( wm_discounted_products_cache_key() );
+}
+
+add_action( 'woocommerce_update_product', 'wm_discounted_products_cache_flush' );
+add_action( 'woocommerce_new_product', 'wm_discounted_products_cache_flush' );
+add_action( 'save_post_product', 'wm_discounted_products_cache_flush' );
+add_action( 'trashed_post', 'wm_discounted_products_cache_flush' );
+add_action( 'untrashed_post', 'wm_discounted_products_cache_flush' );
+
+/**
+ * Discount Rules stores its rules as posts; a changed rule changes prices
+ * without touching a product, so clear the list when one is saved.
+ *
+ * @param int     $post_id Post ID.
+ * @param WP_Post $post    Post object.
+ */
+function wm_discounted_products_flush_on_rule_save( $post_id, $post ) {
+	if ( $post instanceof WP_Post && 0 === strpos( (string) $post->post_type, 'wdr' ) ) {
+		wm_discounted_products_cache_flush();
+	}
+}
+add_action( 'save_post', 'wm_discounted_products_flush_on_rule_save', 10, 2 );
+
+/**
+ * IDs of published products whose payable price is below their regular price.
+ *
+ * Rule-based discounts (Discount Rules for WooCommerce) do not set a native
+ * sale price, so the only reliable way to find them is to ask each product
+ * for its effective price. That scan is cached for 15 minutes and flushed
+ * whenever a product or a rule changes.
+ *
+ * @return int[]
+ */
+function wm_get_discounted_product_ids() {
+	static $memory_cache = null;
+
+	if ( is_array( $memory_cache ) ) {
+		return $memory_cache;
+	}
+
+	$cached = get_transient( wm_discounted_products_cache_key() );
+	if ( is_array( $cached ) ) {
+		$memory_cache = $cached;
+
+		return $memory_cache;
+	}
+
+	if ( ! function_exists( 'wc_get_products' ) ) {
+		$memory_cache = array();
+
+		return $memory_cache;
+	}
+
+	$ids  = array();
+	$page = 1;
+
+	do {
+		$batch = wc_get_products(
+			array(
+				'status'  => 'publish',
+				'limit'   => 100,
+				'page'    => $page,
+				'return'  => 'objects',
+				'orderby' => 'date',
+				'order'   => 'DESC',
+			)
+		);
+
+		foreach ( (array) $batch as $product ) {
+			if ( ! $product instanceof WC_Product || ! $product->get_image_id() ) {
+				continue;
+			}
+
+			$parts = wm_get_product_price_parts( $product );
+
+			if ( $parts['percent'] > 0 ) {
+				$ids[] = (int) $product->get_id();
+			}
+		}
+
+		$page++;
+	} while ( count( (array) $batch ) === 100 );
+
+	$ids = array_values( array_unique( $ids ) );
+
+	set_transient( wm_discounted_products_cache_key(), $ids, 15 * MINUTE_IN_SECONDS );
+
+	$memory_cache = $ids;
+
+	return $memory_cache;
+}
+
+/**
+ * Discounted products for carousels.
+ *
+ * @param int $count Max number of products.
+ * @return WC_Product[]
+ */
+function wm_get_discounted_products( $count = 10 ) {
+	$count = max( 1, absint( $count ) );
+	$ids   = array_slice( wm_get_discounted_product_ids(), 0, $count );
+
+	if ( empty( $ids ) || ! function_exists( 'wc_get_product' ) ) {
+		return array();
+	}
+
+	$products = array();
+
+	foreach ( $ids as $product_id ) {
+		$product = wc_get_product( $product_id );
+
+		if ( $product instanceof WC_Product ) {
+			$products[] = $product;
+		}
+	}
+
+	return $products;
+}

@@ -186,6 +186,7 @@ function wm_home_default_sections() {
         'recommended_products' => array( 'label' => 'پیشنهاد ما', 'template' => 'recommended-products' ),
         'filter_boxes'         => array( 'label' => 'باکس‌های فیلتر', 'template' => 'filter-boxes' ),
         'bestsellers'          => array( 'label' => 'پرفروش‌ها', 'template' => 'bestsellers' ),
+        'discounts'            => array( 'label' => 'تخفیف‌دارها', 'template' => 'discounts' ),
         'popular_styles'       => array( 'label' => 'سبک‌های محبوب', 'template' => 'popular-styles' ),
         'trust'                => array( 'label' => 'اعتمادسازی', 'template' => 'trust' ),
     );

@@ -686,6 +686,7 @@ function wm_home_acf_sections_order_field() {
             array( 'section_enabled' => 1, 'section_key' => 'recommended_products', 'section_label' => 'پیشنهاد ما' ),
             array( 'section_enabled' => 1, 'section_key' => 'filter_boxes', 'section_label' => 'باکس‌های فیلتر' ),
             array( 'section_enabled' => 1, 'section_key' => 'bestsellers', 'section_label' => 'پرفروش‌ها' ),
+            array( 'section_enabled' => 0, 'section_key' => 'discounts', 'section_label' => 'تخفیف‌دارها' ),
             array( 'section_enabled' => 1, 'section_key' => 'popular_styles', 'section_label' => 'سبک‌های محبوب' ),
             array( 'section_enabled' => 1, 'section_key' => 'trust', 'section_label' => 'اعتمادسازی' ),
         ),
@@ -702,6 +703,7 @@ function wm_home_acf_sections_order_field() {
                     'recommended_products' => 'پیشنهاد ما',
                     'filter_boxes'         => 'باکس‌های فیلتر',
                     'bestsellers'          => 'پرفروش‌ها',
+                    'discounts'            => 'تخفیف‌دارها',
                     'popular_styles'       => 'سبک‌های محبوب',
                     'trust'                => 'اعتمادسازی',
                 ),
@@ -938,6 +940,12 @@ function wm_site_settings_home_fields() {
         array( 'key' => 'field_home_bestsellers_title', 'label' => 'عنوان پرفروش‌ها', 'name' => 'home_bestsellers_title', 'type' => 'text', 'default_value' => 'پرفروش‌ها' ),
         array( 'key' => 'field_home_bestsellers_subtitle', 'label' => 'زیرعنوان پرفروش‌ها', 'name' => 'home_bestsellers_subtitle', 'type' => 'textarea', 'rows' => 2 ),
         array( 'key' => 'field_home_bestsellers_count', 'label' => 'تعداد پرفروش‌ها', 'name' => 'home_bestsellers_count', 'type' => 'number', 'default_value' => 10, 'min' => 1, 'max' => 20 ),
+
+        wm_site_settings_tab( 'field_wm_home_tab_discounts', 'تخفیف‌دارها' ),
+        array( 'key' => 'field_home_discounts_enabled', 'label' => 'نمایش تخفیف‌دارها', 'name' => 'home_discounts_enabled', 'type' => 'true_false', 'default_value' => 1, 'ui' => 1, 'instructions' => 'فقط محصولاتی نمایش داده می‌شوند که همین حالا قیمتشان پایین‌تر از قیمت اصلی است.' ),
+        array( 'key' => 'field_home_discounts_title', 'label' => 'عنوان تخفیف‌دارها', 'name' => 'home_discounts_title', 'type' => 'text', 'default_value' => 'پیشنهادهای تخفیف‌دار' ),
+        array( 'key' => 'field_home_discounts_subtitle', 'label' => 'زیرعنوان تخفیف‌دارها', 'name' => 'home_discounts_subtitle', 'type' => 'textarea', 'rows' => 2 ),
+        array( 'key' => 'field_home_discounts_count', 'label' => 'تعداد تخفیف‌دارها', 'name' => 'home_discounts_count', 'type' => 'number', 'default_value' => 10, 'min' => 1, 'max' => 20 ),
 
         wm_site_settings_tab( 'field_wm_home_tab_men_filters', 'فیلترهای مردانه / پسرانه' ),
         array( 'key' => 'field_home_men_quick_filters', 'label' => 'فیلترهای سریع مردانه / پسرانه', 'name' => 'home_men_quick_filters', 'type' => 'repeater', 'button_label' => 'افزودن فیلتر', 'instructions' => 'برای مسیر خرید سریع استفاده می‌شود.', 'sub_fields' => wm_home_acf_filter_sub_fields( 'men' ) ),

@@ -112,6 +112,7 @@
 								{ label: __( 'دسته/برچسب/برند دلخواه', 'eshobe-ecommerce' ), value: 'taxonomy' },
 								{ label: __( 'پرفروش‌ترین‌ها (خودکار)', 'eshobe-ecommerce' ), value: 'bestsellers' },
 								{ label: __( 'پیشنهادی ما (خودکار)', 'eshobe-ecommerce' ), value: 'recommended' },
+								{ label: __( 'محصولات تخفیف‌دار (خودکار)', 'eshobe-ecommerce' ), value: 'discounts' },
 							],
 							onChange: function ( value ) {
 								setAttributes( { source: value } );
