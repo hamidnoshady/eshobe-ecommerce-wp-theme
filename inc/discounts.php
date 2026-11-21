@@ -477,19 +477,66 @@ function wm_checkout_cart_item_discount( $name, $cart_item, $cart_item_key ) {
 add_filter( 'woocommerce_cart_item_name', 'wm_checkout_cart_item_discount', 20, 3 );
 
 /**
- * Transient key holding the discounted product ID list.
+ * Option holding the discounted product ID list and its build time.
+ *
+ * Stored in an option (not a transient) so an expired list can still be served
+ * while a background refresh rebuilds it: building the list renders the price
+ * markup of every product, which takes a few seconds on a large catalog and
+ * should not delay a shopper.
  *
  * @return string
  */
-function wm_discounted_products_cache_key() {
-	return 'wm_discounted_product_ids_v2';
+function wm_discounted_products_option_key() {
+	return 'wm_discounted_products_list';
 }
 
 /**
- * Flush the cached discounted product list.
+ * How long a built list stays fresh.
+ *
+ * @return int
+ */
+function wm_discounted_products_ttl() {
+	return max( 60, (int) apply_filters( 'wm_discounted_products_ttl', 20 * MINUTE_IN_SECONDS ) );
+}
+
+/**
+ * Stored list and its build timestamp.
+ *
+ * @return array{ids: int[], time: int}
+ */
+function wm_discounted_products_state() {
+	$state = get_option( wm_discounted_products_option_key(), array() );
+
+	if ( ! is_array( $state ) || ! isset( $state['ids'] ) || ! is_array( $state['ids'] ) ) {
+		return array(
+			'ids'  => array(),
+			'time' => 0,
+		);
+	}
+
+	return array(
+		'ids'  => array_values( array_map( 'intval', $state['ids'] ) ),
+		'time' => isset( $state['time'] ) ? (int) $state['time'] : 0,
+	);
+}
+
+/**
+ * Marks the stored list as stale and asks for a background refresh.
+ *
+ * The stale timestamp is moved just past the freshness window, so the next
+ * request still serves the known list instead of rebuilding it inline.
  */
 function wm_discounted_products_cache_flush() {
-	delete_transient( wm_discounted_products_cache_key() );
+	$state = wm_discounted_products_state();
+
+	if ( $state['time'] > 0 ) {
+		$state['time'] = time() - wm_discounted_products_ttl();
+		update_option( wm_discounted_products_option_key(), $state, false );
+	}
+
+	if ( ! wp_next_scheduled( 'wm_refresh_discounted_products' ) ) {
+		wp_schedule_single_event( time() + 1, 'wm_refresh_discounted_products' );
+	}
 }
 
 add_action( 'woocommerce_update_product', 'wm_discounted_products_cache_flush' );
@@ -500,7 +547,7 @@ add_action( 'untrashed_post', 'wm_discounted_products_cache_flush' );
 
 /**
  * Discount Rules stores its rules as posts; a changed rule changes prices
- * without touching a product, so clear the list when one is saved.
+ * without touching a product, so refresh the list when one is saved.
  *
  * @param int     $post_id Post ID.
  * @param WP_Post $post    Post object.
@@ -513,37 +560,18 @@ function wm_discounted_products_flush_on_rule_save( $post_id, $post ) {
 add_action( 'save_post', 'wm_discounted_products_flush_on_rule_save', 10, 2 );
 
 /**
- * IDs of published products whose payable price is below their regular price.
+ * Rebuilds the discounted product ID list.
  *
- * Rule-based discounts (Discount Rules for WooCommerce) do not set a native
- * sale price, so the only reliable way to find them is to ask each product
- * for its effective price. That scan is cached for 15 minutes and flushed
- * whenever a product or a rule changes.
+ * Every product's price markup is rendered, because rule-based discounts
+ * (Discount Rules for WooCommerce) can report their adjustment only there.
  *
  * @return int[]
  */
-function wm_get_discounted_product_ids() {
-	static $memory_cache = null;
-
-	if ( is_array( $memory_cache ) ) {
-		return $memory_cache;
-	}
-
-	$cached = get_transient( wm_discounted_products_cache_key() );
-	if ( is_array( $cached ) ) {
-		$memory_cache = $cached;
-
-		return $memory_cache;
-	}
-
+function wm_build_discounted_product_ids() {
 	if ( ! function_exists( 'wc_get_products' ) ) {
-		$memory_cache = array();
-
-		return $memory_cache;
+		return array();
 	}
 
-	// The scan builds the price markup of every published product, which can
-	// take a while on a large catalog. It runs at most once per cache window.
 	if ( function_exists( 'set_time_limit' ) ) {
 		@set_time_limit( 120 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	}
@@ -568,8 +596,6 @@ function wm_get_discounted_product_ids() {
 				continue;
 			}
 
-			// Resolved parts also read the rendered price markup, which is the
-			// only place Discount Rules reports some of its adjustments.
 			$parts = wm_get_resolved_price_parts( $product );
 
 			if ( $parts['percent'] > 0 ) {
@@ -582,9 +608,56 @@ function wm_get_discounted_product_ids() {
 
 	$ids = array_values( array_unique( $ids ) );
 
-	set_transient( wm_discounted_products_cache_key(), $ids, 30 * MINUTE_IN_SECONDS );
+	update_option(
+		wm_discounted_products_option_key(),
+		array(
+			'ids'  => $ids,
+			'time' => time(),
+		),
+		false
+	);
 
-	$memory_cache = $ids;
+	return $ids;
+}
+add_action( 'wm_refresh_discounted_products', 'wm_build_discounted_product_ids' );
+
+/**
+ * IDs of published products whose payable price is below their regular price.
+ *
+ * Covers native WooCommerce sale prices and rule-based price adjustments. A
+ * stale list is served immediately while WP-Cron rebuilds it, so shoppers do
+ * not wait for the catalog scan.
+ *
+ * @return int[]
+ */
+function wm_get_discounted_product_ids() {
+	static $memory_cache = null;
+
+	if ( is_array( $memory_cache ) ) {
+		return $memory_cache;
+	}
+
+	$state = wm_discounted_products_state();
+	$ttl   = wm_discounted_products_ttl();
+	$age   = time() - $state['time'];
+
+	if ( $state['time'] > 0 && $age < $ttl ) {
+		$memory_cache = $state['ids'];
+
+		return $memory_cache;
+	}
+
+	if ( $state['time'] > 0 && $age < 2 * $ttl ) {
+		if ( ! wp_next_scheduled( 'wm_refresh_discounted_products' ) ) {
+			wp_schedule_single_event( time() + 1, 'wm_refresh_discounted_products' );
+		}
+
+		$memory_cache = $state['ids'];
+
+		return $memory_cache;
+	}
+
+	$memory_cache = wm_build_discounted_product_ids();
 
 	return $memory_cache;
 }
