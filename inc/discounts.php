@@ -479,10 +479,11 @@ add_filter( 'woocommerce_cart_item_name', 'wm_checkout_cart_item_discount', 20, 
 /**
  * Option holding the discounted product sweep.
  *
- * Shape: ids (products found so far), offset (next catalog row), sweeping (a
- * full pass is in progress), time (when the last complete pass finished) and
- * updated (last slice). Kept in an option rather than a transient so a stale
- * list can still be served while the sweep runs in the background.
+ * Shape: ids (products of the last complete pass), pending (products found by
+ * the pass in progress), offset (next catalog row), sweeping (a full pass is in
+ * progress), time (when the last complete pass finished) and updated (last
+ * slice). Kept in an option rather than a transient so the last complete list
+ * can still be served while the next sweep runs in the background.
  *
  * @return string
  */
@@ -502,7 +503,7 @@ function wm_discounted_products_ttl() {
 /**
  * Normalised sweep state.
  *
- * @return array{ids: int[], offset: int, sweeping: bool, time: int, updated: int}
+ * @return array{ids: int[], pending: int[], offset: int, sweeping: bool, time: int, updated: int}
  */
 function wm_discounted_products_state() {
 	$state = get_option( wm_discounted_products_option_key(), array() );
@@ -511,13 +512,59 @@ function wm_discounted_products_state() {
 		$state = array();
 	}
 
+	$normalise = function( $key ) use ( $state ) {
+		return isset( $state[ $key ] ) && is_array( $state[ $key ] ) ? array_values( array_map( 'intval', $state[ $key ] ) ) : array();
+	};
+
 	return array(
-		'ids'      => isset( $state['ids'] ) && is_array( $state['ids'] ) ? array_values( array_map( 'intval', $state['ids'] ) ) : array(),
+		'ids'      => $normalise( 'ids' ),
+		'pending'  => $normalise( 'pending' ),
 		'offset'   => isset( $state['offset'] ) ? max( 0, (int) $state['offset'] ) : 0,
 		'sweeping' => ! empty( $state['sweeping'] ),
 		'time'     => isset( $state['time'] ) ? (int) $state['time'] : 0,
 		'updated'  => isset( $state['updated'] ) ? (int) $state['updated'] : 0,
 	);
+}
+
+/**
+ * ID list that can be served right now.
+ *
+ * The last complete pass wins, so a running refresh never shrinks the archive
+ * or the carousel. Only the very first pass (no completed list yet) is served
+ * while it is still filling, so a fresh install is not left with nothing.
+ *
+ * @param array $state Sweep state.
+ * @return int[]
+ */
+function wm_discounted_products_served_ids( $state ) {
+	return $state['time'] > 0 ? $state['ids'] : $state['pending'];
+}
+
+/**
+ * Prevents two sweep slices from writing the same pass.
+ *
+ * Cron and the inline nudge can overlap on a busy store; running them at once
+ * would interleave their cursors and corrupt the pass.
+ *
+ * @return bool Whether this request may sweep.
+ */
+function wm_discounted_products_acquire_lock() {
+	$key = 'wm_discounted_products_sweep_lock';
+
+	if ( get_transient( $key ) ) {
+		return false;
+	}
+
+	set_transient( $key, time(), 2 * MINUTE_IN_SECONDS );
+
+	return true;
+}
+
+/**
+ * Releases the sweep lock.
+ */
+function wm_discounted_products_release_lock() {
+	delete_transient( 'wm_discounted_products_sweep_lock' );
 }
 
 /**
@@ -573,6 +620,10 @@ add_action( 'save_post', 'wm_discounted_products_flush_on_rule_save', 10, 2 );
  * that a single pass could hit the PHP time limit, so the sweep stores its
  * cursor after every batch and continues from there on the next run.
  *
+ * A pass collects into `pending` and only replaces the served `ids` once it
+ * reaches the end of the catalog, so the archive and the carousel keep the last
+ * complete list (instead of a half-filled one) for the whole refresh.
+ *
  * @param int $budget Seconds this slice may spend.
  */
 function wm_run_discount_sweep( $budget = 20 ) {
@@ -582,6 +633,11 @@ function wm_run_discount_sweep( $budget = 20 ) {
 
 	$budget = max( 1, (int) $budget );
 
+	if ( ! wm_discounted_products_acquire_lock() ) {
+		wm_schedule_discount_sweep();
+		return;
+	}
+
 	if ( function_exists( 'set_time_limit' ) ) {
 		@set_time_limit( $budget + 20 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	}
@@ -589,9 +645,11 @@ function wm_run_discount_sweep( $budget = 20 ) {
 	$state = wm_discounted_products_state();
 
 	if ( ! $state['sweeping'] ) {
-		$state['ids']      = array();
+		// Start a fresh pass next to the still-served complete list.
+		$state['pending']  = array();
 		$state['offset']   = 0;
 		$state['sweeping'] = true;
+		$state['updated']  = time();
 		update_option( wm_discounted_products_option_key(), $state, false );
 	}
 
@@ -623,11 +681,11 @@ function wm_run_discount_sweep( $budget = 20 ) {
 			$parts = wm_get_resolved_price_parts( $product );
 
 			if ( $parts['percent'] > 0 ) {
-				$state['ids'][] = (int) $product->get_id();
+				$state['pending'][] = (int) $product->get_id();
 			}
 		}
 
-		$state['ids']     = array_values( array_unique( $state['ids'] ) );
+		$state['pending'] = array_values( array_unique( $state['pending'] ) );
 		$state['updated'] = time();
 
 		if ( count( $batch ) < 100 ) {
@@ -639,12 +697,17 @@ function wm_run_discount_sweep( $budget = 20 ) {
 	} while ( microtime( true ) < $deadline );
 
 	if ( $done ) {
+		// Publish the finished pass in one write; until here the previous
+		// complete list stayed untouched.
+		$state['ids']      = $state['pending'];
+		$state['pending']  = array();
 		$state['time']     = time();
 		$state['offset']   = 0;
 		$state['sweeping'] = false;
 	}
 
 	update_option( wm_discounted_products_option_key(), $state, false );
+	wm_discounted_products_release_lock();
 
 	if ( ! $done ) {
 		wm_schedule_discount_sweep();
@@ -662,9 +725,10 @@ add_action( 'wm_refresh_discounted_products', 'wm_refresh_discounted_products_cr
 /**
  * IDs of published products whose payable price is below their regular price.
  *
- * Covers native WooCommerce sale prices and rule-based price adjustments. A
- * stale or partial list is returned immediately while the sweep continues in
- * the background, so shoppers never wait for the catalog scan.
+ * Covers native WooCommerce sale prices and rule-based price adjustments. The
+ * last complete pass is returned immediately, even while a refresh is running,
+ * so the archive and the carousel never shrink to a partial (or empty) list;
+ * a full catalog scan always happens in the background.
  *
  * @return int[]
  */
@@ -686,29 +750,32 @@ function wm_get_discounted_product_ids() {
 	}
 
 	if ( wp_doing_cron() ) {
-		$memory_cache = $state['ids'];
+		$memory_cache = wm_discounted_products_served_ids( $state );
 
 		return $memory_cache;
 	}
 
-	// Nothing stored yet: run a short slice now so the archive is not empty
+	// No complete pass yet: run a short slice now so the archive is not empty
 	// while the rest of the catalog is being swept.
-	if ( ! $state['sweeping'] && empty( $state['ids'] ) && 0 === $state['time'] ) {
+	if ( 0 === $state['time'] && ! $state['sweeping'] && empty( $state['pending'] ) ) {
 		wm_run_discount_sweep( 8 );
 		$state = wm_discounted_products_state();
 	}
 
 	// A sweep that stopped progressing (cron unavailable) gets nudged forward.
+	// It keeps filling `pending`, so the served list is unaffected.
 	if ( $state['sweeping'] && $state['updated'] > 0 && ( time() - $state['updated'] ) > 5 * MINUTE_IN_SECONDS ) {
 		wm_run_discount_sweep( 8 );
 		$state = wm_discounted_products_state();
 	}
 
+	$age = time() - $state['time'];
+
 	if ( $state['sweeping'] || 0 === $state['time'] || $age >= $ttl ) {
 		wm_schedule_discount_sweep();
 	}
 
-	$memory_cache = $state['ids'];
+	$memory_cache = wm_discounted_products_served_ids( $state );
 
 	return $memory_cache;
 }
