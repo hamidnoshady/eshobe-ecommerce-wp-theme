@@ -20,7 +20,8 @@
 #
 # Before packaging, the PHP that is about to ship is also scanned for post type
 # and taxonomy registrations that borrow a core capability (manage_options,
-# edit_theme_options, ...) while registering meta caps - see the guard below.
+# edit_theme_options, ...) while registering meta caps, and for registrations
+# whose arguments cannot be read statically - see the guard below.
 
 set -euo pipefail
 
@@ -82,6 +83,12 @@ rm -f "$stage"/AGENTS.md "$stage"/CLAUDE.md "$stage"/README.md \
 # in a helper function, and exits 1 on any hijack. A borrow made while
 # map_meta_cap is off is printed as a note and allowed: the mega menu CPT
 # relies on that, and it cannot remap anything without meta caps.
+#
+# Registrations rarely pass their arguments inline. When the arguments come
+# from a variable, the scan resolves a simple '$args = array( ... )' (or
+# '[...]') assignment in the same scope. Anything it cannot read statically
+# fails the build instead of passing silently, so an unreadable registration
+# can never be the way a hijack ships.
 # ---------------------------------------------------------------------------
 core_caps='manage_options edit_theme_options switch_themes edit_themes install_themes update_themes delete_themes activate_plugins install_plugins edit_plugins update_plugins delete_plugins edit_users create_users delete_users promote_users remove_users list_users edit_files edit_dashboard update_core export import manage_links manage_categories moderate_comments edit_comment unfiltered_html unfiltered_upload manage_network manage_sites manage_network_options'
 
@@ -253,12 +260,98 @@ function find_functions(   f, s, pos, k, after, name, brace, closeb) {
 			if (!brace) continue
 			brace = after + RSTART + RLENGTH - 1 + brace - 1
 			closeb = find_close_brace(s, brace)
-			if (closeb) funcbody[name] = substr(s, brace, closeb - brace + 1)
+			if (closeb) {
+				funcbody[name] = substr(s, brace, closeb - brace + 1)
+				nfunc[f]++
+				fstart[f, nfunc[f]] = brace
+				fend[f, nfunc[f]] = closeb
+			}
 		}
 	}
 }
 
-function check_file(f,   s, pos, k1, k2, best, kind, after, tail, openp, closep, call, mmc, cpos, caps, sig, op, cl, region, origin, target, label, h, hint) {
+# Innermost function body (recorded by find_functions) that contains pos, or 0
+# at top level. A variable and the registration using it must live in the same
+# scope before the resolver trusts the assignment.
+function scope_start_of(f, pos,   i, best) {
+	best = 0
+	for (i = 1; i <= nfunc[f]; i++)
+		if (fstart[f, i] <= pos && pos <= fend[f, i] && fstart[f, i] > best) best = fstart[f, i]
+	return best
+}
+
+# Split the top-level arguments of a call string such as "( 'slug', $args )"
+# into args[1..nargs], ignoring commas inside strings, arrays and closures.
+function split_args(call,   i, n, c, depth, mode, start, x) {
+	for (x in args) delete args[x]
+	n = length(call)
+	nargs = 0
+	depth = 0
+	mode = ""
+	start = 2
+	for (i = 2; i <= n; i++) {
+		c = substr(call, i, 1)
+		if (mode == "sq") { if (c == "\\") i++; else if (c == "'") mode = ""; continue }
+		if (mode == "dq") { if (c == "\\") i++; else if (c == "\"") mode = ""; continue }
+		if (c == "'") { mode = "sq"; continue }
+		if (c == "\"") { mode = "dq"; continue }
+		if (c == "(" || c == "[" || c == "{") { depth++; continue }
+		if (c == ")" || c == "]" || c == "}") {
+			if (depth == 0) { args[++nargs] = substr(call, start, i - start); return }
+			depth--
+			continue
+		}
+		if (c == "," && depth == 0) { args[++nargs] = substr(call, start, i - start); start = i + 1 }
+	}
+}
+
+# Text of the '$name = array( ... )' (or '[...]') that supplies a registration's
+# arguments, or "" when the guard cannot check them: the assignment is missing,
+# lives in another scope, is not a static array, or the variable is changed
+# afterwards.
+function resolve_args(f, name, pos,   s, k, p, eq, rhs, op, cl, arr, at, scope, seen, mutated) {
+	s = code[f]
+	scope = scope_start_of(f, pos)
+	arr = ""
+	at = 0
+	seen = 0
+	mutated = 0
+	argline = 0
+	argreason = ""
+	p = 1
+	while ((k = index(substr(s, p), "$" name)) > 0) {
+		k += p - 1
+		p = k + 1 + length(name)
+		if (p <= length(s) && substr(s, p, 1) ~ /[A-Za-z0-9_]/) continue
+		eq = p
+		while (eq <= length(s) && substr(s, eq, 1) ~ /[[:space:]]/) eq++
+		if (substr(s, eq, 1) != "=") continue
+		if (substr(s, eq + 1, 1) == "=" || substr(s, eq + 1, 1) == ">") continue
+		if (k >= pos) continue
+		if (scope_start_of(f, k) != scope) continue
+		seen = 1
+		rhs = substr(s, eq + 1)
+		op = 0
+		if (match(rhs, /^[[:space:]]*[Aa][Rr][Rr][Aa][Yy][[:space:]]*\(/)) op = eq + RSTART + RLENGTH - 1
+		else if (match(rhs, /^[[:space:]]*\[/)) op = eq + RSTART + RLENGTH - 1
+		cl = op ? find_close(s, op) : 0
+		arr = cl ? substr(s, op, cl - op + 1) : ""
+		at = cl
+		if (arr != "") argline = line_of(f, k)
+	}
+	if (arr != "" && pos > at && match(substr(s, at + 1, pos - at - 1), "\\$" name "[[:space:]]*\\[[^]]*\\][[:space:]]*=")) {
+		arr = ""
+		mutated = 1
+	}
+	if (arr == "") {
+		if (mutated) argreason = "it is changed after that assignment"
+		else if (seen) argreason = "that assignment is not a static array"
+		else argreason = "there is no '$" name " = array( ... )' assignment in the same function before the call"
+	}
+	return arr
+}
+
+function check_file(f,   s, pos, k1, k2, best, kind, after, tail, openp, closep, call, mmc, cpos, caps, sig, op, cl, region, origin, target, label, h, argi, arg, vname, arrtext, argorigin) {
 	s = code[f]
 	pos = 1
 	while (1) {
@@ -274,11 +367,40 @@ function check_file(f,   s, pos, k1, k2, best, kind, after, tail, openp, closep,
 		after = best + length(kind)
 		tail = substr(s, after)
 		if (!match(tail, /^[[:space:]]*\(/)) continue
-		openp = after + RSTART + RLENGTH - 1
+		# The match ends on the '(' - anything else cuts the call short at the
+		# first nested ')' and hides the arguments after it.
+		openp = after + RSTART + RLENGTH - 2
 		closep = find_close(s, openp)
 		if (!closep) return
 		pos = closep + 1
 		call = substr(s, openp, closep - openp + 1)
+		target = next_string(call, 2)
+
+		# The arguments array is usually inline, but WordPress also accepts one
+		# held in a variable. Resolve a simple '$args = array( ... )' assignment
+		# in the same scope; anything the scan cannot read fails the build
+		# instead of passing silently.
+		argorigin = ""
+		argi = (kind == "register_taxonomy") ? 3 : 2
+		split_args(call)
+		arg = args[argi]
+		sub(/^[[:space:]]+/, "", arg)
+		sub(/[[:space:]]+$/, "", arg)
+		if (arg ~ /^\$[A-Za-z_][A-Za-z0-9_]*$/) {
+			vname = substr(arg, 2)
+			arrtext = resolve_args(f, vname, openp)
+			if (arrtext == "") {
+				errors++
+				msg[++nmsg] = sprintf("ERROR: %s:%d: %s() takes its arguments from $%s, which cannot be checked statically: %s. Pass the array inline or assign a plain '$%s = array( ... )' in the same function.", fname[f], line_of(f, openp), kind, vname, argreason, vname)
+				continue
+			}
+			call = "(" arrtext ")"
+			argorigin = sprintf(" (arguments from $%s defined at line %d)", vname, argline)
+		} else if (arg != "" && arg !~ /^([Aa][Rr][Rr][Aa][Yy][[:space:]]*\(|\[)/) {
+			errors++
+			msg[++nmsg] = sprintf("ERROR: %s:%d: %s() arguments cannot be checked statically. Pass an inline array or a simple $args = array( ... ) variable.", fname[f], line_of(f, openp), kind)
+			continue
+		}
 
 		mmc = 0
 		if (match(call, /["']map_meta_cap["'][[:space:]]*=>[[:space:]]*(true|TRUE|True)([^A-Za-z0-9_]|$)/)) mmc = 1
@@ -291,7 +413,7 @@ function check_file(f,   s, pos, k1, k2, best, kind, after, tail, openp, closep,
 		origin = ""
 		if (cpos) {
 			caps = substr(call, cpos)
-			if (match(caps, /^array[[:space:]]*\(/)) {
+			if (match(caps, /^[Aa][Rr][Rr][Aa][Yy][[:space:]]*\(/)) {
 				op = cpos + RLENGTH - 1
 				cl = find_close(call, op)
 				if (cl) region = substr(call, op, cl - op + 1)
@@ -308,15 +430,15 @@ function check_file(f,   s, pos, k1, k2, best, kind, after, tail, openp, closep,
 		if (region == "") {
 			if (mmc != 0) {
 				errors++
-				msg[++nmsg] = sprintf("ERROR: %s:%d: %s() sets map_meta_cap but its capability array cannot be checked statically - inline the array or return it from a plain function.", fname[f], line_of(f, openp), kind)
+				msg[++nmsg] = sprintf("ERROR: %s:%d: %s() sets map_meta_cap but its capability array cannot be checked statically - inline the array or return it from a plain function%s.", fname[f], line_of(f, openp), kind, argorigin)
 			}
 			continue
 		}
 
+		origin = origin argorigin
 		collect_hits(region)
 		if (!nhits) continue
 
-		target = next_string(call, 2)
 		label = sprintf("%s:%d: %s(%s)", fname[f], line_of(f, openp), kind, target != "" ? "'" target "'" : "")
 		if (mmc == 0) {
 			for (h = 1; h <= nhits; h++)
