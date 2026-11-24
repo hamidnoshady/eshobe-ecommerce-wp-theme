@@ -65,7 +65,7 @@ if ( $dirty ) {
     throw "Tracked files are modified - the zip is built from HEAD. Commit or stash first:`n$dirty"
 }
 
-$stray = git -C $repo grep -n -I $version -- ':!functions.php' ':!style.css' ':!*.min.*' ':!docs' 2>$null
+$stray = git -C $repo grep -n -I $version -- ':!functions.php' ':!style.css' ':!*.min.*' ':!docs' ':!CHANGELOG.md' 2>$null
 if ( $stray ) {
     throw "Version $version is referenced outside functions.php/style.css:`n$stray"
 }
