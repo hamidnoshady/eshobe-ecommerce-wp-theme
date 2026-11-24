@@ -35,6 +35,10 @@ function wm_register_mega_menu_cpt() {
             'supports'           => array( 'title' ),
             'has_archive'        => false,
             'rewrite'            => false,
+            // Borrowing a core capability is safe only because map_meta_cap
+            // defaults to false for this CPT. Do not set it to true while
+            // these stay core capabilities: that would hijack
+            // edit_theme_options site-wide (see inc/ajax/contact-form.php).
             'capabilities'       => array(
                 'edit_post'          => 'edit_theme_options',
                 'read_post'          => 'edit_theme_options',

@@ -13,6 +13,40 @@
 
 defined( 'ABSPATH' ) || exit;
 
+if ( ! defined( 'WM_CONTACT_CAPS_VERSION' ) ) {
+	define( 'WM_CONTACT_CAPS_VERSION', '1' );
+}
+
+/**
+ * Capability set for the private `wm_contact_message` CPT.
+ *
+ * These names must stay theme-owned. With `map_meta_cap => true`, WordPress
+ * copies `edit_post`/`read_post`/`delete_post` into the global
+ * `$post_type_meta_caps` map; naming a core capability there (this used to be
+ * `manage_options`) remaps that core capability site-wide and breaks every
+ * check that relies on it.
+ *
+ * @return array<string, string>
+ */
+function wm_contact_capabilities() {
+	return array(
+		'edit_post'              => 'wm_contact_edit_message',
+		'read_post'              => 'wm_contact_read_message',
+		'delete_post'            => 'wm_contact_delete_message',
+		'edit_posts'             => 'wm_contact_edit_messages',
+		'edit_others_posts'      => 'wm_contact_edit_others_messages',
+		'publish_posts'          => 'wm_contact_publish_messages',
+		'read_private_posts'     => 'wm_contact_read_private_messages',
+		'delete_posts'           => 'wm_contact_delete_messages',
+		'delete_others_posts'    => 'wm_contact_delete_others_messages',
+		'delete_private_posts'   => 'wm_contact_delete_private_messages',
+		'delete_published_posts' => 'wm_contact_delete_published_messages',
+		'edit_private_posts'     => 'wm_contact_edit_private_messages',
+		'edit_published_posts'   => 'wm_contact_edit_published_messages',
+		'create_posts'           => 'do_not_allow',
+	);
+}
+
 /**
  * Private CPT that archives contact messages in the dashboard.
  */
@@ -31,16 +65,7 @@ function wm_contact_register_cpt() {
 			'menu_icon'           => 'dashicons-email-alt',
 			'menu_position'       => 26,
 			'supports'            => array( 'title', 'editor' ),
-			'capabilities'        => array(
-				'edit_post'          => 'manage_options',
-				'read_post'          => 'manage_options',
-				'delete_post'        => 'manage_options',
-				'edit_posts'         => 'manage_options',
-				'edit_others_posts'  => 'manage_options',
-				'publish_posts'      => 'manage_options',
-				'read_private_posts' => 'manage_options',
-				'create_posts'       => 'do_not_allow',
-			),
+			'capabilities'        => wm_contact_capabilities(),
 			'map_meta_cap'        => true,
 			'exclude_from_search' => true,
 			'show_in_rest'        => false,
@@ -48,6 +73,31 @@ function wm_contact_register_cpt() {
 	);
 }
 add_action( 'init', 'wm_contact_register_cpt' );
+
+/**
+ * Grant the theme-owned contact message caps to administrators.
+ *
+ * Guarded by an option so no DB write happens on ordinary requests, and run on
+ * `admin_init`, which fires before any admin screen is checked — that covers
+ * in-place updates via theme-updater.php as well as a fresh activation.
+ */
+function wm_contact_maybe_grant_caps() {
+	if ( get_option( 'wm_contact_caps_version' ) === WM_CONTACT_CAPS_VERSION ) {
+		return;
+	}
+
+	$role = get_role( 'administrator' );
+	if ( $role ) {
+		foreach ( wm_contact_capabilities() as $cap ) {
+			if ( 'do_not_allow' !== $cap ) {
+				$role->add_cap( $cap );
+			}
+		}
+	}
+
+	update_option( 'wm_contact_caps_version', WM_CONTACT_CAPS_VERSION );
+}
+add_action( 'admin_init', 'wm_contact_maybe_grant_caps' );
 
 /**
  * Per-IP rate limit: max 5 submissions per 10 minutes.
