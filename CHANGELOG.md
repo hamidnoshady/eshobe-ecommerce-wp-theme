@@ -1,8 +1,12 @@
 # Changelog
 
+## 0.8.42
+
+- Resolve a simple `$args = array( … )` assignment in the release build's capability guard, and fail the build when a registration's arguments cannot be read statically instead of passing silently.
+
 ## 0.8.41
 
-- Fail the release build when a post type or taxonomy borrows a core capability (`manage_options`, `edit_theme_options`, …) while registering meta caps, so this class of bug cannot ship again. Registrations that pass their arguments in a variable are resolved from a simple `$args = array( … )` assignment, and the build fails when it cannot read the registration at all.
+- Fail the release build when a post type or taxonomy borrows a core capability (`manage_options`, `edit_theme_options`, …) while registering meta caps, so this class of bug cannot ship again.
 
 ## 0.8.40
 
